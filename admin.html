@@ -48,7 +48,7 @@ form .full{grid-column:1/-1}
 <div id="v2" class="hide"><form id="mf"><h3 class="full" id="mt">Add dish</h3>
 <input type="hidden" id="mid">
 <div><label class="mut" for="mn">Name</label><input id="mn" required></div>
-<div><label class="mut" for="mc">Category</label><input id="mc" list="catlist" placeholder="Biryani, Kebab, Dessert"><datalist id="catlist"></datalist></div>
+<div><label class="mut" for="mc">Category (isi me dish add hogi)</label><select id="mc" required></select><input id="mcn" class="hide" placeholder="Naye category ka naam" style="margin-top:6px"></div>
 <div><label class="mut" for="mp">Price (₹)</label><input id="mp" type="number" min="0" step="any" required></div>
 <div><label class="mut" for="mu">Unit (kg, pcs, plate…)</label><input id="mu" placeholder="kg"></div>
 <div><label class="mut" for="ms">Kitne log khayenge per kg/unit?</label><input id="ms" type="number" min="0.1" step="any" value="5" required><div class="hint">e.g. 1 kg = 5 persons</div></div>
@@ -130,27 +130,38 @@ function renderMenu(){
   <br><small class="mut">${esc(m.category||'Biryani')} · ${inr(m.price)}${m.unit?' per '+esc(m.unit):''} · 1 ${esc(m.unit||'unit')} = ${esc(serves(m))} persons</small><br><small class="mut">${esc(m.desc)}</small></div></div>
   <div><button class="btn" data-av="${esc(id)}">${m.available===false?'Mark available':'Mark sold out'}</button>
   <button class="btn" data-ed="${esc(id)}">Edit</button> <button class="btn d" data-rm="${esc(id)}">Delete</button></div></div>`).join(''):'<p class="mut">No dishes yet. Add one above or load the starter menu.</p>';
-  $('catlist').innerHTML=catRows().map(c=>`<option value="${esc(c.name)}">`).join('');
+  fillCatSelect();
 }
 $('mlist').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset;
   if(t.av)db.ref('menu/'+t.av+'/available').set(menu[t.av].available===false);
   if(t.rm&&confirm('Delete this dish?'))db.ref('menu/'+t.rm).remove();
-  if(t.ed){const m=menu[t.ed];$('mid').value=t.ed;$('mn').value=m.name||'';$('mc').value=m.category||'';$('mp').value=m.price;$('mu').value=m.unit||'';
+  if(t.ed){const m=menu[t.ed];$('mid').value=t.ed;$('mn').value=m.name||'';setCat(m.category||'Biryani');$('mp').value=m.price;$('mu').value=m.unit||'';
     $('ms').value=serves(m);$('mi').value=m.image||'';$('mb').checked=m.showInBanner!==false;$('md').value=m.desc||'';
     prev('mi','mpv');touched=true;$('mt').textContent='Edit dish';scrollTo(0,0)}});
 
+function fillCatSelect(keep){
+  const cur=keep!==undefined?keep:$('mc').value,names=catRows().map(c=>c.name);
+  if(cur&&cur!=='__new'&&!names.includes(cur))names.push(cur);
+  $('mc').innerHTML=names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')+'<option value="__new">+ Naya category…</option>';
+  $('mc').value=cur&&(names.includes(cur)||cur==='__new')?cur:(names[0]||'__new');
+  catNew()}
+function catNew(){const n=$('mc').value==='__new';$('mcn').classList.toggle('hide',!n);$('mcn').required=n}
+function setCat(n){fillCatSelect(n);$('mcn').value=''}
+const getCat=()=>$('mc').value==='__new'?$('mcn').value.trim():$('mc').value;
+$('mc').onchange=()=>{catNew();if($('mc').value==='__new')$('mcn').focus()};
 function prev(inp,box){const u=$(inp).value.trim();$(box).innerHTML=okUrl(u)?`<img src="${esc(u)}" alt="" onerror="this.parentNode.textContent='Bad URL'">`:'No photo'}
 let touched=false;
 $('mb').onchange=()=>touched=true;
 $('mi').oninput=()=>{prev('mi','mpv');if(!touched)$('mb').checked=okUrl($('mi').value.trim())};
 $('ci').oninput=()=>prev('ci','cpv');
 
-const clear=()=>{$('mf').reset();$('mid').value='';$('mt').textContent='Add dish';touched=false;prev('mi','mpv')};$('mx').onclick=clear;
+const clear=()=>{const keep=getCat();$('mf').reset();$('mid').value='';setCat(keep||undefined);$('mt').textContent='Add dish';touched=false;prev('mi','mpv')};$('mx').onclick=clear;
 $('mf').onsubmit=e=>{e.preventDefault();
-  const img=$('mi').value.trim(),sv=Number($('ms').value);
+  const img=$('mi').value.trim(),sv=Number($('ms').value),catName=getCat();
+  if(!catName){alert('Category chunein ya naya naam likhein.');return}
   if(img&&!okUrl(img)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
   if(!(sv>0)){alert('"Kitne log khayenge per unit" 0 se zyada hona chahiye.');return}
-  const d={name:$('mn').value.trim(),category:$('mc').value.trim()||'Biryani',price:Number($('mp').value),unit:$('mu').value.trim(),
+  const d={name:$('mn').value.trim(),category:catName,price:Number($('mp').value),unit:$('mu').value.trim(),
     servesPerUnit:sv,image:img||null,showInBanner:$('mb').checked,desc:$('md').value.trim()},id=$('mid').value;
   (id?db.ref('menu/'+id).update(d):db.ref('menu').push({...d,available:true})).then(clear).catch(()=>alert('Save failed. Check database rules.'))};
 
@@ -170,13 +181,15 @@ function catRows(){
   return [...m.values()];
 }
 function renderCats(){
+  fillCatSelect();
   const l=catRows();
   $('clist').innerHTML=l.length?l.map(c=>`<div class="m"><div class="info">${thumb(c.image)}<div><b>${esc(c.name)}</b><br><small class="mut">${c.n} dish${c.n===1?'':'es'}${c.image?'':' · photo not set'}</small></div></div>
-  <div><button class="btn" data-ce="${esc(c.name)}">${c.image?'Edit':'Add photo'}</button>${c.id?` <button class="btn d" data-cd="${esc(c.id)}">Delete</button>`:''}</div></div>`).join(''):'<p class="mut">No categories yet. Add a dish or create a category above.</p>';
+  <div><button class="btn p" data-cadd="${esc(c.name)}">+ Add dish</button> <button class="btn" data-ce="${esc(c.name)}">${c.image?'Edit':'Add photo'}</button>${c.id?` <button class="btn d" data-cd="${esc(c.id)}">Delete</button>`:''}</div></div>`).join(''):'<p class="mut">No categories yet. Add a dish or create a category above.</p>';
 }
 $('clist').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset;
   if(t.ce!==undefined){const c=catRows().find(x=>x.name===t.ce);if(!c)return;
     $('cid').value=c.id;$('cold').value=c.name;$('cn').value=c.name;$('ci').value=c.image;prev('ci','cpv');$('ct').textContent='Edit category';scrollTo(0,0)}
+  if(t.cadd!==undefined){clear();setCat(t.cadd);tab(2);scrollTo(0,0);$('mn').focus()}
   if(t.cd&&confirm('Delete this category photo/record? Dishes will stay as they are.'))db.ref('categories/'+t.cd).remove()});
 const cclear=()=>{$('cf').reset();$('cid').value='';$('cold').value='';$('ct').textContent='Add category photo';prev('ci','cpv')};$('cx').onclick=cclear;
 $('cf').onsubmit=e=>{e.preventDefault();
