@@ -38,7 +38,7 @@ form .full{grid-column:1/-1}
 </style></head><body>
 <div class="wrap" id="app">
 <header><h1>Royal Daawat operations</h1>
-<nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button id="t3">Categories</button> <button id="t4">Banners</button></nav></header>
+<nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button id="t3">Categories</button> <button id="t4">Banners</button> <button id="t5">Settings</button></nav></header>
 
 <div id="v1"><div class="stats">
 <div class="stat"><b id="sN">0</b><span>New requests</span></div>
@@ -68,6 +68,12 @@ form .full{grid-column:1/-1}
 <div><label class="mut" for="ci">Category Photo / Icon URL</label><div class="pv"><div class="th" id="cpv">No photo</div><input id="ci" type="url" inputmode="url" placeholder="https://…/icon.jpg"></div></div>
 <div class="full"><button class="btn p" type="submit">Save category</button> <button class="btn" type="button" id="cx">Clear</button></div></form>
 <div id="clist"><p class="mut">Loading categories…</p></div></div>
+
+<div id="v5" class="hide"><form id="sf"><h3 class="full">Store settings</h3>
+<div><label class="mut" for="sn">Store name</label><input id="sn" placeholder="Royal Daawat"><div class="hint">Customer app ke upar bade naam me yahi dikhega.</div></div>
+<div><label class="mut" for="sp">Support phone number</label><input id="sp" type="tel" inputmode="tel" placeholder="8779612829"><div class="hint">Customer app ka call icon isi number par call lagayega.</div></div>
+<div class="full"><label class="mut" for="sx">Description (naam ke neeche)</label><textarea id="sx" rows="3" placeholder="Jo likhoge wahi customer app me dikhega"></textarea><div class="hint">Khali chhodoge to kuch nahi dikhega.</div></div>
+<div class="full"><button class="btn p" type="submit">Save settings</button> <span id="smsg" class="mut"></span></div></form></div>
 
 <div id="v4" class="hide"><form id="bf"><h3 class="full" id="bt">Add banner</h3>
 <input type="hidden" id="bid">
@@ -101,16 +107,18 @@ const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN');
 const okUrl=u=>/^https?:\/\/\S+$/i.test(u||'');
 const thumb=u=>okUrl(u)?`<div class="th"><img src="${esc(u)}" alt="" loading="lazy" onerror="this.parentNode.textContent='Bad URL'"></div>`:'<div class="th">No photo</div>';
 const serves=m=>{const s=Number(m.servesPerUnit);if(s>0)return s;const p=Number(m.perGuest);return p>0?Math.round(100/p)/100:1};
-let orders={},menu={},cats={},banners={},drafts={};
+let orders={},menu={},cats={},banners={},drafts={},settings={};
+const shop=()=>String(settings.name||'').trim()||'Royal Daawat';
 $('flt').innerHTML+=STATUS.map(s=>`<option>${s}</option>`).join('');
 
-const tab=n=>[1,2,3,4].forEach(i=>{$('v'+i).classList.toggle('hide',i!==n);$('t'+i).classList.toggle('on',i===n)});
-$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);$('t3').onclick=()=>tab(3);$('t4').onclick=()=>tab(4);
+const tab=n=>[1,2,3,4,5].forEach(i=>{$('v'+i).classList.toggle('hide',i!==n);$('t'+i).classList.toggle('on',i===n)});
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);$('t3').onclick=()=>tab(3);$('t4').onclick=()=>tab(4);$('t5').onclick=()=>tab(5);
 
 listen();
 function listen(){
   db.ref('orders').on('value',s=>{orders=s.val()||{};renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
   db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu();renderCats();fillLink()});
+  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sx').value=settings.text||''}});
   db.ref('banners').on('value',s=>{banners=s.val()||{};renderBanners()},()=>$('blist').innerHTML='<p class="err">Could not load banners. Check database rules for the "banners" node.</p>');
   db.ref('categories').on('value',s=>{cats=s.val()||{};renderCats();renderMenu();fillLink()},()=>$('clist').innerHTML='<p class="err">Could not load categories. Check database rules for the "categories" node.</p>');
 }
@@ -138,7 +146,7 @@ const isEnq=o=>o.type==='Enquiry'||o.status==='Enquiry'||!!o.replyVia;
 const chOf=o=>o.replyVia==='Email'?'Email':'WhatsApp';
 const waNum=p=>{const d=String(p||'').replace(/\D/g,'');return d.length===10?'91'+d:d};
 function draftOf(id,o){if(drafts[id]!==undefined)return drafts[id];
-  return `Hello ${o.name||''},\n\nThank you for your enquiry with Royal Daawat.\n\nYour items: ${(o.items||[]).map(i=>i.name+(i.qty?' × '+i.qty+(i.unit?' '+i.unit:''):'')).join(', ')}\nEstimated total: ${inr(o.total)}\n\n`}
+  return `Hello ${o.name||''},\n\nThank you for your enquiry with ${shop()}.\n\nYour items: ${(o.items||[]).map(i=>i.name+(i.qty?' × '+i.qty+(i.unit?' '+i.unit:''):'')).join(', ')}\nEstimated total: ${inr(o.total)}\n\n`}
 function replyBox(id,o){if(!isEnq(o))return '';const ch=chOf(o),to=ch==='Email'?o.email:'+'+waNum(o.phone);
   if(ch==='Email'&&!o.email)return `<div class="rp"><small class="err">Customer ne email nahi diya. Phone se contact karein: <a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small></div>`;
   return `<div class="rp"><small class="mut">Customer reply chahta hai: <b style="color:var(--sf)">${ch==='Email'?'✉️ Email':'💬 WhatsApp'}</b> · ${esc(to)}${o.reply?` · <span style="color:var(--ok)">Replied ✓ (${esc(o.repliedVia||ch)})</span>`:''}</small>
@@ -148,7 +156,7 @@ $('orders').addEventListener('input',e=>{const id=e.target.dataset.rp;if(id)draf
 $('orders').addEventListener('click',e=>{const b=e.target.closest('button[data-send]');if(!b)return;
   const id=b.dataset.send,o=orders[id];if(!o)return;const ch=chOf(o),msg=drafts[id]!==undefined?drafts[id]:draftOf(id,o);
   if(!msg.trim()){alert('Pehle reply likhein.');return}
-  const url=ch==='Email'?'mailto:'+encodeURIComponent(o.email||'')+'?subject='+encodeURIComponent('Your enquiry · Royal Daawat')+'&body='+encodeURIComponent(msg)
+  const url=ch==='Email'?'mailto:'+encodeURIComponent(o.email||'')+'?subject='+encodeURIComponent('Your enquiry · '+shop())+'&body='+encodeURIComponent(msg)
     :'https://wa.me/'+waNum(o.phone)+'?text='+encodeURIComponent(msg);
   db.ref('orders/'+id).update({reply:msg,repliedVia:ch,repliedAt:firebase.database.ServerValue.TIMESTAMP});
   ch==='Email'?(location.href=url):window.open(url,'_blank')});
@@ -262,4 +270,7 @@ $('bf').onsubmit=e=>{e.preventDefault();
     dishId:link.startsWith('dish:')?link.slice(5):null,category:link.startsWith('cat:')?link.slice(4):null};
   (id?db.ref('banners/'+id).set(d):db.ref('banners').push(d)).then(bclear).catch(()=>alert('Save failed. Check database rules.'))};
 fillLink('');
+$('sf').onsubmit=e=>{e.preventDefault();
+  db.ref('settings').set({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,text:$('sx').value.trim()||null})
+  .then(()=>{$('smsg').textContent='Saved ✓';setTimeout(()=>$('smsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
 </script></body></html>
