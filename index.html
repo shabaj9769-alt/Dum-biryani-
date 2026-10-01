@@ -13,7 +13,10 @@ button{font:inherit}body.hasbar{padding-bottom:120px}
 .hero{padding:20px 0 16px;border-bottom:1px solid var(--line);background:radial-gradient(ellipse at 85% 0,#4a2418 0,transparent 60%),radial-gradient(ellipse at 0 100%,#3a1650 0,transparent 55%)}
 .hero h1{font-size:clamp(1.55rem,6vw,2.8rem);font-weight:800;max-width:18ch}
 .hero p{color:var(--mut);max-width:50ch;margin:8px 0 0;font-size:.9rem}
-.hero.mini{padding:16px 0 12px}.hero.mini h1{font-size:1.15rem;max-width:none}.hero.mini p,.hero.mini .ban{display:none}
+.hero.mini{padding:16px 0 12px}.sup{display:inline-flex;align-items:center;gap:8px;margin-top:12px;background:rgba(47,191,113,.14);border:1px solid rgba(47,191,113,.45);color:#7fe3ae;border-radius:99px;padding:7px 14px;font-weight:700;font-size:.85rem;text-decoration:none}
+.sup.blk{display:flex;justify-content:center;margin:0 0 12px;border-radius:12px;padding:10px}
+.hero.mini .sup{display:none}
+.hero.mini h1{font-size:1.15rem;max-width:none}.hero.mini p,.hero.mini .ban{display:none}
 
 /* search */
 .sbar{position:sticky;top:0;z-index:6;background:rgba(28,14,11,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:8px 0}
@@ -117,6 +120,7 @@ input,textarea{width:100%;background:#170b08;color:var(--tx);border:1px solid va
 </style></head><body>
 <header class="hero" id="hero"><div class="wrap"><h1>Biryani, slow-cooked and sealed with dough.</h1>
 <p>Dum-sealed biryani catering for corporate lunches in BKC and family gatherings in Bandra.</p>
+<a class="sup" href="tel:+918779612829" aria-label="Call support">📞 Support: 8779612829</a>
 <div class="ban hide" id="ban" aria-roledescription="carousel" aria-label="Featured dishes"><div class="trk" id="trk"></div><div class="dots" id="dots"></div></div></div></header>
 
 <div class="sbar"><div class="wrap"><div class="sw"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -146,9 +150,10 @@ input,textarea{width:100%;background:#170b08;color:var(--tx);border:1px solid va
 <div><label for="time">Serve time</label><input id="time" type="time" value="13:00"></div></div>
 <label for="venue">Venue / full address</label><textarea id="venue" rows="2" autocomplete="street-address"></textarea>
 <label for="notes">Notes (allergies, spice level)</label><textarea id="notes" rows="2"></textarea></div>
-<div class="msg" id="msg" role="status"></div></div>
+<div class="msg" id="msg" role="status"></div>
+<a class="sup blk" href="tel:+918779612829">📞 Madad chahiye? Support: 8779612829</a></div>
 <div class="sfoot"><div class="wrap"><div><small>Estimated total</small><b id="fT">₹0</b></div><button class="btn grn" id="place">Place order</button></div></div></div>
-<div class="wrap hide" id="done"><div class="done-box"><div class="ok">✅</div><h2>Order placed</h2><p class="sub">Thank you. We will call you shortly to confirm the final quantity and price.</p><button class="btn grn" onclick="location.reload()">Start a new order</button></div></div>
+<div class="wrap hide" id="done"><div class="done-box"><div class="ok">✅</div><h2>Order placed</h2><p class="sub">Thank you. We will call you shortly to confirm the final quantity and price.</p><a class="sup blk" href="tel:+918779612829">📞 Support: 8779612829</a><button class="btn grn" onclick="location.reload()">Start a new order</button></div></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
