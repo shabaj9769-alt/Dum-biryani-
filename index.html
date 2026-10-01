@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Royal Daawat · Dum-sealed Biryani, Mumbai</title>
+<title>Royal Daawat</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#1c0e0b;--panel:#2a1612;--line:#5a3a2c;--cu:#c9854f;--sf:#f0b44c;--tx:#f5ead8;--mut:#b9a58f;--ok:#8fcf9b;--err:#ff8a7a;
@@ -126,16 +126,26 @@ input,textarea{width:100%;background:#170b08;color:var(--tx);border:1px solid va
 .rc span{display:block;text-align:center;border:1px solid var(--line);border-radius:10px;padding:10px 8px;color:var(--mut);font-weight:700;cursor:pointer;background:#170b08}
 .rc input:checked+span{border-color:var(--gr2);color:#7fe3ae;background:rgba(47,191,113,.14)}
 .rc input:focus-visible+span{outline:2px solid var(--sf);outline-offset:2px}
+.sbar .wrap{display:flex;align-items:center;gap:8px}.sbar .sw{flex:1;min-width:0}
+.tbtn{flex:none;height:42px;border-radius:12px;border:1px solid var(--pl2);background:var(--pl);color:var(--pl3);font-weight:700;font-size:.8rem;padding:0 12px;cursor:pointer;white-space:nowrap}
+.seg{display:flex;background:#170b08;border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px;margin-bottom:12px}
+.seg button{flex:1;border:0;background:none;color:var(--mut);font-weight:800;padding:10px;border-radius:9px;cursor:pointer}
+.seg button.on{background:linear-gradient(135deg,var(--gr2),var(--gr));color:#fff}.seg button[data-m=enquiry].on{background:var(--sf);color:#2a1200}
+.tc{padding:14px;margin-bottom:10px}.tcr{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.chip{background:rgba(47,191,113,.16);color:#7fe3ae;border:1px solid rgba(47,191,113,.45);border-radius:99px;padding:2px 10px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.chip.bad{background:rgba(255,138,122,.12);color:var(--err);border-color:rgba(255,138,122,.45)}.chip.enq{background:rgba(240,180,76,.14);color:var(--sf);border-color:rgba(240,180,76,.45)}
+.stp{display:flex;gap:4px;margin:6px 0 8px}.stp i{flex:1;height:5px;border-radius:9px;background:#3a2519}.stp i.f{background:var(--gr2)}
+.tc small{display:block;color:var(--mut);font-size:.8rem;line-height:1.4}.tc .tt{color:var(--sf);font-weight:700;margin-top:4px}
 .hide{display:none!important}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.trk{scroll-behavior:auto}}
 </style></head><body>
-<header class="hero" id="hero"><div class="wrap"><a class="callb" href="tel:+918779612829" aria-label="Call support 8779612829" title="Support: 8779612829"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg></a><h1>Biryani, slow-cooked and sealed with dough.</h1>
-<p>Dum-sealed biryani catering for corporate lunches in BKC and family gatherings in Bandra.</p>
+<header class="hero" id="hero"><div class="wrap"><a class="callb" data-tel href="tel:+918779612829" aria-label="Call support"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg></a><h1 id="hn"></h1>
+<p id="ht" class="hide"></p>
 <div class="ban hide" id="ban" aria-roledescription="carousel" aria-label="Featured dishes"><div class="trk" id="trk"></div><div class="dots" id="dots"></div></div></div></header>
 
 <div class="sbar"><div class="wrap"><div class="sw"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
 <input id="q" type="search" placeholder="Search dishes or categories…" autocomplete="off" enterkeyhint="search" aria-label="Search dishes">
-<button type="button" id="qx" class="hide" aria-label="Clear search">✕</button></div></div></div>
+<button type="button" id="qx" class="hide" aria-label="Clear search">✕</button></div><button type="button" class="tbtn" id="tbtn">📦 Track order</button></div></div>
 
 <main class="wrap">
 <section id="home"><h2>Categories</h2><p class="sub">Tap a category, then pick your dishes.</p><div class="cg" id="cg"><p class="sub">Loading menu…</p></div></section>
@@ -149,26 +159,32 @@ input,textarea{width:100%;background:#170b08;color:var(--tx);border:1px solid va
 <button class="vc" id="next" disabled>View Cart ➔</button></div>
 
 <div class="sheet" id="cart" role="dialog" aria-modal="true" aria-label="My cart">
-<div class="sh"><div class="wrap"><h2>My cart</h2><span style="display:flex;align-items:center;gap:10px"><a class="callb" style="position:static" href="tel:+918779612829" aria-label="Call support"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg></a><button type="button" class="pillb" id="cback">‹ Back to store</button></span></div></div>
+<div class="sh"><div class="wrap"><h2>My cart</h2><span style="display:flex;align-items:center;gap:10px"><a class="callb" data-tel style="position:static" href="tel:+918779612829" aria-label="Call support"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg></a><button type="button" class="pillb" id="cback">‹ Back to store</button></span></div></div>
 <div id="cbody"><div class="wrap sbody">
 <div class="gcard"><b>🛒 Your Cart</b><span id="cN"></span></div>
 <div class="card"><h3>Review your cart</h3><div id="clist"></div><div id="ctot"></div></div>
-<div class="card"><h3>Order details</h3><div class="two">
+<div class="card"><div class="seg" role="tablist" aria-label="Order or enquiry"><button type="button" class="on" data-m="order" role="tab">Place order</button><button type="button" data-m="enquiry" role="tab">Enquiry</button></div><h3 id="odT">Order details</h3><div class="two">
 <div><label for="name">Your name</label><input id="name" autocomplete="name"></div>
 <div><label for="phone">Phone</label><input id="phone" type="tel" inputmode="tel" autocomplete="tel"></div>
-<div><label for="date">Date</label><input id="date" type="date"></div>
-<div><label for="time">Serve time</label><input id="time" type="time" value="13:00"></div></div>
-<label for="venue">Venue / full address</label><textarea id="venue" rows="2" autocomplete="street-address"></textarea>
-<label for="notes">Notes (allergies, spice level)</label><textarea id="notes" rows="2"></textarea></div>
-<div class="card"><h3>Enquiry reply</h3><p class="note" style="margin:0 0 8px">Where should we send the reply to your enquiry?</p>
+<div id="dtw"><label for="date">Date</label><input id="date" type="date"></div>
+<div id="tmw"><label for="time">Serve time</label><input id="time" type="time" value="13:00"></div></div>
+<div id="vnw"><label for="venue">Venue / full address</label><textarea id="venue" rows="2" autocomplete="street-address"></textarea></div>
+<label for="notes" id="nL">Notes (allergies, spice level)</label><textarea id="notes" rows="2"></textarea></div>
+<div class="card hide" id="rcard"><h3>Enquiry reply</h3><p class="note" style="margin:0 0 8px">Where should we send the reply to your enquiry?</p>
 <div class="rv" role="radiogroup" aria-label="Reply method"><label class="rc"><input type="radio" name="rv" value="WhatsApp" checked><span>💬 WhatsApp</span></label><label class="rc"><input type="radio" name="rv" value="Email"><span>✉️ Email</span></label></div>
 <div id="eml" class="hide"><label for="email">Your email</label><input id="email" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com"></div>
 <p class="note" id="rnote">We will reply on WhatsApp using the phone number above.</p></div>
 <div class="msg" id="msg" role="status"></div>
-<a class="sup blk" href="tel:+918779612829">📞 Need help? Call support: 8779612829</a></div>
-<div class="sfoot"><div class="wrap"><div><small>Estimated total</small><b id="fT">₹0</b></div><div class="sacts"><button class="btn enq" id="enq">Enquiry</button><button class="btn grn" id="place">Place order</button></div></div></div></div>
-<div class="wrap hide" id="done"><div class="done-box"><div class="ok">✅</div><h2 id="dT">Order placed</h2><p class="sub" id="dP">Thank you. We will call you shortly to confirm the final quantity and price.</p><a class="sup blk" href="tel:+918779612829">📞 Support: 8779612829</a><button class="btn grn" onclick="location.reload()">Start a new order</button></div></div>
+<a class="sup blk" data-tel href="tel:+918779612829">📞 Need help? Call support: <span data-phtxt>8779612829</span></a></div>
+<div class="sfoot"><div class="wrap"><div><small>Estimated total</small><b id="fT">₹0</b></div><button class="btn grn" id="place">Place order</button></div></div></div>
+<div class="wrap hide" id="done"><div class="done-box"><div class="ok">✅</div><h2 id="dT">Order placed</h2><p class="sub" id="dP">Thank you. We will call you shortly to confirm the final quantity and price.</p><a class="sup blk" data-tel href="tel:+918779612829">📞 Support: <span data-phtxt>8779612829</span></a><button class="btn grn" id="dtrk" style="margin-bottom:10px">📦 Track order status</button><br><button class="btn" style="background:none;color:var(--mut)" onclick="location.reload()">Start a new order</button></div></div>
 </div>
+
+<div class="sheet" id="trkS" style="z-index:21" role="dialog" aria-modal="true" aria-label="Track order">
+<div class="sh"><div class="wrap"><h2>Track order</h2><button type="button" class="pillb" id="tback">‹ Back</button></div></div>
+<div class="wrap sbody"><div class="card"><h3>Check your order status</h3><p class="note" style="margin:0 0 4px">Enter the phone number you used while ordering.</p>
+<label for="tph">Phone number</label><input id="tph" type="tel" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile number">
+<button class="btn grn" id="tgo" style="width:100%;margin-top:12px">Check status</button></div><div id="tres" aria-live="polite"></div></div></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -195,7 +211,15 @@ const PAL=[['#7a35a3','#2b1040'],['#1f9d57','#0c3d24'],['#d4701f','#4d2208'],['#
 const EMO=[[/biryani|pulao|rice/i,'🍛'],[/kebab|tikka|tandoor|grill/i,'🍢'],[/dessert|sweet|mithai|kheer/i,'🍮'],[/drink|beverage|lassi|juice/i,'🥤'],[/side|raita|salad|salan/i,'🥗'],[/bread|roti|naan|paratha/i,'🫓'],[/curry|gravy|korma|handi/i,'🍲'],[/starter|snack/i,'🍗']];
 const emo=n=>(EMO.find(([r])=>r.test(n))||[0,'🍽️'])[1];
 
-let menu={},cats={},qty={},cat='',cartOpen=false;
+let menu={},cats={},qty={},cat='',cartOpen=false,trackOpen=false,mode='order',st={};
+const DEF_PH='8779612829';
+function applySt(){
+  const name=String(st.name||'').trim()||'Royal Daawat',txt=String(st.text||'').trim(),raw=String(st.phone||'').trim()||DEF_PH,d=raw.replace(/[^\d]/g,'');
+  $('hn').textContent=name;$('ht').textContent=txt;$('ht').classList.toggle('hide',!txt);document.title=name;
+  const tel=raw.startsWith('+')?'+'+d:(d.length===10?'+91'+d:'+'+d);
+  document.querySelectorAll('[data-tel]').forEach(a=>{a.href='tel:'+tel;a.title='Support: '+raw});
+  document.querySelectorAll('[data-phtxt]').forEach(x=>x.textContent=raw)}
+db.ref('settings').on('value',s=>{st=s.val()||{};applySt()},()=>applySt());
 $('date').min=new Date().toISOString().slice(0,10);
 
 /* ---------- helpers ---------- */
@@ -242,7 +266,7 @@ $('lback').onclick=()=>{if($('q').value.trim()){$('q').value='';render();return}
   history.state&&history.state.k==='cat'?history.back():(cat='',render(),scrollTo(0,0))};
 $('q').oninput=()=>{render();if($('q').value.trim())scrollTo(0,0)};
 $('qx').onclick=()=>{$('q').value='';render();$('q').focus()};
-window.addEventListener('popstate',()=>{if(cartOpen)closeCartUI();else if(cat){cat='';render();scrollTo(0,0)}});
+window.addEventListener('popstate',()=>{if(trackOpen)closeTrackUI();else if(cartOpen)closeCartUI();else if(cat){cat='';render();scrollTo(0,0)}});
 
 /* ---------- cards & quantity ---------- */
 function ctlHTML(id){const q=qty[id]||0;
@@ -333,6 +357,12 @@ $('trk').onclick=e=>{const sl=e.target.closest('.sl');if(!sl)return;const bn=ban
 const rvVal=()=>(document.querySelector('input[name=rv]:checked')||{}).value||'WhatsApp';
 document.querySelectorAll('input[name=rv]').forEach(r=>r.onchange=()=>{const e=rvVal()==='Email';$('eml').classList.toggle('hide',!e);
   $('rnote').textContent=e?'We will reply to this email address.':'We will reply on WhatsApp using the phone number above.'});
+function setMode(m){mode=m;const e=m==='enquiry';
+  document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  ['dtw','tmw','vnw'].forEach(i=>$(i).classList.toggle('hide',e));$('rcard').classList.toggle('hide',!e);
+  $('odT').textContent=e?'Enquiry details':'Order details';$('nL').textContent=e?'Your question / requirements':'Notes (allergies, spice level)';
+  $('place').textContent=e?'Send enquiry':'Place order';$('msg').textContent='';$('msg').className='msg'}
+document.querySelector('.seg').onclick=e=>{const b=e.target.closest('button[data-m]');if(b)setMode(b.dataset.m)};
 function submit(kind){
   const enq=kind==='Enquiry',m=$('msg'),f=id=>$(id).value.trim(),phone=f('phone').replace(/\D/g,''),c=calc();
   if(!c.n){m.className='msg err';m.textContent='Please add at least one dish.';return}
@@ -340,16 +370,47 @@ function submit(kind){
   if(enq){if(!f('name')||phone.length<10){m.className='msg err';m.textContent='Please enter your name and a 10-digit phone number to send an enquiry.';return}
     if(rv==='Email'&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){m.className='msg err';m.textContent='Please enter a valid email address so we can reply.';$('email').focus();return}}
   else if(!f('name')||phone.length<10||!f('venue')||!f('date')){m.className='msg err';m.textContent='Add your name, a 10-digit phone number, date and venue address.';return}
-  $('place').disabled=true;$('enq').disabled=true;m.className='msg';m.textContent=enq?'Sending enquiry…':'Placing order…';
-  db.ref('orders').push({type:kind,...(enq?{replyVia:rv}:{}),...(email?{email}:{}),name:f('name'),phone,venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),
+  $('place').disabled=true;m.className='msg';m.textContent=enq?'Sending enquiry…':'Placing order…';
+  db.ref('orders').push({type:kind,...(enq?{replyVia:rv}:{}),...(enq&&rv==='Email'&&email?{email}:{}),name:f('name'),phone,
+    ...(enq?{}:{venue:f('venue'),date:f('date'),time:f('time')}),notes:f('notes'),
     guests:c.g,itemCount:c.n,items:c.r,total:c.t,status:enq?'Enquiry':'New',ts:firebase.database.ServerValue.TIMESTAMP})
-  .then(()=>{
+  .then(()=>{lastPhone=phone;
     $('dT').textContent=enq?'Enquiry sent':'Order placed';
     $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:'Thank you. We will call you shortly to confirm the final quantity and price.';
     $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
-  .catch(()=>{m.className='msg err';m.textContent=(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false;$('enq').disabled=false});
+  .catch(()=>{m.className='msg err';m.textContent=(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false});
 }
-$('place').onclick=()=>submit('Order');
-$('enq').onclick=()=>submit('Enquiry');
+let lastPhone='';
+$('place').onclick=()=>submit(mode==='enquiry'?'Enquiry':'Order');
+
+/* ---------- track order by phone ---------- */
+const STEPS=['New','Confirmed','Cooking','Out for delivery','Delivered'];
+const SL={New:'Order received',Enquiry:'Enquiry received',Confirmed:'Confirmed',Cooking:'Being cooked','Out for delivery':'Out for delivery',Delivered:'Delivered',Cancelled:'Cancelled'};
+function openTrack(ph){trackOpen=true;history.pushState({k:'trk'},'');$('trkS').classList.add('open');document.body.style.overflow='hidden';$('trkS').scrollTop=0;
+  if(ph){$('tph').value=ph;checkTrack()}else $('tph').focus()}
+function closeTrackUI(){trackOpen=false;$('trkS').classList.remove('open');document.body.style.overflow=cartOpen?'hidden':''}
+function closeTrack(){history.state&&history.state.k==='trk'?history.back():closeTrackUI()}
+function tCard(o){const s=o.status||'New',idx=STEPS.indexOf(s),enq=s==='Enquiry',
+  when=o.ts?new Date(o.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'',
+  bar=idx>=0?`<div class="stp" aria-hidden="true">${STEPS.map((_,i)=>`<i class="${i<=idx?'f':''}"></i>`).join('')}</div>`:'';
+  return `<div class="card tc"><div class="tcr"><b>${o.type==='Enquiry'?'Enquiry':'Order'}${when?' · '+when:''}</b><span class="chip ${s==='Cancelled'?'bad':enq?'enq':''}">${esc(SL[s]||s)}</span></div>${bar}
+  <small>${(o.items||[]).map(i=>esc(i.name)+(i.qty?' ('+esc(qLabel(i.qty,i.unit))+')':'')).join(', ')}</small>
+  ${o.date&&o.type!=='Enquiry'?`<small>Event: ${esc(o.date)}${o.time?' at '+esc(o.time):''}</small>`:''}
+  ${o.reply?`<small style="color:#7fe3ae">We have replied to your enquiry on ${esc(o.repliedVia||o.replyVia||'WhatsApp')}.</small>`:''}
+  <div class="tt">${inr(o.total||0)}</div></div>`}
+async function checkTrack(){
+  const p=$('tph').value.replace(/\D/g,'').slice(-10),r=$('tres');
+  if(p.length<10){r.innerHTML='<p class="msg err">Please enter a valid 10-digit phone number.</p>';return}
+  $('tgo').disabled=true;r.innerHTML='<p class="sub">Checking…</p>';
+  try{
+    const q=v=>db.ref('orders').orderByChild('phone').equalTo(v).once('value'),list=[];
+    (await Promise.all([q(p),q('91'+p)])).forEach(sn=>{const v=sn.val()||{};for(const k in v)list.push(v[k])});
+    list.sort((a,b)=>(b.ts||0)-(a.ts||0));
+    r.innerHTML=list.length?list.map(tCard).join(''):'<div class="empty"><b>🔍</b>No orders found for this number.</div>'
+  }catch(e){r.innerHTML='<p class="msg err">Could not check the status. Check your connection and try again.</p>'}
+  $('tgo').disabled=false}
+$('tbtn').onclick=()=>openTrack();$('tback').onclick=closeTrack;$('tgo').onclick=checkTrack;
+$('tph').onkeydown=e=>{if(e.key==='Enter')checkTrack()};
+$('dtrk').onclick=()=>openTrack(lastPhone);
 render();
 </script></body></html>
