@@ -31,6 +31,9 @@ form .full{grid-column:1/-1}
 .chk{display:flex;align-items:center;gap:10px;color:var(--tx);cursor:pointer}.chk input{width:20px;height:20px;accent-color:#f0b44c;flex:none}
 .hint{font-size:.8rem;color:var(--mut);margin-top:3px}
 .gate{max-width:340px;margin:18vh auto;text-align:center}.gate input{margin:14px 0}
+.rp{grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:8px}
+.rp textarea{min-height:110px}
+.btn.wa{background:#1f9d57;border-color:#1f9d57;color:#fff;font-weight:700}
 .hide{display:none!important}.err{color:var(--err)}
 </style></head><body>
 <div class="wrap" id="app">
@@ -98,7 +101,7 @@ const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN');
 const okUrl=u=>/^https?:\/\/\S+$/i.test(u||'');
 const thumb=u=>okUrl(u)?`<div class="th"><img src="${esc(u)}" alt="" loading="lazy" onerror="this.parentNode.textContent='Bad URL'"></div>`:'<div class="th">No photo</div>';
 const serves=m=>{const s=Number(m.servesPerUnit);if(s>0)return s;const p=Number(m.perGuest);return p>0?Math.round(100/p)/100:1};
-let orders={},menu={},cats={},banners={};
+let orders={},menu={},cats={},banners={},drafts={};
 $('flt').innerHTML+=STATUS.map(s=>`<option>${s}</option>`).join('');
 
 const tab=n=>[1,2,3,4].forEach(i=>{$('v'+i).classList.toggle('hide',i!==n);$('t'+i).classList.toggle('on',i===n)});
@@ -128,8 +131,27 @@ function renderOrders(){
     <div>${(o.items||[]).map(i=>esc(i.name)+(i.qty?' × '+esc(i.qty)+(i.unit?' '+esc(i.unit):''):'')+(i.serves?' ('+esc(i.serves)+' log)':'')).join(', ')}</div>
     ${o.notes?`<small>Notes: ${esc(o.notes)}</small>`:''}<div><b>${inr(o.total)}</b></div></div>
     <div><select data-id="${esc(id)}" aria-label="Order status">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
-    <button class="btn d" data-del="${esc(id)}" style="margin-top:8px;width:100%">Delete</button></div></div>`).join(''):'<p class="mut">No orders match this view.</p>';
+    <button class="btn d" data-del="${esc(id)}" style="margin-top:8px;width:100%">Delete</button></div>${replyBox(id,o)}</div>`).join(''):'<p class="mut">No orders match this view.</p>';
 }
+/* ---------- enquiry reply (WhatsApp / Email) ---------- */
+const isEnq=o=>o.type==='Enquiry'||o.status==='Enquiry'||!!o.replyVia;
+const chOf=o=>o.replyVia==='Email'?'Email':'WhatsApp';
+const waNum=p=>{const d=String(p||'').replace(/\D/g,'');return d.length===10?'91'+d:d};
+function draftOf(id,o){if(drafts[id]!==undefined)return drafts[id];
+  return `Hello ${o.name||''},\n\nThank you for your enquiry with Royal Daawat.\n\nYour items: ${(o.items||[]).map(i=>i.name+(i.qty?' × '+i.qty+(i.unit?' '+i.unit:''):'')).join(', ')}\nEstimated total: ${inr(o.total)}\n\n`}
+function replyBox(id,o){if(!isEnq(o))return '';const ch=chOf(o),to=ch==='Email'?o.email:'+'+waNum(o.phone);
+  if(ch==='Email'&&!o.email)return `<div class="rp"><small class="err">Customer ne email nahi diya. Phone se contact karein: <a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small></div>`;
+  return `<div class="rp"><small class="mut">Customer reply chahta hai: <b style="color:var(--sf)">${ch==='Email'?'✉️ Email':'💬 WhatsApp'}</b> · ${esc(to)}${o.reply?` · <span style="color:var(--ok)">Replied ✓ (${esc(o.repliedVia||ch)})</span>`:''}</small>
+  <textarea data-rp="${esc(id)}" aria-label="Reply message">${esc(draftOf(id,o))}</textarea>
+  <div><button class="btn wa" data-send="${esc(id)}">${ch==='Email'?'✉️ Reply by Email':'💬 Reply on WhatsApp'}</button></div></div>`}
+$('orders').addEventListener('input',e=>{const id=e.target.dataset.rp;if(id)drafts[id]=e.target.value});
+$('orders').addEventListener('click',e=>{const b=e.target.closest('button[data-send]');if(!b)return;
+  const id=b.dataset.send,o=orders[id];if(!o)return;const ch=chOf(o),msg=drafts[id]!==undefined?drafts[id]:draftOf(id,o);
+  if(!msg.trim()){alert('Pehle reply likhein.');return}
+  const url=ch==='Email'?'mailto:'+encodeURIComponent(o.email||'')+'?subject='+encodeURIComponent('Your enquiry · Royal Daawat')+'&body='+encodeURIComponent(msg)
+    :'https://wa.me/'+waNum(o.phone)+'?text='+encodeURIComponent(msg);
+  db.ref('orders/'+id).update({reply:msg,repliedVia:ch,repliedAt:firebase.database.ServerValue.TIMESTAMP});
+  ch==='Email'?(location.href=url):window.open(url,'_blank')});
 $('orders').addEventListener('change',e=>{const id=e.target.dataset.id;id&&db.ref('orders/'+id+'/status').set(e.target.value)});
 $('orders').addEventListener('click',e=>{const id=e.target.dataset.del;if(id&&confirm('Delete this order permanently?'))db.ref('orders/'+id).remove()});
 
