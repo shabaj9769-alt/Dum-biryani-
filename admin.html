@@ -34,6 +34,15 @@ form .full{grid-column:1/-1}
 .rp{grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:8px}
 .rp textarea{min-height:110px}
 .btn.wa{background:#1f9d57;border-color:#1f9d57;color:#fff;font-weight:700}
+.fold{border:1px solid var(--line);border-radius:6px;background:rgba(0,0,0,.12);margin-bottom:12px;overflow:hidden}
+.fh{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);color:var(--tx);border:0;padding:14px 16px;font:700 1.05rem Fraunces,serif;cursor:pointer;text-align:left}
+.fh .fr{display:flex;align-items:center;gap:8px;font:500 .85rem 'Hanken Grotesk',sans-serif;color:var(--mut)}
+.fh .bdg{background:var(--sf);color:#2a1200;border-radius:99px;padding:1px 9px;font-weight:700;font-size:.75rem}
+.fh .chev{color:var(--sf);font-size:1rem}
+.fb{padding:12px}.fb .o:last-child{margin-bottom:0}
+.dt{margin:4px 0;font-size:.9rem}.dt div{margin:1px 0}
+.qn{background:rgba(138,180,255,.1);border:1px solid rgba(138,180,255,.45);border-radius:6px;padding:8px 10px;margin:8px 0}.qn small{color:#8ab4ff;display:block;font-weight:700}
+form.ef{margin:6px 0 14px;border-color:var(--sf)}
 .hide{display:none!important}.err{color:var(--err)}
 </style></head><body>
 <div class="wrap" id="app">
@@ -124,7 +133,22 @@ function listen(){
 }
 $('flt').onchange=()=>renderOrders();
 
-/* ---------- orders ---------- */
+/* ---------- orders (Enquiries / Placed orders folders) ---------- */
+const openO={};
+const fD=d=>{if(!d)return '';const x=new Date(d+'T00:00:00');return isNaN(x)?d:x.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})};
+const fT=t=>{if(!t)return '';const [h,m]=String(t).split(':').map(Number);return isNaN(h)?t:((h%12)||12)+':'+String(m||0).padStart(2,'0')+' '+(h<12?'AM':'PM')};
+const fTs=ts=>ts?new Date(ts).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'';
+const qL=(q,u)=>!u?String(q):/^\d/.test(String(u).trim())?`${q} × ${u}`:`${q} ${u}`;
+function orderCard(id,o){const enq=isEnq(o);
+  return `<div class="o ${esc(o.status)}"><div>
+    <h3>${esc(o.name)}</h3>
+    <div class="dt">${o.date?`<div>📅 <b>Booking:</b> ${esc(fD(o.date))}${o.time?' · '+esc(fT(o.time)):''}</div>`:''}<div>🕒 <b>${enq?'Enquiry sent':'Order placed'}:</b> ${esc(fTs(o.ts)||'—')}</div></div>
+    <small>${enq?'<span class="tag" style="margin:0 6px 0 0;color:#8ab4ff;border-color:#8ab4ff">Enquiry</span>':''}~${esc(o.guests)} guests · ${o.venue?esc(o.venue)+' · ':''}<a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
+    <div style="margin-top:4px">${(o.items||[]).map(i=>esc(i.name)+(i.qty?' — '+esc(qL(i.qty,i.unit)):'')+(i.serves?' ('+esc(i.serves)+' log)':'')).join('<br>')}</div>
+    ${enq?`<div class="qn"><small>❓ Customer ka sawaal</small>${o.notes?esc(o.notes):'<span class="mut">(Customer ne kuch nahi likha)</span>'}</div>`:(o.notes?`<small>Notes: ${esc(o.notes)}</small>`:'')}
+    <div><b>${inr(o.total)}</b></div></div>
+    <div><select data-id="${esc(id)}" aria-label="Order status">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
+    <button class="btn d" data-del="${esc(id)}" style="margin-top:8px;width:100%">Delete</button></div>${replyBox(id,o)}</div>`}
 function renderOrders(){
   const list=Object.entries(orders).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
   const c=s=>list.filter(([,o])=>o.status===s);
@@ -132,21 +156,21 @@ function renderOrders(){
   $('sD').textContent=c('Cooking').length;
   $('sR').textContent=inr(list.filter(([,o])=>['Confirmed','Cooking','Out for delivery','Delivered'].includes(o.status)).reduce((a,[,o])=>a+(o.total||0),0));
   const f=$('flt').value,shown=list.filter(([,o])=>!f||o.status===f);
-  $('orders').innerHTML=shown.length?shown.map(([id,o])=>`<div class="o ${esc(o.status)}"><div>
-    <h3>${esc(o.name)}</h3>
-    <div>${o.status==='Enquiry'||o.type==='Enquiry'?'<span class="tag" style="margin:0 6px 0 0;color:#8ab4ff;border-color:#8ab4ff">Enquiry</span>':''}${o.date?esc(o.date)+(o.time?' at '+esc(o.time):'')+' · ':''}~${esc(o.guests)} guests</div>
-    <small>${o.venue?esc(o.venue)+' · ':''}<a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
-    <div>${(o.items||[]).map(i=>esc(i.name)+(i.qty?' × '+esc(i.qty)+(i.unit?' '+esc(i.unit):''):'')+(i.serves?' ('+esc(i.serves)+' log)':'')).join(', ')}</div>
-    ${o.notes?`<small>Notes: ${esc(o.notes)}</small>`:''}<div><b>${inr(o.total)}</b></div></div>
-    <div><select data-id="${esc(id)}" aria-label="Order status">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
-    <button class="btn d" data-del="${esc(id)}" style="margin-top:8px;width:100%">Delete</button></div>${replyBox(id,o)}</div>`).join(''):'<p class="mut">No orders match this view.</p>';
+  const enqL=shown.filter(([,o])=>isEnq(o)),ordL=shown.filter(([,o])=>!isEnq(o));
+  const fold=(k,ic,title,l,nw,empty)=>{const open=!!openO[k];
+    return `<div class="fold"><button type="button" class="fh" data-fold="${k}" aria-expanded="${open}"><span>${ic} ${title}</span><span class="fr">${nw?`<span class="bdg">${nw} new</span>`:''}<span>${l.length}</span><span class="chev">${open?'▾':'▸'}</span></span></button>
+    <div class="fb ${open?'':'hide'}">${l.length?l.map(([id,o])=>orderCard(id,o)).join(''):`<p class="mut" style="margin:0">${empty}</p>`}</div></div>`};
+  $('orders').innerHTML=fold('enq','💬','Enquiries',enqL,enqL.filter(([,o])=>!o.reply).length,'No enquiries here.')
+    +fold('ord','📦','Placed orders',ordL,ordL.filter(([,o])=>o.status==='New').length,'No orders here.');
 }
+$('orders').addEventListener('click',e=>{const h=e.target.closest('[data-fold]');if(!h)return;openO[h.dataset.fold]=!openO[h.dataset.fold];renderOrders()});
+
 /* ---------- enquiry reply (WhatsApp / Email) ---------- */
 const isEnq=o=>o.type==='Enquiry'||o.status==='Enquiry'||!!o.replyVia;
 const chOf=o=>o.replyVia==='Email'?'Email':'WhatsApp';
 const waNum=p=>{const d=String(p||'').replace(/\D/g,'');return d.length===10?'91'+d:d};
 function draftOf(id,o){if(drafts[id]!==undefined)return drafts[id];
-  return `Hello ${o.name||''},\n\nThank you for your enquiry with ${shop()}.\n\nYour items: ${(o.items||[]).map(i=>i.name+(i.qty?' × '+i.qty+(i.unit?' '+i.unit:''):'')).join(', ')}\nEstimated total: ${inr(o.total)}\n\n`}
+  return `Hello ${o.name||''},\n\nThank you for your enquiry with ${shop()}.\n\n${o.notes?'Your question: '+o.notes+'\n\n':''}Your items: ${(o.items||[]).map(i=>i.name+(i.qty?' — '+qL(i.qty,i.unit):'')).join(', ')}\nEstimated total: ${inr(o.total)}\n\n`}
 function replyBox(id,o){if(!isEnq(o))return '';const ch=chOf(o),to=ch==='Email'?o.email:'+'+waNum(o.phone);
   if(ch==='Email'&&!o.email)return `<div class="rp"><small class="err">Customer ne email nahi diya. Phone se contact karein: <a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small></div>`;
   return `<div class="rp"><small class="mut">Customer reply chahta hai: <b style="color:var(--sf)">${ch==='Email'?'✉️ Email':'💬 WhatsApp'}</b> · ${esc(to)}${o.reply?` · <span style="color:var(--ok)">Replied ✓ (${esc(o.repliedVia||ch)})</span>`:''}</small>
@@ -163,22 +187,56 @@ $('orders').addEventListener('click',e=>{const b=e.target.closest('button[data-s
 $('orders').addEventListener('change',e=>{const id=e.target.dataset.id;id&&db.ref('orders/'+id+'/status').set(e.target.value)});
 $('orders').addEventListener('click',e=>{const id=e.target.dataset.del;if(id&&confirm('Delete this order permanently?'))db.ref('orders/'+id).remove()});
 
-/* ---------- menu ---------- */
+/* ---------- menu (category folders, inline edit) ---------- */
+const openF={};let editId='';
+const ckey=n=>String(n||'Biryani').toLowerCase();
+function editForm(id,m){
+  const names=catRows().map(c=>c.name),cur=m.category||'Biryani';if(!names.some(n=>ckey(n)===ckey(cur)))names.push(cur);
+  return `<form class="ef" data-ef="${esc(id)}"><h3 class="full">Edit: ${esc(m.name)}</h3>
+  <div><label class="mut">Name</label><input name="n" required value="${esc(m.name)}" aria-label="Name"></div>
+  <div><label class="mut">Category</label><select name="c" aria-label="Category">${names.map(n=>`<option value="${esc(n)}" ${ckey(n)===ckey(cur)?'selected':''}>${esc(n)}</option>`).join('')}<option value="__new">+ Naya category…</option></select><input name="cn" class="hide" placeholder="Naye category ka naam" style="margin-top:6px" aria-label="New category name"></div>
+  <div><label class="mut">Price (₹)</label><input name="p" type="number" min="0" step="any" required value="${esc(m.price)}" aria-label="Price"></div>
+  <div><label class="mut">Unit (kg, pcs, plate…)</label><input name="u" value="${esc(m.unit||'')}" aria-label="Unit"></div>
+  <div><label class="mut">Kitne log khayenge per unit?</label><input name="s" type="number" min="0.1" step="any" required value="${esc(serves(m))}" aria-label="Persons per unit"></div>
+  <div class="full"><label class="mut">Dish Photo URL</label><div class="pv">${thumb(m.image)}<input name="i" type="url" inputmode="url" value="${esc(m.image||'')}" placeholder="https://…/dish.jpg" aria-label="Photo URL"></div></div>
+  <div class="full"><label class="mut">Description</label><textarea name="d" rows="2" aria-label="Description">${esc(m.desc||'')}</textarea></div>
+  <div class="full"><button class="btn p" type="submit">Save changes</button> <button class="btn" type="button" data-ecancel="1">Cancel</button></div></form>`}
+function dishRow(id,m){const ed=editId===id;
+  return `<div class="m"><div class="info">${thumb(m.image)}<div style="min-width:0"><b>${esc(m.name)}</b>${m.available===false?'<span class="tag" style="color:var(--err);border-color:var(--err)">Sold out</span>':''}
+  <br><small class="mut">${inr(m.price)}${m.unit?' per '+esc(m.unit):''} · 1 ${esc(m.unit||'unit')} = ${esc(serves(m))} persons</small>${m.desc?`<br><small class="mut">${esc(m.desc)}</small>`:''}</div></div>
+  <div><button class="btn" data-av="${esc(id)}">${m.available===false?'Mark available':'Mark sold out'}</button> <button class="btn ${ed?'p':''}" data-ed="${esc(id)}">${ed?'Close':'Edit'}</button> <button class="btn d" data-rm="${esc(id)}">Delete</button></div></div>${ed?editForm(id,m):''}`}
 function renderMenu(){
   const l=Object.entries(menu);
   $('seed').classList.toggle('hide',l.length>0);
-  $('mlist').innerHTML=l.length?l.map(([id,m])=>`<div class="m"><div class="info">${thumb(m.image)}<div style="min-width:0"><b>${esc(m.name)}</b>${m.available===false?'<span class="tag" style="color:var(--err);border-color:var(--err)">Sold out</span>':''}
-  <br><small class="mut">${esc(m.category||'Biryani')} · ${inr(m.price)}${m.unit?' per '+esc(m.unit):''} · 1 ${esc(m.unit||'unit')} = ${esc(serves(m))} persons</small><br><small class="mut">${esc(m.desc)}</small></div></div>
-  <div><button class="btn" data-av="${esc(id)}">${m.available===false?'Mark available':'Mark sold out'}</button>
-  <button class="btn" data-ed="${esc(id)}">Edit</button> <button class="btn d" data-rm="${esc(id)}">Delete</button></div></div>`).join(''):'<p class="mut">No dishes yet. Add one above or load the starter menu.</p>';
+  const a=document.activeElement;
+  if(editId&&a&&a.closest&&a.closest('form.ef')&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)){fillCatSelect();return}
+  const rows=catRows();
+  $('mlist').innerHTML=rows.length?rows.map(c=>{const k=ckey(c.name),items=l.filter(([,m])=>ckey(m.category)===k),open=!!openF[k];
+    return `<div class="fold"><button type="button" class="fh" data-cf="${esc(k)}" aria-expanded="${open}"><span>📁 ${esc(c.name)}</span><span class="fr"><span>${items.length} dish${items.length===1?'':'es'}</span><span class="chev">${open?'▾':'▸'}</span></span></button>
+    <div class="fb ${open?'':'hide'}">${items.length?items.map(([id,m])=>dishRow(id,m)).join(''):'<p class="mut" style="margin:0">Is category me abhi koi dish nahi hai.</p>'}
+    <button class="btn p" type="button" data-cadd2="${esc(c.name)}" style="margin-top:10px">+ Add dish in ${esc(c.name)}</button></div></div>`}).join(''):'<p class="mut">No dishes yet. Add one above or load the starter menu.</p>';
   fillCatSelect();
 }
 $('mlist').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset;
+  if(t.cf!==undefined){openF[t.cf]=!openF[t.cf];renderMenu();return}
   if(t.av)db.ref('menu/'+t.av+'/available').set(menu[t.av].available===false);
-  if(t.rm&&confirm('Delete this dish?'))db.ref('menu/'+t.rm).remove();
-  if(t.ed){const m=menu[t.ed];$('mid').value=t.ed;$('mn').value=m.name||'';setCat(m.category||'Biryani');$('mp').value=m.price;$('mu').value=m.unit||'';
-    $('ms').value=serves(m);$('mi').value=m.image||'';$('md').value=m.desc||'';
-    prev('mi','mpv');$('mt').textContent='Edit dish';scrollTo(0,0)}});
+  if(t.rm&&confirm('Delete this dish?')){if(editId===t.rm)editId='';db.ref('menu/'+t.rm).remove()}
+  if(t.ed){editId=editId===t.ed?'':t.ed;renderMenu();if(editId)setTimeout(()=>{const f=document.querySelector('form.ef');f&&f.scrollIntoView({block:'nearest',behavior:'smooth'})},50)}
+  if(t.ecancel){editId='';renderMenu()}
+  if(t.cadd2!==undefined){clear();setCat(t.cadd2);scrollTo(0,0);$('mn').focus()}});
+$('mlist').addEventListener('change',e=>{const t=e.target;
+  if(t.name==='c'&&t.form&&t.form.classList.contains('ef')){const cn=t.form.elements.cn,nw=t.value==='__new';cn.classList.toggle('hide',!nw);cn.required=nw;if(nw)cn.focus()}});
+$('mlist').addEventListener('input',e=>{const t=e.target;
+  if(t.name==='i'&&t.form&&t.form.classList.contains('ef')){const box=t.form.querySelector('.pv .th'),u=t.value.trim();
+    if(box)box.innerHTML=okUrl(u)?`<img src="${esc(u)}" alt="" onerror="this.parentNode.textContent='Bad URL'">`:'No photo'}});
+$('mlist').addEventListener('submit',e=>{const f=e.target;if(!f.classList.contains('ef'))return;e.preventDefault();
+  const id=f.dataset.ef,g=n=>f.elements[n],catName=g('c').value==='__new'?g('cn').value.trim():g('c').value,img=g('i').value.trim(),sv=Number(g('s').value);
+  if(!catName){alert('Category chunein ya naya naam likhein.');return}
+  if(img&&!okUrl(img)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
+  if(!(sv>0)){alert('"Kitne log khayenge per unit" 0 se zyada hona chahiye.');return}
+  openF[ckey(catName)]=true;
+  db.ref('menu/'+id).update({name:g('n').value.trim(),category:catName,price:Number(g('p').value),unit:g('u').value.trim(),servesPerUnit:sv,image:img||null,desc:g('d').value.trim()})
+  .then(()=>{editId='';renderMenu()}).catch(()=>alert('Save failed. Check database rules.'))});
 
 function fillCatSelect(keep){
   const cur=keep!==undefined?keep:$('mc').value,names=catRows().map(c=>c.name);
@@ -202,6 +260,7 @@ $('mf').onsubmit=e=>{e.preventDefault();
   if(!(sv>0)){alert('"Kitne log khayenge per unit" 0 se zyada hona chahiye.');return}
   const d={name:$('mn').value.trim(),category:catName,price:Number($('mp').value),unit:$('mu').value.trim(),
     servesPerUnit:sv,image:img||null,desc:$('md').value.trim()},id=$('mid').value;
+  openF[ckey(catName)]=true;
   (id?db.ref('menu/'+id).update(d):db.ref('menu').push({...d,available:true})).then(clear).catch(()=>alert('Save failed. Check database rules.'))};
 
 $('seed').onclick=()=>[
