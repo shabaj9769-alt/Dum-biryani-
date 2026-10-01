@@ -1,70 +1,154 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex">
-<title>Royal Daawat · Operations</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Royal Daawat · Dum-sealed Biryani, Mumbai</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#1c0e0b;--panel:#2a1612;--line:#5a3a2c;--cu:#c9854f;--sf:#f0b44c;--tx:#f5ead8;--mut:#b9a58f;--ok:#8fcf9b;--err:#ff8a7a}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 'Hanken Grotesk',sans-serif}
-h1,h2,h3{font-family:Fraunces,serif;margin:0}
-.wrap{max-width:1100px;margin:auto;padding:20px}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px}
-nav button,.btn{background:var(--panel);color:var(--tx);border:1px solid var(--line);padding:9px 16px;border-radius:4px;font:inherit;cursor:pointer}
-nav button.on,.btn.p{background:var(--sf);color:#2a1200;border-color:var(--sf);font-weight:700}
-.btn.d{color:var(--err)}:focus-visible{outline:2px solid var(--sf);outline-offset:2px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
-.stat{border:1px solid var(--line);background:var(--panel);padding:14px;border-radius:4px}
-.stat b{display:block;font:800 1.7rem Fraunces,serif;color:var(--sf)}.stat span{color:var(--mut)}
-.o{border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:16px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:10px}
-.o.New{border-left:4px solid var(--sf)}.o small,.mut{color:var(--mut)}
-@media(max-width:700px){.o{grid-template-columns:1fr}}
-select,input,textarea{background:#170b08;color:var(--tx);border:1px solid var(--line);border-radius:4px;padding:9px;font:inherit;width:100%}
-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;border:1px solid var(--cu);padding:16px;border-radius:4px;background:var(--panel);margin:16px 0}
-form .full{grid-column:1/-1}
-.m{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:10px 0;flex-wrap:wrap}
-.m .info{display:flex;gap:12px;align-items:center;min-width:0;flex:1 1 280px}
-.th{flex:none;width:60px;height:60px;border-radius:6px;border:1px solid var(--line);background:#170b08 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:.7rem;overflow:hidden}
-.th img{width:100%;height:100%;object-fit:cover;display:block}
-.pv{display:flex;gap:10px;align-items:center}.pv .th{width:48px;height:48px}.pv input{flex:1}
-.tag{display:inline-block;font-size:.72rem;border:1px solid var(--cu);color:var(--sf);border-radius:99px;padding:0 8px;margin-left:6px;vertical-align:middle}
-.chk{display:flex;align-items:center;gap:10px;color:var(--tx);cursor:pointer}.chk input{width:20px;height:20px;accent-color:#f0b44c;flex:none}
-.hint{font-size:.8rem;color:var(--mut);margin-top:3px}
-.gate{max-width:340px;margin:18vh auto;text-align:center}.gate input{margin:14px 0}
-.hide{display:none!important}.err{color:var(--err)}
+:root{--bg:#1c0e0b;--panel:#2a1612;--line:#5a3a2c;--cu:#c9854f;--sf:#f0b44c;--tx:#f5ead8;--mut:#b9a58f;--ok:#8fcf9b;--err:#ff8a7a;
+--gr:#1f9d57;--gr2:#2fbf71;--pl:#3a1d4a;--pl2:#5b2d7a;--pl3:#e6c3f7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 'Hanken Grotesk',sans-serif;padding-bottom:24px;-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+h1,h2,h3{font-family:Fraunces,serif;margin:0;line-height:1.1}
+.wrap{max-width:900px;margin:auto;padding:0 14px}
+button{font:inherit}body.hasbar{padding-bottom:120px}
+.hero{padding:20px 0 16px;border-bottom:1px solid var(--line);background:radial-gradient(ellipse at 85% 0,#4a2418 0,transparent 60%),radial-gradient(ellipse at 0 100%,#3a1650 0,transparent 55%)}
+.hero h1{font-size:clamp(1.55rem,6vw,2.8rem);font-weight:800;max-width:18ch}
+.hero p{color:var(--mut);max-width:50ch;margin:8px 0 0;font-size:.9rem}
+.hero.mini{padding:16px 0 12px}.hero.mini h1{font-size:1.15rem;max-width:none}.hero.mini p,.hero.mini .ban{display:none}
+
+/* search */
+.sbar{position:sticky;top:0;z-index:6;background:rgba(28,14,11,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:8px 0}
+.sw{display:flex;align-items:center;gap:10px;background:#170b08;border:1px solid var(--line);border-radius:12px;padding:0 5px 0 12px;height:42px}
+.sw:focus-within{border-color:var(--sf)}
+.sw svg{flex:none;width:17px;height:17px;stroke:var(--mut)}
+.sw input{border:0;background:none;padding:0;height:100%;flex:1;min-width:0;font-size:.92rem;outline:none}
+.sw input::-webkit-search-cancel-button{display:none}
+.sw button{width:32px;height:32px;border:0;border-radius:50%;background:var(--pl);color:var(--pl3);cursor:pointer;font-size:.95rem}
+
+/* sliding banner */
+.ban{position:relative;margin-top:14px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--panel)}
+.trk{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.trk::-webkit-scrollbar{display:none}
+.sl{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;aspect-ratio:16/9;max-height:360px;cursor:pointer;background:linear-gradient(135deg,#3a1d14,#2a1612)}
+.sl img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cap{position:absolute;left:0;right:0;bottom:0;padding:48px 16px 14px;background:linear-gradient(transparent,rgba(18,9,7,.93))}
+.cap h3{font-size:clamp(1.15rem,4.5vw,1.6rem);font-weight:800}.cap span{color:var(--sf);font-weight:700;font-size:.95rem}.cap small{display:block;color:var(--mut);font-size:.8rem}
+.dots{position:absolute;right:10px;top:10px;display:flex;gap:2px;background:rgba(18,9,7,.55);border-radius:99px;padding:2px 4px}
+.dots button{width:18px;height:18px;border:0;background:none;padding:0;cursor:pointer;position:relative}
+.dots button:after{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px;border-radius:99px;background:#f5ead8;opacity:.5;transition:width .25s,margin .25s,opacity .25s}
+.dots button.on:after{width:16px;margin-left:-8px;background:var(--sf);opacity:1}
+
+h2{font-size:1.35rem;margin:16px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:.88rem}
+.btn{background:var(--sf);color:#2a1200;border:0;padding:11px 22px;border-radius:10px;font-weight:700;cursor:pointer}
+.btn.grn{background:linear-gradient(135deg,var(--gr2),var(--gr));color:#fff}.btn:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--sf);outline-offset:2px}
+.pillb{background:var(--pl);color:var(--pl3);border:1px solid var(--pl2);border-radius:99px;padding:6px 14px;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap}
+
+/* category tiles */
+.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 10px}
+@media(min-width:620px){.cg{grid-template-columns:repeat(5,1fr)}}
+.ct{background:none;border:0;padding:0;color:var(--tx);cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;min-width:0}
+.tile{width:100%;aspect-ratio:1;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;border:1px solid rgba(255,255,255,.12);box-shadow:0 5px 12px rgba(0,0,0,.35);margin-bottom:5px;transition:transform .15s}
+.ct:active .tile{transform:scale(.95)}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.ct b{font-size:.82rem;line-height:1.25;overflow-wrap:anywhere}.ct small{color:var(--mut);font-size:.7rem}
+
+/* list header */
+.lh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:12px 0 12px}
+.lt{font:800 1rem Fraunces,serif;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis}.lt small{display:block;font:400 .72rem 'Hanken Grotesk',sans-serif;color:var(--mut)}
+
+/* dish cards */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:620px){.grid{grid-template-columns:repeat(3,1fr)}}
+.dish{border:1px solid var(--line);border-radius:14px;background:var(--panel);display:flex;flex-direction:column;overflow:hidden;scroll-margin-top:70px;transition:border-color .2s,box-shadow .2s;min-width:0}
+.dish.on{border-color:var(--gr2);background:#25180f;box-shadow:0 0 0 1px rgba(47,191,113,.35)}.dish.off{opacity:.55}
+.media{position:relative;aspect-ratio:3/2;background:linear-gradient(135deg,#3a1d14,#241210);overflow:hidden}
+.ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}.ph svg{width:30%;max-width:70px;opacity:.75}
+.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.media img.bad{display:none}
+.so{position:absolute;left:8px;top:8px;background:rgba(18,9,7,.88);color:var(--err);font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:99px}
+.bd{padding:8px 9px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
+.dish h3{font-size:.92rem;line-height:1.2}
+.cb{align-self:flex-start;background:var(--pl);color:var(--pl3);font-size:.65rem;font-weight:700;padding:0 7px;border-radius:99px}
+.ds{color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.74rem;line-height:1.35}
+.pr{color:var(--sf);font-weight:700;margin:3px 0 2px;font-size:.9rem}.pr span{color:var(--mut);font-weight:400;font-size:.72rem}
+.ctl{margin-top:auto}
+.add{width:100%;height:34px;font-size:.82rem;border-radius:10px;border:1.5px solid var(--gr2);background:rgba(47,191,113,.08);color:#5fe0a0;font-weight:800;letter-spacing:.05em;cursor:pointer}
+.add:active{background:var(--gr);color:#fff}
+.pill{display:flex;align-items:center;background:linear-gradient(135deg,var(--gr2),var(--gr));border-radius:10px;padding:2px}
+.pill button{flex:none;width:32px;height:32px;border:0;background:none;color:#fff;font-size:1.2rem;line-height:1;cursor:pointer;padding:0}
+.pill input{flex:1;min-width:0;width:auto;text-align:center;background:none;border:0;color:#fff;font-weight:800;font-size:.92rem;padding:0;outline:none}
+.live{color:var(--mut);font-size:.72rem;line-height:1.35;margin-top:5px}.live:empty{display:none}.on .live{color:#7fe3ae;font-weight:500}
+.empty{text-align:center;color:var(--mut);padding:36px 10px;grid-column:1/-1}.empty b{display:block;font-size:2rem}
+
+/* floating cart bar */
+.fbar{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));max-width:876px;margin:auto;z-index:7;background:linear-gradient(135deg,#25b56a,#0f7a45);border-radius:16px;padding:8px 8px 8px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;box-shadow:0 10px 28px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.1) inset}
+.sm{flex:1 1 auto;min-width:0;display:flex;gap:10px;justify-content:space-between}
+.k{display:flex;flex-direction:column;font-size:.64rem;color:#d4f7e2;line-height:1.2;white-space:nowrap}
+.k+.k{border-left:1px solid rgba(255,255,255,.28);padding-left:10px}
+.k b{font:700 1rem Fraunces,serif;color:#fff}
+.vc{flex:1 1 auto;background:#fff;color:#0f6a3b;border:0;border-radius:11px;padding:10px 14px;font-weight:800;font-size:.85rem;cursor:pointer}.vc:disabled{opacity:.5;cursor:not-allowed}
+
+/* cart sheet */
+.sheet{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;transform:translateY(100%);visibility:hidden;transition:transform .32s cubic-bezier(.2,.8,.2,1),visibility .32s}
+.sheet.open{transform:none;visibility:visible}
+.sh{position:sticky;top:0;z-index:2;background:linear-gradient(135deg,#3a1650,#2a1612);border-radius:0 0 22px 22px;padding:calc(16px + env(safe-area-inset-top)) 0 16px;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.sh .wrap{display:flex;justify-content:space-between;align-items:center;gap:10px}.sh h2{margin:0;font-size:1.3rem}
+.sbody{padding-top:14px;padding-bottom:20px}
+.gcard{background:rgba(47,191,113,.14);border:1px solid rgba(47,191,113,.4);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.gcard b{color:#7fe3ae;display:block}.gcard span{color:#9bd9b6;font-size:.85rem}
+.card{border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--panel);margin-bottom:12px}
+.card h3{font-size:1.05rem;margin-bottom:4px}
+.cr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.cr .ci{min-width:0;flex:1}.cr b{display:block;font-size:.9rem}.cr small{display:block;color:var(--mut);font-size:.74rem;line-height:1.35}.cr small.g{color:#7fe3ae}
+.cc{display:flex;align-items:center;gap:8px;flex:none}.cc .pill{width:100px}
+.x{width:34px;height:34px;border-radius:9px;border:0;background:#4a1c1c;color:var(--err);font-weight:800;cursor:pointer}
+.tr{display:flex;justify-content:space-between;gap:10px;padding:5px 0;color:var(--mut)}.tr b{color:var(--tx)}
+.tr.big{font:700 1.25rem Fraunces,serif;color:var(--sf);border-top:1px solid var(--line);margin-top:8px;padding-top:12px}.tr.big b{color:var(--sf)}
+.note{color:var(--mut);font-size:.82rem;margin-top:6px}
+label{display:block;font-size:.8rem;color:var(--mut);margin:12px 0 4px}
+input,textarea{width:100%;background:#170b08;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit;font-size:.92rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}@media(max-width:560px){.two{grid-template-columns:1fr}}
+.msg{margin:4px 0 8px}.msg.err{color:var(--err)}
+.sfoot{position:sticky;bottom:0;background:#120907;border-top:1px solid var(--cu);padding:12px 0 calc(12px + env(safe-area-inset-bottom))}
+.sfoot .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.sfoot small{color:var(--mut);display:block;line-height:1.2}.sfoot b{font:700 1.25rem Fraunces,serif;color:var(--sf)}.sfoot .btn{flex:1;max-width:260px}
+.done-box{text-align:center;padding:70px 10px}.done-box .ok{font-size:3rem}
+.hide{display:none!important}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}.trk{scroll-behavior:auto}}
 </style></head><body>
-<div class="wrap" id="app">
-<header><h1>Royal Daawat operations</h1>
-<nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button id="t3">Categories</button></nav></header>
+<header class="hero" id="hero"><div class="wrap"><h1>Biryani, slow-cooked and sealed with dough.</h1>
+<p>Dum-sealed biryani catering for corporate lunches in BKC and family gatherings in Bandra.</p>
+<div class="ban hide" id="ban" aria-roledescription="carousel" aria-label="Featured dishes"><div class="trk" id="trk"></div><div class="dots" id="dots"></div></div></div></header>
 
-<div id="v1"><div class="stats">
-<div class="stat"><b id="sN">0</b><span>New requests</span></div>
-<div class="stat"><b id="sC">0</b><span>Confirmed</span></div>
-<div class="stat"><b id="sD">0</b><span>Cooking now</span></div>
-<div class="stat"><b id="sR">₹0</b><span>Confirmed and delivered value</span></div></div>
-<select id="flt" aria-label="Filter orders" style="max-width:220px;margin-bottom:14px"><option value="">All statuses</option></select>
-<div id="orders"><p class="mut">Loading orders…</p></div></div>
+<div class="sbar"><div class="wrap"><div class="sw"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+<input id="q" type="search" placeholder="Dish ya category search karein…" autocomplete="off" enterkeyhint="search" aria-label="Search dishes">
+<button type="button" id="qx" class="hide" aria-label="Clear search">✕</button></div></div></div>
 
-<div id="v2" class="hide"><form id="mf"><h3 class="full" id="mt">Add dish</h3>
-<input type="hidden" id="mid">
-<div><label class="mut" for="mn">Name</label><input id="mn" required></div>
-<div><label class="mut" for="mc">Category (isi me dish add hogi)</label><select id="mc" required></select><input id="mcn" class="hide" placeholder="Naye category ka naam" style="margin-top:6px"></div>
-<div><label class="mut" for="mp">Price (₹)</label><input id="mp" type="number" min="0" step="any" required></div>
-<div><label class="mut" for="mu">Unit (kg, pcs, plate…)</label><input id="mu" placeholder="kg"></div>
-<div><label class="mut" for="ms">Kitne log khayenge per kg/unit?</label><input id="ms" type="number" min="0.1" step="any" value="5" required><div class="hint">e.g. 1 kg = 5 persons</div></div>
-<div class="full"><label class="mut" for="mi">Dish Photo URL</label><div class="pv"><div class="th" id="mpv">No photo</div><input id="mi" type="url" inputmode="url" placeholder="https://…/dish.jpg"></div></div>
-<div class="full"><label class="chk"><input type="checkbox" id="mb" checked><span>Show in Sliding Banner <span class="mut">(photo wali dishes hi banner me dikhti hain)</span></span></label></div>
-<div class="full"><label class="mut" for="md">Description</label><textarea id="md" rows="2"></textarea></div>
-<div class="full"><button class="btn p" type="submit">Save dish</button> <button class="btn" type="button" id="mx">Clear</button></div></form>
-<div id="mlist"><p class="mut">Loading menu…</p></div>
-<button class="btn hide" id="seed">Add starter menu</button></div>
+<main class="wrap">
+<section id="home"><h2>Categories</h2><p class="sub">Category par tap karein, phir apni pasand ki dish chunein.</p><div class="cg" id="cg"><p class="sub">Loading menu…</p></div></section>
+<section id="list" class="hide"><div class="lh"><button type="button" class="pillb" id="lback">‹ Back</button><div class="lt" id="lt"></div></div><div class="grid" id="grid"></div></section>
+</main>
 
-<div id="v3" class="hide"><form id="cf"><h3 class="full" id="ct">Add category photo</h3>
-<input type="hidden" id="cid"><input type="hidden" id="cold">
-<div><label class="mut" for="cn">Category name</label><input id="cn" required placeholder="Biryani"></div>
-<div><label class="mut" for="ci">Category Photo / Icon URL</label><div class="pv"><div class="th" id="cpv">No photo</div><input id="ci" type="url" inputmode="url" placeholder="https://…/icon.jpg"></div></div>
-<div class="full"><button class="btn p" type="submit">Save category</button> <button class="btn" type="button" id="cx">Clear</button></div></form>
-<div id="clist"><p class="mut">Loading categories…</p></div></div>
+<div class="fbar hide" id="fbar"><div class="sm" aria-live="polite">
+<div class="k"><span>Total Items</span><b id="bI">0</b></div>
+<div class="k"><span>Estimated Guests</span><b id="bG">0</b></div>
+<div class="k"><span>Total</span><b id="bT">₹0</b></div></div>
+<button class="vc" id="next" disabled>View Cart ➔</button></div>
+
+<div class="sheet" id="cart" role="dialog" aria-modal="true" aria-label="My cart">
+<div class="sh"><div class="wrap"><h2>My cart</h2><button type="button" class="pillb" id="cback">‹ Back to store</button></div></div>
+<div id="cbody"><div class="wrap sbody">
+<div class="gcard"><b>🛒 Your Cart</b><span id="cN"></span></div>
+<div class="card"><h3>Review your cart</h3><div id="clist"></div><div id="ctot"></div></div>
+<div class="card"><h3>Order details</h3><div class="two">
+<div><label for="name">Your name</label><input id="name" autocomplete="name"></div>
+<div><label for="phone">Phone</label><input id="phone" type="tel" inputmode="tel" autocomplete="tel"></div>
+<div><label for="date">Date</label><input id="date" type="date"></div>
+<div><label for="time">Serve time</label><input id="time" type="time" value="13:00"></div></div>
+<label for="venue">Venue / full address</label><textarea id="venue" rows="2" autocomplete="street-address"></textarea>
+<label for="notes">Notes (allergies, spice level)</label><textarea id="notes" rows="2"></textarea></div>
+<div class="msg" id="msg" role="status"></div></div>
+<div class="sfoot"><div class="wrap"><div><small>Estimated total</small><b id="fT">₹0</b></div><button class="btn grn" id="place">Place order</button></div></div></div>
+<div class="wrap hide" id="done"><div class="done-box"><div class="ok">✅</div><h2>Order placed</h2><p class="sub">Thank you. We will call you shortly to confirm the final quantity and price.</p><button class="btn grn" onclick="location.reload()">Start a new order</button></div></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -82,123 +166,147 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database(),$=id=>document.getElementById(id);
-const STATUS=['New','Confirmed','Cooking','Out for delivery','Delivered','Cancelled'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const inr=n=>'₹'+Math.round(n).toLocaleString('en-IN');
 const okUrl=u=>/^https?:\/\/\S+$/i.test(u||'');
-const thumb=u=>okUrl(u)?`<div class="th"><img src="${esc(u)}" alt="" loading="lazy" onerror="this.parentNode.textContent='Bad URL'"></div>`:'<div class="th">No photo</div>';
-const serves=m=>{const s=Number(m.servesPerUnit);if(s>0)return s;const p=Number(m.perGuest);return p>0?Math.round(100/p)/100:1};
-let orders={},menu={},cats={};
-$('flt').innerHTML+=STATUS.map(s=>`<option>${s}</option>`).join('');
+const r2=n=>Math.round(n*100)/100;
+const PH='<div class="ph"><svg viewBox="0 0 64 64" fill="none" stroke="#c9854f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 46h52M10 46a22 22 0 0 1 44 0M32 24v-5M27 19h10"/><path d="M14 52h36" opacity=".6"/></svg></div>';
+const BAD="this.classList.add('bad')";
+const PAL=[['#7a35a3','#2b1040'],['#1f9d57','#0c3d24'],['#d4701f','#4d2208'],['#b8325a','#430f20'],['#2f7fb8','#0f2a44']];
+const EMO=[[/biryani|pulao|rice/i,'🍛'],[/kebab|tikka|tandoor|grill/i,'🍢'],[/dessert|sweet|mithai|kheer/i,'🍮'],[/drink|beverage|lassi|juice/i,'🥤'],[/side|raita|salad|salan/i,'🥗'],[/bread|roti|naan|paratha/i,'🫓'],[/curry|gravy|korma|handi/i,'🍲'],[/starter|snack/i,'🍗']];
+const emo=n=>(EMO.find(([r])=>r.test(n))||[0,'🍽️'])[1];
 
-const tab=n=>[1,2,3].forEach(i=>{$('v'+i).classList.toggle('hide',i!==n);$('t'+i).classList.toggle('on',i===n)});
-$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);$('t3').onclick=()=>tab(3);
+let menu={},cats={},qty={},cat='',cartOpen=false;
+$('date').min=new Date().toISOString().slice(0,10);
 
-listen();
-function listen(){
-  db.ref('orders').on('value',s=>{orders=s.val()||{};renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
-  db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu();renderCats()});
-  db.ref('categories').on('value',s=>{cats=s.val()||{};renderCats();renderMenu()},()=>$('clist').innerHTML='<p class="err">Could not load categories. Check database rules for the "categories" node.</p>');
+/* ---------- helpers ---------- */
+const serves=m=>{const s=Number(m.servesPerUnit);if(s>0)return s;const p=Number(m.perGuest);return p>0?r2(1/p):1};
+const stepOf=m=>/^kg$/i.test((m.unit||'').trim())?0.5:1;
+const catOf=m=>m.category||'Biryani';
+const digitUnit=u=>/^\d/.test((u||'').trim());
+const qLabel=(q,u)=>!u?String(q):digitUnit(u)?`${q} × ${u}`:`${q} ${u}`;
+const catImg=name=>{for(const k in cats){const c=cats[k];if(c&&String(c.name||'').toLowerCase()===String(name).toLowerCase()&&okUrl(c.image))return c.image}return ''};
+function liveTxt(id){const m=menu[id],q=qty[id]||0,sv=serves(m);
+  if(!q)return '';
+  return `Lagbhag ${Math.max(1,Math.round(q*sv))} logon ke liye | Total: ${inr(q*(Number(m.price)||0))}`}
+
+/* ---------- data ---------- */
+db.ref('menu').on('value',s=>{menu=s.val()||{};
+  for(const id in qty)if(!menu[id]||menu[id].available===false)delete qty[id];
+  render();drawBanner();bar();if(cartOpen)renderCart()},
+  ()=>{$('cg').innerHTML='<p class="msg err">Menu could not load. Check your connection and refresh.</p>'});
+db.ref('categories').on('value',s=>{cats=s.val()||{};render()},()=>{});
+
+/* ---------- views ---------- */
+function render(){
+  const q=$('q').value.trim().toLowerCase(),mini=!!(cat||q);
+  $('hero').classList.toggle('mini',mini);$('home').classList.toggle('hide',mini);$('list').classList.toggle('hide',!mini);$('qx').classList.toggle('hide',!$('q').value);
+  if(!mini){drawCats();requestAnimationFrame(()=>{const t=$('trk');t.scrollTo({left:si*t.clientWidth})});return}
+  const ids=Object.keys(menu).filter(id=>{const m=menu[id];
+    if(q){const hay=(m.name+' '+(m.desc||'')+' '+catOf(m)).toLowerCase();return q.split(/\s+/).every(w=>hay.includes(w))}
+    return catOf(m)===cat});
+  $('lt').innerHTML=q?`Search: “${esc($('q').value.trim())}”<small>${ids.length} dish${ids.length===1?'':'es'} mile</small>`:`${esc(cat)}<small>${ids.length} dish${ids.length===1?'':'es'}</small>`;
+  $('grid').innerHTML=ids.length?ids.map(id=>card(id,menu[id],!!q)).join(''):`<div class="empty"><b>🔍</b>${q?'Koi dish nahi mili. Doosra naam try karein.':'Is category me abhi koi dish nahi hai.'}</div>`;
 }
-$('flt').onchange=()=>renderOrders();
-
-/* ---------- orders ---------- */
-function renderOrders(){
-  const list=Object.entries(orders).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
-  const c=s=>list.filter(([,o])=>o.status===s);
-  $('sN').textContent=c('New').length;$('sC').textContent=c('Confirmed').length;
-  $('sD').textContent=c('Cooking').length;
-  $('sR').textContent=inr(list.filter(([,o])=>['Confirmed','Cooking','Out for delivery','Delivered'].includes(o.status)).reduce((a,[,o])=>a+(o.total||0),0));
-  const f=$('flt').value,shown=list.filter(([,o])=>!f||o.status===f);
-  $('orders').innerHTML=shown.length?shown.map(([id,o])=>`<div class="o ${esc(o.status)}"><div>
-    <h3>${esc(o.name)}</h3>
-    <div>${esc(o.date)} at ${esc(o.time)} · ~${esc(o.guests)} guests</div>
-    <small>${esc(o.venue)} · <a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
-    <div>${(o.items||[]).map(i=>esc(i.name)+(i.qty?' × '+esc(i.qty)+(i.unit?' '+esc(i.unit):''):'')+(i.serves?' ('+esc(i.serves)+' log)':'')).join(', ')}</div>
-    ${o.notes?`<small>Notes: ${esc(o.notes)}</small>`:''}<div><b>${inr(o.total)}</b></div></div>
-    <div><select data-id="${esc(id)}" aria-label="Order status">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
-    <button class="btn d" data-del="${esc(id)}" style="margin-top:8px;width:100%">Delete</button></div></div>`).join(''):'<p class="mut">No orders match this view.</p>';
+function drawCats(){
+  const ids=Object.keys(menu);
+  if(!ids.length){$('cg').innerHTML='<p class="sub" style="grid-column:1/-1">Our menu is being updated. Please check back shortly.</p>';return}
+  const names=[...new Set(ids.map(i=>catOf(menu[i])))];
+  $('cg').innerHTML=names.map((n,i)=>{const im=catImg(n),p=PAL[i%PAL.length],c=ids.filter(d=>catOf(menu[d])===n).length;
+    return `<button type="button" class="ct" data-c="${esc(n)}"><span class="tile" style="background:linear-gradient(145deg,${p[0]},${p[1]})">${im?`<img src="${esc(im)}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:emo(n)}</span><b>${esc(n)}</b><small>${c} dish${c===1?'':'es'}</small></button>`}).join('');
 }
-$('orders').addEventListener('change',e=>{const id=e.target.dataset.id;id&&db.ref('orders/'+id+'/status').set(e.target.value)});
-$('orders').addEventListener('click',e=>{const id=e.target.dataset.del;if(id&&confirm('Delete this order permanently?'))db.ref('orders/'+id).remove()});
+$('cg').onclick=e=>{const b=e.target.closest('.ct');if(b)openCat(b.dataset.c)};
+function openCat(c){cat=c;history.pushState({k:'cat'},'');render();scrollTo(0,0)}
+$('lback').onclick=()=>{if($('q').value.trim()){$('q').value='';render();return}
+  history.state&&history.state.k==='cat'?history.back():(cat='',render(),scrollTo(0,0))};
+$('q').oninput=()=>{render();if($('q').value.trim())scrollTo(0,0)};
+$('qx').onclick=()=>{$('q').value='';render();$('q').focus()};
+window.addEventListener('popstate',()=>{if(cartOpen)closeCartUI();else if(cat){cat='';render();scrollTo(0,0)}});
 
-/* ---------- menu ---------- */
-function renderMenu(){
-  const l=Object.entries(menu);
-  $('seed').classList.toggle('hide',l.length>0);
-  $('mlist').innerHTML=l.length?l.map(([id,m])=>`<div class="m"><div class="info">${thumb(m.image)}<div style="min-width:0"><b>${esc(m.name)}</b>${m.image&&m.showInBanner!==false&&m.available!==false?'<span class="tag">In banner</span>':''}${m.available===false?'<span class="tag" style="color:var(--err);border-color:var(--err)">Sold out</span>':''}
-  <br><small class="mut">${esc(m.category||'Biryani')} · ${inr(m.price)}${m.unit?' per '+esc(m.unit):''} · 1 ${esc(m.unit||'unit')} = ${esc(serves(m))} persons</small><br><small class="mut">${esc(m.desc)}</small></div></div>
-  <div><button class="btn" data-av="${esc(id)}">${m.available===false?'Mark available':'Mark sold out'}</button>
-  <button class="btn" data-ed="${esc(id)}">Edit</button> <button class="btn d" data-rm="${esc(id)}">Delete</button></div></div>`).join(''):'<p class="mut">No dishes yet. Add one above or load the starter menu.</p>';
-  fillCatSelect();
+/* ---------- cards & quantity ---------- */
+function ctlHTML(id){const q=qty[id]||0;
+  return q?`<div class="pill"><button type="button" data-a="-" aria-label="Decrease">−</button><input inputmode="decimal" value="${q}" aria-label="Quantity"><button type="button" data-a="+" aria-label="Increase">+</button></div>`
+  :`<button type="button" class="add" data-a="add">ADD</button>`}
+function card(id,m,sr){const off=m.available===false,q=qty[id]||0;
+  return `<article class="dish ${q?'on':''} ${off?'off':''}" data-id="${esc(id)}">
+  <div class="media">${PH}${okUrl(m.image)?`<img src="${esc(m.image)}" alt="${esc(m.name)}" loading="lazy" decoding="async" onerror="${BAD}">`:''}${off?'<span class="so">Sold out today</span>':''}</div>
+  <div class="bd"><h3>${esc(m.name)}</h3>${sr?`<span class="cb">${esc(catOf(m))}</span>`:''}${m.desc?`<span class="ds">${esc(m.desc)}</span>`:''}
+  <div class="pr">${inr(m.price)}${m.unit?` <span>per ${esc(m.unit)}</span>`:''}</div>
+  ${off?'':`<div class="ctl">${ctlHTML(id)}</div><div class="live">${liveTxt(id)}</div>`}</div></article>`}
+function setQ(id,v){const m=menu[id];if(!m||m.available===false)return;
+  v=r2(v);if(!(v>0))delete qty[id];else qty[id]=Math.min(v,9999);upd(id);bar();
+  if(cartOpen){if(calc().n)renderCart();else closeCart()}}
+function upd(id){const el=$('grid').querySelector(`[data-id="${CSS.escape(id)}"]`);if(!el)return;
+  const q=qty[id]||0,ctl=el.querySelector('.ctl'),inp=ctl.querySelector('input');
+  el.classList.toggle('on',!!q);
+  if(q&&inp)inp.value=q;else ctl.innerHTML=ctlHTML(id);
+  el.querySelector('.live').innerHTML=liveTxt(id)}
+function onCtl(e){const b=e.target.closest('button[data-a]');if(!b)return;
+  const w=b.closest('[data-id]'),id=w.dataset.id,m=menu[id];if(!m)return;
+  const q=qty[id]||0,st=stepOf(m),a=b.dataset.a;
+  if(a==='add')setQ(id,1);else if(a==='+')setQ(id,q<1?1:q+st);else if(a==='-')setQ(id,q-st);else if(a==='x')setQ(id,0)}
+function onChg(e){if(e.target.tagName!=='INPUT')return;const w=e.target.closest('[data-id]');if(!w)return;
+  const v=parseFloat(String(e.target.value).replace(',','.'));setQ(w.dataset.id,isNaN(v)?0:v);upd(w.dataset.id)}
+$('grid').addEventListener('click',onCtl);$('grid').addEventListener('change',onChg);
+$('clist').addEventListener('click',onCtl);$('clist').addEventListener('change',onChg);
+
+/* ---------- totals & cart ---------- */
+function calc(){const r=[];let t=0,g=0;
+  for(const id in qty){const m=menu[id];if(!m||m.available===false)continue;
+    const q=qty[id],p=Number(m.price)||0,sv=serves(m),people=q*sv;
+    r.push({id,name:m.name,category:catOf(m),unit:m.unit||'',price:p,qty:q,servesPerUnit:sv,serves:Math.max(1,Math.round(people)),cost:r2(q*p)});
+    t+=q*p;g=Math.max(g,people)}
+  return{r,t:r2(t),g:Math.round(g),n:r.length}}
+function bar(){const c=calc();$('bI').textContent=c.n;$('bG').textContent=c.g;$('bT').textContent=inr(c.t);
+  $('next').disabled=!c.n;$('fbar').classList.toggle('hide',!c.n);document.body.classList.toggle('hasbar',c.n>0)}
+function renderCart(){const c=calc();
+  $('cN').textContent=`${c.n} item${c.n===1?'':'s'} in your cart`;
+  $('clist').innerHTML=c.r.map(i=>`<div class="cr" data-id="${esc(i.id)}"><div class="ci"><b>${esc(i.name)}</b>
+    <small>${inr(i.price)}${i.unit?' per '+esc(i.unit):''} × ${esc(qLabel(i.qty,i.unit))} = ${inr(i.cost)}</small><small class="g">Lagbhag ${i.serves} logon ke liye</small></div>
+    <div class="cc"><div class="pill"><button type="button" data-a="-" aria-label="Decrease">−</button><input inputmode="decimal" value="${i.qty}" aria-label="Quantity of ${esc(i.name)}"><button type="button" data-a="+" aria-label="Increase">+</button></div>
+    <button type="button" class="x" data-a="x" aria-label="Remove ${esc(i.name)}">✕</button></div></div>`).join('');
+  $('ctot').innerHTML=`<div class="tr"><span>Total items</span><b>${c.n}</b></div><div class="tr"><span>Estimated guests</span><b>${c.g}</b></div>
+  <div class="tr big"><span>Estimated total</span><b>${inr(c.t)}</b></div><p class="note">This is an estimate. Final price is confirmed by phone and may change with delivery and GST.</p>`;
+  $('fT').textContent=inr(c.t)}
+function openCart(){if(!calc().n)return;renderCart();cartOpen=true;history.pushState({k:'cart'},'');
+  $('cart').classList.add('open');document.body.style.overflow='hidden';$('cart').scrollTop=0}
+function closeCartUI(){cartOpen=false;$('cart').classList.remove('open');document.body.style.overflow=''}
+function closeCart(){history.state&&history.state.k==='cart'?history.back():closeCartUI()}
+$('next').onclick=openCart;$('cback').onclick=closeCart;
+
+/* ---------- banner ---------- */
+let bKey='',si=0,hold=false,holdT,scrT,timer;
+function drawBanner(){
+  const s=Object.entries(menu).filter(([,m])=>m.available!==false&&okUrl(m.image)&&m.showInBanner!==false).slice(0,8);
+  const key=s.map(([id,m])=>[id,m.image,m.name,m.price,m.unit].join('~')).join('|');
+  if(key===bKey)return;bKey=key;clearInterval(timer);
+  $('ban').classList.toggle('hide',!s.length);if(!s.length){$('trk').innerHTML='';return}
+  $('trk').innerHTML=s.map(([id,m],i)=>`<div class="sl" data-id="${esc(id)}" role="group" aria-label="${i+1} of ${s.length}"><img src="${esc(m.image)}" alt="${esc(m.name)}" ${i?'loading="lazy"':'fetchpriority="high"'} decoding="async" onerror="${BAD}"><div class="cap"><small>${esc(catOf(m))}</small><h3>${esc(m.name)}</h3><span>${inr(m.price)}${m.unit?' per '+esc(m.unit):''}</span></div></div>`).join('');
+  $('dots').innerHTML=s.length>1?s.map((_,i)=>`<button type="button" data-i="${i}" aria-label="Slide ${i+1}"></button>`).join(''):'';
+  si=0;dots();
+  if(s.length>1&&!matchMedia('(prefers-reduced-motion:reduce)').matches)timer=setInterval(()=>{if(hold||document.hidden||cat||cartOpen||$('q').value.trim())return;go2((si+1)%s.length)},3500);
 }
-$('mlist').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset;
-  if(t.av)db.ref('menu/'+t.av+'/available').set(menu[t.av].available===false);
-  if(t.rm&&confirm('Delete this dish?'))db.ref('menu/'+t.rm).remove();
-  if(t.ed){const m=menu[t.ed];$('mid').value=t.ed;$('mn').value=m.name||'';setCat(m.category||'Biryani');$('mp').value=m.price;$('mu').value=m.unit||'';
-    $('ms').value=serves(m);$('mi').value=m.image||'';$('mb').checked=m.showInBanner!==false;$('md').value=m.desc||'';
-    prev('mi','mpv');touched=true;$('mt').textContent='Edit dish';scrollTo(0,0)}});
+function go2(i){si=i;const t=$('trk');t.scrollTo({left:i*t.clientWidth,behavior:'smooth'});dots()}
+function dots(){[...$('dots').children].forEach((d,i)=>d.classList.toggle('on',i===si))}
+$('trk').addEventListener('scroll',()=>{clearTimeout(scrT);scrT=setTimeout(()=>{const t=$('trk');if(!t.clientWidth)return;si=Math.round(t.scrollLeft/t.clientWidth);dots()},90)},{passive:true});
+const pause=()=>{hold=true;clearTimeout(holdT)},resume=()=>{clearTimeout(holdT);holdT=setTimeout(()=>hold=false,4500)};
+['touchstart','pointerdown','mouseenter','focusin'].forEach(ev=>$('ban').addEventListener(ev,pause,{passive:true}));
+['touchend','pointerup','mouseleave','focusout'].forEach(ev=>$('ban').addEventListener(ev,resume,{passive:true}));
+$('dots').onclick=e=>{const b=e.target.closest('button');if(b)go2(+b.dataset.i)};
+$('trk').onclick=e=>{const s=e.target.closest('.sl');if(!s)return;const id=s.dataset.id,m=menu[id];if(!m)return;
+  $('q').value='';if(cat!==catOf(m))openCat(catOf(m));else render();
+  setTimeout(()=>{const el=$('grid').querySelector(`[data-id="${CSS.escape(id)}"]`);el&&el.scrollIntoView({behavior:'smooth',block:'center'})},80)};
 
-function fillCatSelect(keep){
-  const cur=keep!==undefined?keep:$('mc').value,names=catRows().map(c=>c.name);
-  if(cur&&cur!=='__new'&&!names.includes(cur))names.push(cur);
-  $('mc').innerHTML=names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')+'<option value="__new">+ Naya category…</option>';
-  $('mc').value=cur&&(names.includes(cur)||cur==='__new')?cur:(names[0]||'__new');
-  catNew()}
-function catNew(){const n=$('mc').value==='__new';$('mcn').classList.toggle('hide',!n);$('mcn').required=n}
-function setCat(n){fillCatSelect(n);$('mcn').value=''}
-const getCat=()=>$('mc').value==='__new'?$('mcn').value.trim():$('mc').value;
-$('mc').onchange=()=>{catNew();if($('mc').value==='__new')$('mcn').focus()};
-function prev(inp,box){const u=$(inp).value.trim();$(box).innerHTML=okUrl(u)?`<img src="${esc(u)}" alt="" onerror="this.parentNode.textContent='Bad URL'">`:'No photo'}
-let touched=false;
-$('mb').onchange=()=>touched=true;
-$('mi').oninput=()=>{prev('mi','mpv');if(!touched)$('mb').checked=okUrl($('mi').value.trim())};
-$('ci').oninput=()=>prev('ci','cpv');
-
-const clear=()=>{const keep=getCat();$('mf').reset();$('mid').value='';setCat(keep||undefined);$('mt').textContent='Add dish';touched=false;prev('mi','mpv')};$('mx').onclick=clear;
-$('mf').onsubmit=e=>{e.preventDefault();
-  const img=$('mi').value.trim(),sv=Number($('ms').value),catName=getCat();
-  if(!catName){alert('Category chunein ya naya naam likhein.');return}
-  if(img&&!okUrl(img)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
-  if(!(sv>0)){alert('"Kitne log khayenge per unit" 0 se zyada hona chahiye.');return}
-  const d={name:$('mn').value.trim(),category:catName,price:Number($('mp').value),unit:$('mu').value.trim(),
-    servesPerUnit:sv,image:img||null,showInBanner:$('mb').checked,desc:$('md').value.trim()},id=$('mid').value;
-  (id?db.ref('menu/'+id).update(d):db.ref('menu').push({...d,available:true})).then(clear).catch(()=>alert('Save failed. Check database rules.'))};
-
-$('seed').onclick=()=>[
-  {name:'Dum Gosht Pateli Biryani',category:'Biryani',price:950,servesPerUnit:5,desc:'Aged basmati and tender mutton, sealed with dough and slow-cooked.'},
-  {name:'Murgh Zafrani Biryani',category:'Biryani',price:780,servesPerUnit:5,desc:'Saffron-marinated chicken layered with fried onions and mint.'},
-  {name:'Subz Awadhi Biryani',category:'Biryani',price:650,servesPerUnit:5,desc:'Seasonal vegetables, kewra and whole spices.'},
-  {name:'Mirchi ka Salan and Burhani Raita',category:'Sides',price:120,servesPerUnit:6,desc:'Served alongside the biryani.'}
-].forEach(d=>db.ref('menu').push({unit:'kg',showInBanner:true,available:true,...d}));
-
-/* ---------- categories ---------- */
-function catRows(){
-  const m=new Map();
-  Object.entries(cats).forEach(([id,c])=>{if(c&&c.name)m.set(c.name.toLowerCase(),{id,name:c.name,image:c.image||'',n:0})});
-  Object.values(menu).forEach(d=>{const n=d.category||'Biryani',k=n.toLowerCase();
-    if(!m.has(k))m.set(k,{id:'',name:n,image:'',n:0});m.get(k).n++});
-  return [...m.values()];
-}
-function renderCats(){
-  fillCatSelect();
-  const l=catRows();
-  $('clist').innerHTML=l.length?l.map(c=>`<div class="m"><div class="info">${thumb(c.image)}<div><b>${esc(c.name)}</b><br><small class="mut">${c.n} dish${c.n===1?'':'es'}${c.image?'':' · photo not set'}</small></div></div>
-  <div><button class="btn p" data-cadd="${esc(c.name)}">+ Add dish</button> <button class="btn" data-ce="${esc(c.name)}">${c.image?'Edit':'Add photo'}</button>${c.id?` <button class="btn d" data-cd="${esc(c.id)}">Delete</button>`:''}</div></div>`).join(''):'<p class="mut">No categories yet. Add a dish or create a category above.</p>';
-}
-$('clist').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset;
-  if(t.ce!==undefined){const c=catRows().find(x=>x.name===t.ce);if(!c)return;
-    $('cid').value=c.id;$('cold').value=c.name;$('cn').value=c.name;$('ci').value=c.image;prev('ci','cpv');$('ct').textContent='Edit category';scrollTo(0,0)}
-  if(t.cadd!==undefined){clear();setCat(t.cadd);tab(2);scrollTo(0,0);$('mn').focus()}
-  if(t.cd&&confirm('Delete this category photo/record? Dishes will stay as they are.'))db.ref('categories/'+t.cd).remove()});
-const cclear=()=>{$('cf').reset();$('cid').value='';$('cold').value='';$('ct').textContent='Add category photo';prev('ci','cpv')};$('cx').onclick=cclear;
-$('cf').onsubmit=e=>{e.preventDefault();
-  const name=$('cn').value.trim(),image=$('ci').value.trim(),old=$('cold').value,id=$('cid').value;
-  if(!name)return;
-  if(image&&!okUrl(image)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
-  if(catRows().some(c=>c.name.toLowerCase()===name.toLowerCase()&&c.name.toLowerCase()!==old.toLowerCase())){alert('Is naam ki category pehle se hai.');return}
-  const key=id||db.ref('categories').push().key,u={};
-  u['categories/'+key]={name,image:image||null};
-  if(old&&old!==name)Object.entries(menu).forEach(([did,d])=>{if((d.category||'Biryani')===old)u['menu/'+did+'/category']=name});
-  db.ref().update(u).then(cclear).catch(()=>alert('Save failed. Check database rules.'))};
+/* ---------- place order ---------- */
+$('place').onclick=()=>{
+  const m=$('msg'),f=id=>$(id).value.trim(),phone=f('phone').replace(/\D/g,''),c=calc();
+  if(!c.n){m.className='msg err';m.textContent='Please add at least one dish.';return}
+  if(!f('name')||phone.length<10||!f('venue')||!f('date')){m.className='msg err';m.textContent='Add your name, a 10-digit phone number, date and venue address.';return}
+  $('place').disabled=true;m.className='msg';m.textContent='Placing order…';
+  db.ref('orders').push({name:f('name'),phone,venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),
+    guests:c.g,itemCount:c.n,items:c.r,total:c.t,status:'New',ts:firebase.database.ServerValue.TIMESTAMP})
+  .then(()=>{$('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
+  .catch(()=>{m.className='msg err';m.textContent='Could not place the order. Check your connection and try again.';$('place').disabled=false});
+};
+render();
 </script></body></html>
