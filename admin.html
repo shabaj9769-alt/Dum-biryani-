@@ -1,1 +1,133 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Royal Daawat · Operations</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1c0e0b;--panel:#2a1612;--line:#5a3a2c;--cu:#c9854f;--sf:#f0b44c;--tx:#f5ead8;--mut:#b9a58f;--ok:#8fcf9b;--err:#ff8a7a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 'Hanken Grotesk',sans-serif}
+h1,h2,h3{font-family:Fraunces,serif;margin:0}
+.wrap{max-width:1100px;margin:auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px}
+nav button,.btn{background:var(--panel);color:var(--tx);border:1px solid var(--line);padding:9px 16px;border-radius:4px;font:inherit;cursor:pointer}
+nav button.on,.btn.p{background:var(--sf);color:#2a1200;border-color:var(--sf);font-weight:700}
+.btn.d{color:var(--err)}:focus-visible{outline:2px solid var(--sf);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+.stat{border:1px solid var(--line);background:var(--panel);padding:14px;border-radius:4px}
+.stat b{display:block;font:800 1.7rem Fraunces,serif;color:var(--sf)}.stat span{color:var(--mut)}
+.o{border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:16px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:10px}
+.o.New{border-left:4px solid var(--sf)}.o small,.mut{color:var(--mut)}
+@media(max-width:700px){.o{grid-template-columns:1fr}}
+select,input,textarea{background:#170b08;color:var(--tx);border:1px solid var(--line);border-radius:4px;padding:9px;font:inherit;width:100%}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;border:1px solid var(--cu);padding:16px;border-radius:4px;background:var(--panel);margin:16px 0}
+form .full{grid-column:1/-1}
+.m{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:10px 0;flex-wrap:wrap}
+.gate{max-width:340px;margin:18vh auto;text-align:center}.gate input{margin:14px 0}
+.hide{display:none!important}.err{color:var(--err)}
+</style></head><body>
+<div class="gate" id="gate"><h1>Operations</h1><p class="mut">Enter the staff passcode.</p>
+<input id="pw" type="password" aria-label="Passcode" autocomplete="current-password"><button class="btn p" id="enter" style="width:100%">Unlock</button><p class="err" id="gerr"></p></div>
+
+<div class="wrap hide" id="app">
+<header><h1>Royal Daawat operations</h1>
+<nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button class="btn" id="out">Lock</button></nav></header>
+
+<div id="v1"><div class="stats">
+<div class="stat"><b id="sN">0</b><span>New requests</span></div>
+<div class="stat"><b id="sC">0</b><span>Confirmed</span></div>
+<div class="stat"><b id="sD">0</b><span>Deg to cook (active)</span></div>
+<div class="stat"><b id="sR">₹0</b><span>Confirmed and delivered value</span></div></div>
+<select id="flt" aria-label="Filter orders" style="max-width:220px;margin-bottom:14px"><option value="">All statuses</option></select>
+<div id="orders"><p class="mut">Loading orders…</p></div></div>
+
+<div id="v2" class="hide"><form id="mf"><h3 class="full" id="mt">Add dish</h3>
+<input type="hidden" id="mid">
+<div><label class="mut" for="mn">Name</label><input id="mn" required></div>
+<div><label class="mut" for="mc">Category</label><input id="mc" placeholder="Biryani, Kebab, Dessert"></div>
+<div><label class="mut" for="mp">Price per guest (₹)</label><input id="mp" type="number" min="0" required></div>
+<div class="full"><label class="mut" for="md">Description</label><textarea id="md" rows="2"></textarea></div>
+<div class="full"><button class="btn p" type="submit">Save dish</button> <button class="btn" type="button" id="mx">Clear</button></div></form>
+<div id="mlist"><p class="mut">Loading menu…</p></div>
+<button class="btn hide" id="seed">Add starter menu</button></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAZKvp9yhCq9l-7-wXiy-qkx3llHw_-618",
+  authDomain: "biryani-category.firebaseapp.com",
+  databaseURL: "https://biryani-category-default-rtdb.firebaseio.com",
+  projectId: "biryani-category",
+  storageBucket: "biryani-category.firebasestorage.app",
+  messagingSenderId: "86398170612",
+  appId: "1:86398170612:web:2029aeed3ca7cad88af5a1",
+  measurementId: "G-XJ6RXX1GX3"
+};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database(),$=id=>document.getElementById(id);
+const PASSCODE='daawat2026'; // CHANGE THIS. Client-side gate only; secure with Firebase Auth + database rules.
+const STATUS=['New','Confirmed','Cooking','Out for delivery','Delivered','Cancelled'];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+let orders={},menu={},started=false;
+$('flt').innerHTML+=STATUS.map(s=>`<option>${s}</option>`).join('');
+
+function unlock(){$('gate').classList.add('hide');$('app').classList.remove('hide');sessionStorage.setItem('ok','1');if(!started){started=true;listen()}}
+$('enter').onclick=()=>$('pw').value===PASSCODE?unlock():$('gerr').textContent='Wrong passcode.';
+$('pw').onkeydown=e=>{if(e.key==='Enter')$('enter').click()};
+$('out').onclick=()=>{sessionStorage.removeItem('ok');location.reload()};
+if(sessionStorage.getItem('ok'))unlock();
+const tab=n=>{$('v1').classList.toggle('hide',n!=1);$('v2').classList.toggle('hide',n!=2);$('t1').classList.toggle('on',n==1);$('t2').classList.toggle('on',n==2)};
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);
+
+function listen(){
+  db.ref('orders').on('value',s=>{orders=s.val()||{};renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
+  db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu()});
+}
+$('flt').onchange=()=>renderOrders();
+
+function renderOrders(){
+  const list=Object.entries(orders).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
+  const c=s=>list.filter(([,o])=>o.status===s);
+  $('sN').textContent=c('New').length;$('sC').textContent=c('Confirmed').length;
+  const active=list.filter(([,o])=>['Confirmed','Cooking'].includes(o.status));
+  $('sD').textContent=active.reduce((a,[,o])=>a+(o.deg||0),0);
+  $('sR').textContent=inr(list.filter(([,o])=>['Confirmed','Cooking','Out for delivery','Delivered'].includes(o.status)).reduce((a,[,o])=>a+(o.total||0),0));
+  const f=$('flt').value,shown=list.filter(([,o])=>!f||o.status===f);
+  $('orders').innerHTML=shown.length?shown.map(([id,o])=>`<div class="o ${esc(o.status)}"><div>
+    <h3>${esc(o.name)} <small>· ${esc(o.occasion)}</small></h3>
+    <div>${esc(o.date)} at ${esc(o.time)} · ${esc(o.area)} · ${esc(o.guests)} guests · ${esc(o.deg)} deg</div>
+    <small>${esc(o.venue)} · <a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
+    <div>${(o.items||[]).map(i=>esc(i.name)).join(', ')}</div>
+    ${o.notes?`<small>Notes: ${esc(o.notes)}</small>`:''}<div><b>${inr(o.total)}</b></div></div>
+    <div><select data-id="${esc(id)}" aria-label="Order status">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
+    <button class="btn d" data-del="${esc(id)}" style="margin-top:8px;width:100%">Delete</button></div></div>`).join(''):'<p class="mut">No orders match this view.</p>';
+}
+$('orders').addEventListener('change',e=>{const id=e.target.dataset.id;id&&db.ref('orders/'+id+'/status').set(e.target.value)});
+$('orders').addEventListener('click',e=>{const id=e.target.dataset.del;if(id&&confirm('Delete this order permanently?'))db.ref('orders/'+id).remove()});
+
+function renderMenu(){
+  const l=Object.entries(menu);
+  $('seed').classList.toggle('hide',l.length>0);
+  $('mlist').innerHTML=l.length?l.map(([id,m])=>`<div class="m"><div><b>${esc(m.name)}</b> <small class="mut">${esc(m.category)} · ${inr(m.price)} per guest</small><br><small class="mut">${esc(m.desc)}</small></div>
+  <div><button class="btn" data-av="${esc(id)}">${m.available===false?'Mark available':'Mark sold out'}</button>
+  <button class="btn" data-ed="${esc(id)}">Edit</button> <button class="btn d" data-rm="${esc(id)}">Delete</button></div></div>`).join(''):'<p class="mut">No dishes yet. Add one above or load the starter menu.</p>';
+}
+$('mlist').addEventListener('click',e=>{const t=e.target.dataset;
+  if(t.av)db.ref('menu/'+t.av+'/available').set(menu[t.av].available===false);
+  if(t.rm&&confirm('Delete this dish?'))db.ref('menu/'+t.rm).remove();
+  if(t.ed){const m=menu[t.ed];$('mid').value=t.ed;$('mn').value=m.name;$('mc').value=m.category||'';$('mp').value=m.price;$('md').value=m.desc||'';$('mt').textContent='Edit dish';scrollTo(0,0)}});
+const clear=()=>{$('mf').reset();$('mid').value='';$('mt').textContent='Add dish'};$('mx').onclick=clear;
+$('mf').onsubmit=e=>{e.preventDefault();
+  const d={name:$('mn').value.trim(),category:$('mc').value.trim()||'Biryani',price:Number($('mp').value),desc:$('md').value.trim()},id=$('mid').value;
+  (id?db.ref('menu/'+id).update(d):db.ref('menu').push({...d,available:true})).then(clear).catch(()=>alert('Save failed. Check database rules.'))};
+$('seed').onclick=()=>[
+  {name:'Dum Gosht Pateli Biryani',category:'Biryani',price:950,desc:'Aged basmati and tender mutton, sealed with dough and slow-cooked.',available:true},
+  {name:'Murgh Zafrani Biryani',category:'Biryani',price:780,desc:'Saffron-marinated chicken layered with fried onions and mint.',available:true},
+  {name:'Subz Awadhi Biryani',category:'Biryani',price:650,desc:'Seasonal vegetables, kewra and whole spices.',available:true},
+  {name:'Mirchi ka Salan and Burhani Raita',category:'Sides',price:120,desc:'Served with every deg.',available:true}
+].forEach(d=>db.ref('menu').push(d));
+</script></body></html>
 
