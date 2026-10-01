@@ -26,17 +26,14 @@ form .full{grid-column:1/-1}
 .gate{max-width:340px;margin:18vh auto;text-align:center}.gate input{margin:14px 0}
 .hide{display:none!important}.err{color:var(--err)}
 </style></head><body>
-<div class="gate" id="gate"><h1>Operations</h1><p class="mut">Enter the staff passcode.</p>
-<input id="pw" type="password" aria-label="Passcode" autocomplete="current-password"><button class="btn p" id="enter" style="width:100%">Unlock</button><p class="err" id="gerr"></p></div>
-
-<div class="wrap hide" id="app">
+<div class="wrap" id="app">
 <header><h1>Royal Daawat operations</h1>
-<nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button class="btn" id="out">Lock</button></nav></header>
+<nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button></nav></header>
 
 <div id="v1"><div class="stats">
 <div class="stat"><b id="sN">0</b><span>New requests</span></div>
 <div class="stat"><b id="sC">0</b><span>Confirmed</span></div>
-<div class="stat"><b id="sD">0</b><span>Deg to cook (active)</span></div>
+<div class="stat"><b id="sD">0</b><span>Cooking now</span></div>
 <div class="stat"><b id="sR">₹0</b><span>Confirmed and delivered value</span></div></div>
 <select id="flt" aria-label="Filter orders" style="max-width:220px;margin-bottom:14px"><option value="">All statuses</option></select>
 <div id="orders"><p class="mut">Loading orders…</p></div></div>
@@ -45,7 +42,9 @@ form .full{grid-column:1/-1}
 <input type="hidden" id="mid">
 <div><label class="mut" for="mn">Name</label><input id="mn" required></div>
 <div><label class="mut" for="mc">Category</label><input id="mc" placeholder="Biryani, Kebab, Dessert"></div>
-<div><label class="mut" for="mp">Price per guest (₹)</label><input id="mp" type="number" min="0" required></div>
+<div><label class="mut" for="mp">Price (₹)</label><input id="mp" type="number" min="0" step="any" required></div>
+<div><label class="mut" for="mu">Unit (kg, pcs, plate…)</label><input id="mu"></div>
+<div><label class="mut" for="mq">Quantity per guest (e.g. 0.25 kg, 2 pcs)</label><input id="mq" type="number" min="0" step="any" value="1"></div>
 <div class="full"><label class="mut" for="md">Description</label><textarea id="md" rows="2"></textarea></div>
 <div class="full"><button class="btn p" type="submit">Save dish</button> <button class="btn" type="button" id="mx">Clear</button></div></form>
 <div id="mlist"><p class="mut">Loading menu…</p></div>
@@ -67,21 +66,16 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database(),$=id=>document.getElementById(id);
-const PASSCODE='daawat2026'; // CHANGE THIS. Client-side gate only; secure with Firebase Auth + database rules.
 const STATUS=['New','Confirmed','Cooking','Out for delivery','Delivered','Cancelled'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN');
-let orders={},menu={},started=false;
+let orders={},menu={};
 $('flt').innerHTML+=STATUS.map(s=>`<option>${s}</option>`).join('');
 
-function unlock(){$('gate').classList.add('hide');$('app').classList.remove('hide');sessionStorage.setItem('ok','1');if(!started){started=true;listen()}}
-$('enter').onclick=()=>$('pw').value===PASSCODE?unlock():$('gerr').textContent='Wrong passcode.';
-$('pw').onkeydown=e=>{if(e.key==='Enter')$('enter').click()};
-$('out').onclick=()=>{sessionStorage.removeItem('ok');location.reload()};
-if(sessionStorage.getItem('ok'))unlock();
 const tab=n=>{$('v1').classList.toggle('hide',n!=1);$('v2').classList.toggle('hide',n!=2);$('t1').classList.toggle('on',n==1);$('t2').classList.toggle('on',n==2)};
 $('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);
 
+listen();
 function listen(){
   db.ref('orders').on('value',s=>{orders=s.val()||{};renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
   db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu()});
@@ -92,15 +86,14 @@ function renderOrders(){
   const list=Object.entries(orders).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
   const c=s=>list.filter(([,o])=>o.status===s);
   $('sN').textContent=c('New').length;$('sC').textContent=c('Confirmed').length;
-  const active=list.filter(([,o])=>['Confirmed','Cooking'].includes(o.status));
-  $('sD').textContent=active.reduce((a,[,o])=>a+(o.deg||0),0);
+  $('sD').textContent=c('Cooking').length;
   $('sR').textContent=inr(list.filter(([,o])=>['Confirmed','Cooking','Out for delivery','Delivered'].includes(o.status)).reduce((a,[,o])=>a+(o.total||0),0));
   const f=$('flt').value,shown=list.filter(([,o])=>!f||o.status===f);
   $('orders').innerHTML=shown.length?shown.map(([id,o])=>`<div class="o ${esc(o.status)}"><div>
-    <h3>${esc(o.name)} <small>· ${esc(o.occasion)}</small></h3>
-    <div>${esc(o.date)} at ${esc(o.time)} · ${esc(o.area)} · ${esc(o.guests)} guests · ${esc(o.deg)} deg</div>
+    <h3>${esc(o.name)}</h3>
+    <div>${esc(o.date)} at ${esc(o.time)} · ${esc(o.guests)} guests</div>
     <small>${esc(o.venue)} · <a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
-    <div>${(o.items||[]).map(i=>esc(i.name)).join(', ')}</div>
+    <div>${(o.items||[]).map(i=>esc(i.name)+(i.qty?' × '+esc(i.qty)+(i.unit?' '+esc(i.unit):''):'')).join(', ')}</div>
     ${o.notes?`<small>Notes: ${esc(o.notes)}</small>`:''}<div><b>${inr(o.total)}</b></div></div>
     <div><select data-id="${esc(id)}" aria-label="Order status">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
     <button class="btn d" data-del="${esc(id)}" style="margin-top:8px;width:100%">Delete</button></div></div>`).join(''):'<p class="mut">No orders match this view.</p>';
@@ -111,23 +104,22 @@ $('orders').addEventListener('click',e=>{const id=e.target.dataset.del;if(id&&co
 function renderMenu(){
   const l=Object.entries(menu);
   $('seed').classList.toggle('hide',l.length>0);
-  $('mlist').innerHTML=l.length?l.map(([id,m])=>`<div class="m"><div><b>${esc(m.name)}</b> <small class="mut">${esc(m.category)} · ${inr(m.price)} per guest</small><br><small class="mut">${esc(m.desc)}</small></div>
+  $('mlist').innerHTML=l.length?l.map(([id,m])=>`<div class="m"><div><b>${esc(m.name)}</b> <small class="mut">${esc(m.category)} · ${inr(m.price)}${m.unit?' per '+esc(m.unit):''} · ${esc(m.perGuest||1)} ${esc(m.unit)} per guest</small><br><small class="mut">${esc(m.desc)}</small></div>
   <div><button class="btn" data-av="${esc(id)}">${m.available===false?'Mark available':'Mark sold out'}</button>
   <button class="btn" data-ed="${esc(id)}">Edit</button> <button class="btn d" data-rm="${esc(id)}">Delete</button></div></div>`).join(''):'<p class="mut">No dishes yet. Add one above or load the starter menu.</p>';
 }
 $('mlist').addEventListener('click',e=>{const t=e.target.dataset;
   if(t.av)db.ref('menu/'+t.av+'/available').set(menu[t.av].available===false);
   if(t.rm&&confirm('Delete this dish?'))db.ref('menu/'+t.rm).remove();
-  if(t.ed){const m=menu[t.ed];$('mid').value=t.ed;$('mn').value=m.name;$('mc').value=m.category||'';$('mp').value=m.price;$('md').value=m.desc||'';$('mt').textContent='Edit dish';scrollTo(0,0)}});
+  if(t.ed){const m=menu[t.ed];$('mid').value=t.ed;$('mn').value=m.name;$('mc').value=m.category||'';$('mp').value=m.price;$('mu').value=m.unit||'';$('mq').value=m.perGuest||1;$('md').value=m.desc||'';$('mt').textContent='Edit dish';scrollTo(0,0)}});
 const clear=()=>{$('mf').reset();$('mid').value='';$('mt').textContent='Add dish'};$('mx').onclick=clear;
 $('mf').onsubmit=e=>{e.preventDefault();
-  const d={name:$('mn').value.trim(),category:$('mc').value.trim()||'Biryani',price:Number($('mp').value),desc:$('md').value.trim()},id=$('mid').value;
+  const d={name:$('mn').value.trim(),category:$('mc').value.trim()||'Biryani',price:Number($('mp').value),unit:$('mu').value.trim(),perGuest:Number($('mq').value)||1,desc:$('md').value.trim()},id=$('mid').value;
   (id?db.ref('menu/'+id).update(d):db.ref('menu').push({...d,available:true})).then(clear).catch(()=>alert('Save failed. Check database rules.'))};
 $('seed').onclick=()=>[
   {name:'Dum Gosht Pateli Biryani',category:'Biryani',price:950,desc:'Aged basmati and tender mutton, sealed with dough and slow-cooked.',available:true},
   {name:'Murgh Zafrani Biryani',category:'Biryani',price:780,desc:'Saffron-marinated chicken layered with fried onions and mint.',available:true},
   {name:'Subz Awadhi Biryani',category:'Biryani',price:650,desc:'Seasonal vegetables, kewra and whole spices.',available:true},
-  {name:'Mirchi ka Salan and Burhani Raita',category:'Sides',price:120,desc:'Served with every deg.',available:true}
-].forEach(d=>db.ref('menu').push(d));
+  {name:'Mirchi ka Salan and Burhani Raita',category:'Sides',price:120,desc:'Served alongside the biryani.',available:true}
+].forEach(d=>db.ref('menu').push({unit:'kg',...d}));
 </script></body></html>
-
