@@ -121,6 +121,11 @@ input,textarea{width:100%;background:#170b08;color:var(--tx);border:1px solid va
 .sfoot .wrap{flex-wrap:wrap}.sacts{display:flex;gap:8px;flex:1;min-width:0}.sacts .btn{max-width:none;padding:11px 10px;white-space:nowrap}
 .btn.enq{background:transparent;color:var(--sf);border:1.5px solid var(--sf)}
 .done-box{text-align:center;padding:70px 10px}.done-box .ok{font-size:3rem}
+.rv{display:flex;gap:8px;margin-top:2px}.rc{display:block;margin:0;position:relative;flex:1}
+.rc input{position:absolute;opacity:0;width:0;height:0}
+.rc span{display:block;text-align:center;border:1px solid var(--line);border-radius:10px;padding:10px 8px;color:var(--mut);font-weight:700;cursor:pointer;background:#170b08}
+.rc input:checked+span{border-color:var(--gr2);color:#7fe3ae;background:rgba(47,191,113,.14)}
+.rc input:focus-visible+span{outline:2px solid var(--sf);outline-offset:2px}
 .hide{display:none!important}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.trk{scroll-behavior:auto}}
 </style></head><body>
@@ -155,6 +160,10 @@ input,textarea{width:100%;background:#170b08;color:var(--tx);border:1px solid va
 <div><label for="time">Serve time</label><input id="time" type="time" value="13:00"></div></div>
 <label for="venue">Venue / full address</label><textarea id="venue" rows="2" autocomplete="street-address"></textarea>
 <label for="notes">Notes (allergies, spice level)</label><textarea id="notes" rows="2"></textarea></div>
+<div class="card"><h3>Enquiry reply</h3><p class="note" style="margin:0 0 8px">Where should we send the reply to your enquiry?</p>
+<div class="rv" role="radiogroup" aria-label="Reply method"><label class="rc"><input type="radio" name="rv" value="WhatsApp" checked><span>💬 WhatsApp</span></label><label class="rc"><input type="radio" name="rv" value="Email"><span>✉️ Email</span></label></div>
+<div id="eml" class="hide"><label for="email">Your email</label><input id="email" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com"></div>
+<p class="note" id="rnote">We will reply on WhatsApp using the phone number above.</p></div>
 <div class="msg" id="msg" role="status"></div>
 <a class="sup blk" href="tel:+918779612829">📞 Need help? Call support: 8779612829</a></div>
 <div class="sfoot"><div class="wrap"><div><small>Estimated total</small><b id="fT">₹0</b></div><div class="sacts"><button class="btn enq" id="enq">Enquiry</button><button class="btn grn" id="place">Place order</button></div></div></div></div>
@@ -321,17 +330,22 @@ $('trk').onclick=e=>{const sl=e.target.closest('.sl');if(!sl)return;const bn=ban
   else if(bn.category)openCat(bn.category)};
 
 /* ---------- place order / enquiry ---------- */
+const rvVal=()=>(document.querySelector('input[name=rv]:checked')||{}).value||'WhatsApp';
+document.querySelectorAll('input[name=rv]').forEach(r=>r.onchange=()=>{const e=rvVal()==='Email';$('eml').classList.toggle('hide',!e);
+  $('rnote').textContent=e?'We will reply to this email address.':'We will reply on WhatsApp using the phone number above.'});
 function submit(kind){
   const enq=kind==='Enquiry',m=$('msg'),f=id=>$(id).value.trim(),phone=f('phone').replace(/\D/g,''),c=calc();
   if(!c.n){m.className='msg err';m.textContent='Please add at least one dish.';return}
-  if(enq){if(!f('name')||phone.length<10){m.className='msg err';m.textContent='Please enter your name and a 10-digit phone number to send an enquiry.';return}}
+  const rv=rvVal(),email=f('email');
+  if(enq){if(!f('name')||phone.length<10){m.className='msg err';m.textContent='Please enter your name and a 10-digit phone number to send an enquiry.';return}
+    if(rv==='Email'&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){m.className='msg err';m.textContent='Please enter a valid email address so we can reply.';$('email').focus();return}}
   else if(!f('name')||phone.length<10||!f('venue')||!f('date')){m.className='msg err';m.textContent='Add your name, a 10-digit phone number, date and venue address.';return}
   $('place').disabled=true;$('enq').disabled=true;m.className='msg';m.textContent=enq?'Sending enquiry…':'Placing order…';
-  db.ref('orders').push({type:kind,name:f('name'),phone,venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),
+  db.ref('orders').push({type:kind,...(enq?{replyVia:rv}:{}),...(email?{email}:{}),name:f('name'),phone,venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),
     guests:c.g,itemCount:c.n,items:c.r,total:c.t,status:enq?'Enquiry':'New',ts:firebase.database.ServerValue.TIMESTAMP})
   .then(()=>{
     $('dT').textContent=enq?'Enquiry sent':'Order placed';
-    $('dP').textContent=enq?'Thank you. We will call you shortly with details and pricing.':'Thank you. We will call you shortly to confirm the final quantity and price.';
+    $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:'Thank you. We will call you shortly to confirm the final quantity and price.';
     $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
   .catch(()=>{m.className='msg err';m.textContent=(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false;$('enq').disabled=false});
 }
