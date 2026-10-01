@@ -15,7 +15,11 @@ button{font:inherit}body.hasbar{padding-bottom:120px}
 .hero p{color:var(--mut);max-width:50ch;margin:8px 0 0;font-size:.9rem}
 .hero.mini{padding:16px 0 12px}.sup{display:inline-flex;align-items:center;gap:8px;margin-top:12px;background:rgba(47,191,113,.14);border:1px solid rgba(47,191,113,.45);color:#7fe3ae;border-radius:99px;padding:7px 14px;font-weight:700;font-size:.85rem;text-decoration:none}
 .sup.blk{display:flex;justify-content:center;margin:0 0 12px;border-radius:12px;padding:10px}
-.hero.mini .sup{display:none}
+.hero .wrap{position:relative}
+.callb{position:absolute;top:0;right:14px;z-index:3;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--gr2),var(--gr));box-shadow:0 4px 12px rgba(0,0,0,.45),0 0 0 3px rgba(47,191,113,.22);text-decoration:none}
+.callb svg{width:20px;height:20px;fill:#fff}
+.callb:active{transform:scale(.93)}
+.hero h1{padding-right:54px}
 .hero.mini h1{font-size:1.15rem;max-width:none}.hero.mini p,.hero.mini .ban{display:none}
 
 /* search */
@@ -31,7 +35,7 @@ button{font:inherit}body.hasbar{padding-bottom:120px}
 .ban{position:relative;margin-top:14px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--panel)}
 .trk{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .trk::-webkit-scrollbar{display:none}
-.sl{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;aspect-ratio:16/9;max-height:360px;cursor:pointer;background:linear-gradient(135deg,#3a1d14,#2a1612)}
+.sl.go{cursor:pointer}.sl{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;aspect-ratio:16/9;max-height:360px;background:linear-gradient(135deg,#3a1d14,#2a1612)}
 .sl img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cap{position:absolute;left:0;right:0;bottom:0;padding:48px 16px 14px;background:linear-gradient(transparent,rgba(18,9,7,.93))}
 .cap h3{font-size:clamp(1.15rem,4.5vw,1.6rem);font-weight:800}.cap span{color:var(--sf);font-weight:700;font-size:.95rem}.cap small{display:block;color:var(--mut);font-size:.8rem}
@@ -52,7 +56,7 @@ h2{font-size:1.35rem;margin:16px 0 2px}.sub{color:var(--mut);margin:0 0 14px;fon
 .ct{background:none;border:0;padding:0;color:var(--tx);cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;min-width:0}
 .tile{width:100%;aspect-ratio:1;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;border:1px solid rgba(255,255,255,.12);box-shadow:0 5px 12px rgba(0,0,0,.35);margin-bottom:5px;transition:transform .15s}
 .ct:active .tile{transform:scale(.95)}
-.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile{position:relative}.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .ct b{font-size:.82rem;line-height:1.25;overflow-wrap:anywhere}.ct small{color:var(--mut);font-size:.7rem}
 
 /* list header */
@@ -114,21 +118,22 @@ input,textarea{width:100%;background:#170b08;color:var(--tx);border:1px solid va
 .sfoot{position:sticky;bottom:0;background:#120907;border-top:1px solid var(--cu);padding:12px 0 calc(12px + env(safe-area-inset-bottom))}
 .sfoot .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .sfoot small{color:var(--mut);display:block;line-height:1.2}.sfoot b{font:700 1.25rem Fraunces,serif;color:var(--sf)}.sfoot .btn{flex:1;max-width:260px}
+.sfoot .wrap{flex-wrap:wrap}.sacts{display:flex;gap:8px;flex:1;min-width:0}.sacts .btn{max-width:none;padding:11px 10px;white-space:nowrap}
+.btn.enq{background:transparent;color:var(--sf);border:1.5px solid var(--sf)}
 .done-box{text-align:center;padding:70px 10px}.done-box .ok{font-size:3rem}
 .hide{display:none!important}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.trk{scroll-behavior:auto}}
 </style></head><body>
-<header class="hero" id="hero"><div class="wrap"><h1>Biryani, slow-cooked and sealed with dough.</h1>
+<header class="hero" id="hero"><div class="wrap"><a class="callb" href="tel:+918779612829" aria-label="Call support 8779612829" title="Support: 8779612829"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg></a><h1>Biryani, slow-cooked and sealed with dough.</h1>
 <p>Dum-sealed biryani catering for corporate lunches in BKC and family gatherings in Bandra.</p>
-<a class="sup" href="tel:+918779612829" aria-label="Call support">📞 Support: 8779612829</a>
 <div class="ban hide" id="ban" aria-roledescription="carousel" aria-label="Featured dishes"><div class="trk" id="trk"></div><div class="dots" id="dots"></div></div></div></header>
 
 <div class="sbar"><div class="wrap"><div class="sw"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-<input id="q" type="search" placeholder="Dish ya category search karein…" autocomplete="off" enterkeyhint="search" aria-label="Search dishes">
+<input id="q" type="search" placeholder="Search dishes or categories…" autocomplete="off" enterkeyhint="search" aria-label="Search dishes">
 <button type="button" id="qx" class="hide" aria-label="Clear search">✕</button></div></div></div>
 
 <main class="wrap">
-<section id="home"><h2>Categories</h2><p class="sub">Category par tap karein, phir apni pasand ki dish chunein.</p><div class="cg" id="cg"><p class="sub">Loading menu…</p></div></section>
+<section id="home"><h2>Categories</h2><p class="sub">Tap a category, then pick your dishes.</p><div class="cg" id="cg"><p class="sub">Loading menu…</p></div></section>
 <section id="list" class="hide"><div class="lh"><button type="button" class="pillb" id="lback">‹ Back</button><div class="lt" id="lt"></div></div><div class="grid" id="grid"></div></section>
 </main>
 
@@ -139,7 +144,7 @@ input,textarea{width:100%;background:#170b08;color:var(--tx);border:1px solid va
 <button class="vc" id="next" disabled>View Cart ➔</button></div>
 
 <div class="sheet" id="cart" role="dialog" aria-modal="true" aria-label="My cart">
-<div class="sh"><div class="wrap"><h2>My cart</h2><button type="button" class="pillb" id="cback">‹ Back to store</button></div></div>
+<div class="sh"><div class="wrap"><h2>My cart</h2><span style="display:flex;align-items:center;gap:10px"><a class="callb" style="position:static" href="tel:+918779612829" aria-label="Call support"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg></a><button type="button" class="pillb" id="cback">‹ Back to store</button></span></div></div>
 <div id="cbody"><div class="wrap sbody">
 <div class="gcard"><b>🛒 Your Cart</b><span id="cN"></span></div>
 <div class="card"><h3>Review your cart</h3><div id="clist"></div><div id="ctot"></div></div>
@@ -151,9 +156,9 @@ input,textarea{width:100%;background:#170b08;color:var(--tx);border:1px solid va
 <label for="venue">Venue / full address</label><textarea id="venue" rows="2" autocomplete="street-address"></textarea>
 <label for="notes">Notes (allergies, spice level)</label><textarea id="notes" rows="2"></textarea></div>
 <div class="msg" id="msg" role="status"></div>
-<a class="sup blk" href="tel:+918779612829">📞 Madad chahiye? Support: 8779612829</a></div>
-<div class="sfoot"><div class="wrap"><div><small>Estimated total</small><b id="fT">₹0</b></div><button class="btn grn" id="place">Place order</button></div></div></div>
-<div class="wrap hide" id="done"><div class="done-box"><div class="ok">✅</div><h2>Order placed</h2><p class="sub">Thank you. We will call you shortly to confirm the final quantity and price.</p><a class="sup blk" href="tel:+918779612829">📞 Support: 8779612829</a><button class="btn grn" onclick="location.reload()">Start a new order</button></div></div>
+<a class="sup blk" href="tel:+918779612829">📞 Need help? Call support: 8779612829</a></div>
+<div class="sfoot"><div class="wrap"><div><small>Estimated total</small><b id="fT">₹0</b></div><div class="sacts"><button class="btn enq" id="enq">Enquiry</button><button class="btn grn" id="place">Place order</button></div></div></div></div>
+<div class="wrap hide" id="done"><div class="done-box"><div class="ok">✅</div><h2 id="dT">Order placed</h2><p class="sub" id="dP">Thank you. We will call you shortly to confirm the final quantity and price.</p><a class="sup blk" href="tel:+918779612829">📞 Support: 8779612829</a><button class="btn grn" onclick="location.reload()">Start a new order</button></div></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -190,15 +195,17 @@ const stepOf=m=>/^kg$/i.test((m.unit||'').trim())?0.5:1;
 const catOf=m=>m.category||'Biryani';
 const digitUnit=u=>/^\d/.test((u||'').trim());
 const qLabel=(q,u)=>!u?String(q):digitUnit(u)?`${q} × ${u}`:`${q} ${u}`;
-const catImg=name=>{for(const k in cats){const c=cats[k];if(c&&String(c.name||'').toLowerCase()===String(name).toLowerCase()&&okUrl(c.image))return c.image}return ''};
+const catImg=name=>{for(const k in cats){const c=cats[k];if(c&&String(c.name||'').toLowerCase()===String(name).toLowerCase()&&okUrl(c.image))return c.image}
+  for(const id in menu){const m=menu[id];if(m&&catOf(m).toLowerCase()===String(name).toLowerCase()&&m.available!==false&&okUrl(m.image))return m.image}
+  for(const id in menu){const m=menu[id];if(m&&catOf(m).toLowerCase()===String(name).toLowerCase()&&okUrl(m.image))return m.image}return ''};
 function liveTxt(id){const m=menu[id],q=qty[id]||0,sv=serves(m);
   if(!q)return '';
-  return `Lagbhag ${Math.max(1,Math.round(q*sv))} logon ke liye | Total: ${inr(q*(Number(m.price)||0))}`}
+  return `Serves about ${Math.max(1,Math.round(q*sv))} | Total: ${inr(q*(Number(m.price)||0))}`}
 
 /* ---------- data ---------- */
 db.ref('menu').on('value',s=>{menu=s.val()||{};
   for(const id in qty)if(!menu[id]||menu[id].available===false)delete qty[id];
-  render();drawBanner();bar();if(cartOpen)renderCart()},
+  render();bar();if(cartOpen)renderCart()},
   ()=>{$('cg').innerHTML='<p class="msg err">Menu could not load. Check your connection and refresh.</p>'});
 db.ref('categories').on('value',s=>{cats=s.val()||{};render()},()=>{});
 
@@ -210,15 +217,15 @@ function render(){
   const ids=Object.keys(menu).filter(id=>{const m=menu[id];
     if(q){const hay=(m.name+' '+(m.desc||'')+' '+catOf(m)).toLowerCase();return q.split(/\s+/).every(w=>hay.includes(w))}
     return catOf(m)===cat});
-  $('lt').innerHTML=q?`Search: “${esc($('q').value.trim())}”<small>${ids.length} dish${ids.length===1?'':'es'} mile</small>`:`${esc(cat)}<small>${ids.length} dish${ids.length===1?'':'es'}</small>`;
-  $('grid').innerHTML=ids.length?ids.map(id=>card(id,menu[id],!!q)).join(''):`<div class="empty"><b>🔍</b>${q?'Koi dish nahi mili. Doosra naam try karein.':'Is category me abhi koi dish nahi hai.'}</div>`;
+  $('lt').innerHTML=q?`Search: “${esc($('q').value.trim())}”<small>${ids.length} dish${ids.length===1?'':'es'} found</small>`:`${esc(cat)}<small>${ids.length} dish${ids.length===1?'':'es'}</small>`;
+  $('grid').innerHTML=ids.length?ids.map(id=>card(id,menu[id],!!q)).join(''):`<div class="empty"><b>🔍</b>${q?'No dishes found. Try a different name.':'No dishes in this category yet.'}</div>`;
 }
 function drawCats(){
   const ids=Object.keys(menu);
   if(!ids.length){$('cg').innerHTML='<p class="sub" style="grid-column:1/-1">Our menu is being updated. Please check back shortly.</p>';return}
   const names=[...new Set(ids.map(i=>catOf(menu[i])))];
   $('cg').innerHTML=names.map((n,i)=>{const im=catImg(n),p=PAL[i%PAL.length],c=ids.filter(d=>catOf(menu[d])===n).length;
-    return `<button type="button" class="ct" data-c="${esc(n)}"><span class="tile" style="background:linear-gradient(145deg,${p[0]},${p[1]})">${im?`<img src="${esc(im)}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:emo(n)}</span><b>${esc(n)}</b><small>${c} dish${c===1?'':'es'}</small></button>`}).join('');
+    return `<button type="button" class="ct" data-c="${esc(n)}"><span class="tile" style="background:linear-gradient(145deg,${p[0]},${p[1]})"><span>${emo(n)}</span>${im?`<img src="${esc(im)}" alt="${esc(n)}" loading="lazy" decoding="async" onerror="this.remove()">`:''}</span><b>${esc(n)}</b><small>${c} dish${c===1?'':'es'}</small></button>`}).join('');
 }
 $('cg').onclick=e=>{const b=e.target.closest('.ct');if(b)openCat(b.dataset.c)};
 function openCat(c){cat=c;history.pushState({k:'cat'},'');render();scrollTo(0,0)}
@@ -267,7 +274,7 @@ function bar(){const c=calc();$('bI').textContent=c.n;$('bG').textContent=c.g;$(
 function renderCart(){const c=calc();
   $('cN').textContent=`${c.n} item${c.n===1?'':'s'} in your cart`;
   $('clist').innerHTML=c.r.map(i=>`<div class="cr" data-id="${esc(i.id)}"><div class="ci"><b>${esc(i.name)}</b>
-    <small>${inr(i.price)}${i.unit?' per '+esc(i.unit):''} × ${esc(qLabel(i.qty,i.unit))} = ${inr(i.cost)}</small><small class="g">Lagbhag ${i.serves} logon ke liye</small></div>
+    <small>${inr(i.price)}${i.unit?' per '+esc(i.unit):''} × ${esc(qLabel(i.qty,i.unit))} = ${inr(i.cost)}</small><small class="g">Serves about ${i.serves} people</small></div>
     <div class="cc"><div class="pill"><button type="button" data-a="-" aria-label="Decrease">−</button><input inputmode="decimal" value="${i.qty}" aria-label="Quantity of ${esc(i.name)}"><button type="button" data-a="+" aria-label="Increase">+</button></div>
     <button type="button" class="x" data-a="x" aria-label="Remove ${esc(i.name)}">✕</button></div></div>`).join('');
   $('ctot').innerHTML=`<div class="tr"><span>Total items</span><b>${c.n}</b></div><div class="tr"><span>Estimated guests</span><b>${c.g}</b></div>
@@ -279,17 +286,26 @@ function closeCartUI(){cartOpen=false;$('cart').classList.remove('open');documen
 function closeCart(){history.state&&history.state.k==='cart'?history.back():closeCartUI()}
 $('next').onclick=openCart;$('cback').onclick=closeCart;
 
-/* ---------- banner ---------- */
-let bKey='',si=0,hold=false,holdT,scrT,timer;
+/* ---------- banner (admin app > banners) ---------- */
+let banners=[],bKey='',si=0,hold=false,holdT,scrT,timer;
+db.ref('banners').on('value',s=>{const v=s.val()||{};
+  banners=Object.entries(v).filter(([,b])=>b).map(([id,b],i)=>{
+    const o=typeof b==='string'?{image:b}:b;
+    return{id,i,image:o.image||o.imageUrl||o.url||o.img||'',title:o.title||o.name||'',dishId:o.dishId||o.menuId||'',category:o.category||'',active:!(o.active===false||o.enabled===false||o.visible===false),order:Number(o.order??o.position??o.sort)}})
+  .filter(b=>b.active&&okUrl(b.image))
+  .sort((x,y)=>(isNaN(x.order)?1e9:x.order)-(isNaN(y.order)?1e9:y.order)||x.i-y.i);
+  drawBanner()},()=>{});
 function drawBanner(){
-  const s=Object.entries(menu).filter(([,m])=>m.available!==false&&okUrl(m.image)&&m.showInBanner!==false).slice(0,8);
-  const key=s.map(([id,m])=>[id,m.image,m.name,m.price,m.unit].join('~')).join('|');
+  const s=banners;
+  const key=s.map(b=>[b.id,b.image,b.title,b.dishId,b.category].join('~')).join('|');
   if(key===bKey)return;bKey=key;clearInterval(timer);
-  $('ban').classList.toggle('hide',!s.length);if(!s.length){$('trk').innerHTML='';return}
-  $('trk').innerHTML=s.map(([id,m],i)=>`<div class="sl" data-id="${esc(id)}" role="group" aria-label="${i+1} of ${s.length}"><img src="${esc(m.image)}" alt="${esc(m.name)}" ${i?'loading="lazy"':'fetchpriority="high"'} decoding="async" onerror="${BAD}"><div class="cap"><small>${esc(catOf(m))}</small><h3>${esc(m.name)}</h3><span>${inr(m.price)}${m.unit?' per '+esc(m.unit):''}</span></div></div>`).join('');
+  $('ban').classList.toggle('hide',!s.length);if(!s.length){$('trk').innerHTML='';$('dots').innerHTML='';return}
+  $('trk').innerHTML=s.map((b,i)=>`<div class="sl ${b.dishId||b.category?'go':''}" data-i="${i}" role="group" aria-label="${i+1} of ${s.length}"><img src="${esc(b.image)}" alt="${esc(b.title||'Banner')}" ${i?'loading="lazy"':'fetchpriority="high"'} decoding="async" onerror="${BAD}">${b.title?`<div class="cap"><h3>${esc(b.title)}</h3></div>`:''}</div>`).join('');
   $('dots').innerHTML=s.length>1?s.map((_,i)=>`<button type="button" data-i="${i}" aria-label="Slide ${i+1}"></button>`).join(''):'';
+  $('dots').classList.toggle('hide',s.length<2);
+  $('trk').style.overflowX=s.length>1?'':'hidden';
   si=0;dots();
-  if(s.length>1&&!matchMedia('(prefers-reduced-motion:reduce)').matches)timer=setInterval(()=>{if(hold||document.hidden||cat||cartOpen||$('q').value.trim())return;go2((si+1)%s.length)},3500);
+  if(s.length>1&&!matchMedia('(prefers-reduced-motion:reduce)').matches)timer=setInterval(()=>{if(hold||document.hidden||cat||cartOpen||$('q').value.trim())return;go2((si+1)%banners.length)},3500);
 }
 function go2(i){si=i;const t=$('trk');t.scrollTo({left:i*t.clientWidth,behavior:'smooth'});dots()}
 function dots(){[...$('dots').children].forEach((d,i)=>d.classList.toggle('on',i===si))}
@@ -298,20 +314,28 @@ const pause=()=>{hold=true;clearTimeout(holdT)},resume=()=>{clearTimeout(holdT);
 ['touchstart','pointerdown','mouseenter','focusin'].forEach(ev=>$('ban').addEventListener(ev,pause,{passive:true}));
 ['touchend','pointerup','mouseleave','focusout'].forEach(ev=>$('ban').addEventListener(ev,resume,{passive:true}));
 $('dots').onclick=e=>{const b=e.target.closest('button');if(b)go2(+b.dataset.i)};
-$('trk').onclick=e=>{const s=e.target.closest('.sl');if(!s)return;const id=s.dataset.id,m=menu[id];if(!m)return;
-  $('q').value='';if(cat!==catOf(m))openCat(catOf(m));else render();
-  setTimeout(()=>{const el=$('grid').querySelector(`[data-id="${CSS.escape(id)}"]`);el&&el.scrollIntoView({behavior:'smooth',block:'center'})},80)};
+$('trk').onclick=e=>{const sl=e.target.closest('.sl');if(!sl)return;const bn=banners[+sl.dataset.i];if(!bn)return;
+  const m=bn.dishId&&menu[bn.dishId];$('q').value='';
+  if(m){if(cat!==catOf(m))openCat(catOf(m));else render();
+    setTimeout(()=>{const el=$('grid').querySelector(`[data-id="${CSS.escape(bn.dishId)}"]`);el&&el.scrollIntoView({behavior:'smooth',block:'center'})},80)}
+  else if(bn.category)openCat(bn.category)};
 
-/* ---------- place order ---------- */
-$('place').onclick=()=>{
-  const m=$('msg'),f=id=>$(id).value.trim(),phone=f('phone').replace(/\D/g,''),c=calc();
+/* ---------- place order / enquiry ---------- */
+function submit(kind){
+  const enq=kind==='Enquiry',m=$('msg'),f=id=>$(id).value.trim(),phone=f('phone').replace(/\D/g,''),c=calc();
   if(!c.n){m.className='msg err';m.textContent='Please add at least one dish.';return}
-  if(!f('name')||phone.length<10||!f('venue')||!f('date')){m.className='msg err';m.textContent='Add your name, a 10-digit phone number, date and venue address.';return}
-  $('place').disabled=true;m.className='msg';m.textContent='Placing order…';
-  db.ref('orders').push({name:f('name'),phone,venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),
-    guests:c.g,itemCount:c.n,items:c.r,total:c.t,status:'New',ts:firebase.database.ServerValue.TIMESTAMP})
-  .then(()=>{$('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
-  .catch(()=>{m.className='msg err';m.textContent='Could not place the order. Check your connection and try again.';$('place').disabled=false});
-};
+  if(enq){if(!f('name')||phone.length<10){m.className='msg err';m.textContent='Please enter your name and a 10-digit phone number to send an enquiry.';return}}
+  else if(!f('name')||phone.length<10||!f('venue')||!f('date')){m.className='msg err';m.textContent='Add your name, a 10-digit phone number, date and venue address.';return}
+  $('place').disabled=true;$('enq').disabled=true;m.className='msg';m.textContent=enq?'Sending enquiry…':'Placing order…';
+  db.ref('orders').push({type:kind,name:f('name'),phone,venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),
+    guests:c.g,itemCount:c.n,items:c.r,total:c.t,status:enq?'Enquiry':'New',ts:firebase.database.ServerValue.TIMESTAMP})
+  .then(()=>{
+    $('dT').textContent=enq?'Enquiry sent':'Order placed';
+    $('dP').textContent=enq?'Thank you. We will call you shortly with details and pricing.':'Thank you. We will call you shortly to confirm the final quantity and price.';
+    $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
+  .catch(()=>{m.className='msg err';m.textContent=(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false;$('enq').disabled=false});
+}
+$('place').onclick=()=>submit('Order');
+$('enq').onclick=()=>submit('Enquiry');
 render();
 </script></body></html>
