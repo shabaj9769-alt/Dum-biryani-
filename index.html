@@ -5,12 +5,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#1c0e0b;--panel:#2a1612;--line:#5a3a2c;--cu:#c9854f;--sf:#f0b44c;--tx:#f5ead8;--mut:#b9a58f;--ok:#8fcf9b;--err:#ff8a7a}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 'Hanken Grotesk',sans-serif;padding-bottom:90px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 'Hanken Grotesk',sans-serif;padding-bottom:100px;-webkit-tap-highlight-color:transparent}
 h1,h2,h3{font-family:Fraunces,serif;margin:0;line-height:1.1}
 .wrap{max-width:900px;margin:auto;padding:0 20px}
-.hero{padding:44px 0 28px;border-bottom:1px solid var(--line);background:radial-gradient(ellipse at 80% 0,#4a2418 0,transparent 60%)}
+.hero{padding:34px 0 24px;border-bottom:1px solid var(--line);background:radial-gradient(ellipse at 80% 0,#4a2418 0,transparent 60%)}
 .hero h1{font-size:clamp(2rem,7vw,3.6rem);font-weight:800;max-width:16ch}
 .hero p{color:var(--mut);max-width:50ch;margin:12px 0 0}
+
+/* sliding banner */
+.ban{position:relative;margin-top:22px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--panel)}
+.trk{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.trk::-webkit-scrollbar{display:none}
+.sl{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;aspect-ratio:16/9;max-height:360px;cursor:pointer;background:linear-gradient(135deg,#3a1d14,#2a1612)}
+.sl img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cap{position:absolute;left:0;right:0;bottom:0;padding:48px 16px 14px;background:linear-gradient(transparent,rgba(18,9,7,.93))}
+.cap h3{font-size:clamp(1.15rem,4.5vw,1.6rem);font-weight:800}.cap span{color:var(--sf);font-weight:700;font-size:.95rem}.cap small{display:block;color:var(--mut);font-size:.8rem}
+.dots{position:absolute;right:10px;top:10px;display:flex;gap:2px;background:rgba(18,9,7,.55);border-radius:99px;padding:2px 4px}
+.dots button{width:18px;height:18px;border:0;background:none;padding:0;cursor:pointer;position:relative}
+.dots button:after{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px;border-radius:99px;background:#f5ead8;opacity:.5;transition:width .25s,margin .25s,opacity .25s}
+.dots button.on:after{width:16px;margin-left:-8px;background:var(--sf);opacity:1}
+
 .steps{display:flex;gap:8px;margin:22px 0}
 .steps span{flex:1;text-align:center;padding:8px 4px;border-bottom:3px solid var(--line);color:var(--mut);font-size:.9rem}
 .steps span.on{border-color:var(--sf);color:var(--sf);font-weight:700}.steps span.done{border-color:var(--cu);color:var(--tx)}
@@ -18,55 +32,81 @@ h2{font-size:1.8rem;margin-bottom:4px}.sub{color:var(--mut);margin:0 0 18px}
 .btn{background:var(--sf);color:#2a1200;border:0;padding:13px 26px;border-radius:6px;font:700 1rem 'Hanken Grotesk',sans-serif;cursor:pointer}
 .btn.g{background:transparent;color:var(--tx);border:1px solid var(--line)}.btn:disabled{opacity:.4;cursor:not-allowed}
 :focus-visible{outline:2px solid var(--sf);outline-offset:2px}
-.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:12px}
-.chip{flex:none;background:var(--panel);color:var(--tx);border:1px solid var(--line);border-radius:99px;padding:8px 18px;font:inherit;cursor:pointer}
+
+/* category chips */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:12px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:flex;align-items:center;gap:8px;background:var(--panel);color:var(--tx);border:1px solid var(--line);border-radius:99px;padding:6px 18px 6px 8px;font:inherit;cursor:pointer}
+.chip.nc{padding-left:18px}
+.chip img{width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 .chip.on{background:var(--sf);color:#2a1200;border-color:var(--sf);font-weight:700}
+
+/* dish cards */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-.dish{border:1px solid var(--line);border-radius:4px;padding:16px;background:var(--panel);cursor:pointer;display:flex;flex-direction:column;gap:4px}
-.dish.on{border-color:var(--sf);background:#3a1d14}.dish.off{opacity:.45;cursor:not-allowed}
-.dish h3{font-size:1.2rem}.dish small{color:var(--mut)}.price{color:var(--sf);font-weight:700;margin-top:auto}.tick{color:var(--ok);font-size:.9rem}
-.bar{position:fixed;left:0;right:0;bottom:0;background:#120907;border-top:1px solid var(--cu);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;z-index:5}
-.card{border:1px solid var(--cu);border-radius:4px;padding:20px;background:var(--panel);margin-bottom:16px}
-.cnt{display:flex;gap:10px;align-items:center;justify-content:center;margin:8px 0 4px}
-.cnt input{max-width:130px;text-align:center;font-size:1.6rem}.cnt button{width:48px;height:48px;font-size:1.5rem;padding:0}
+.dish{border:1px solid var(--line);border-radius:8px;background:var(--panel);display:flex;flex-direction:column;overflow:hidden;scroll-margin-top:16px;transition:border-color .2s}
+.dish.on{border-color:var(--sf);background:#33190f}.dish.off{opacity:.55}
+.media{position:relative;aspect-ratio:4/3;background:linear-gradient(135deg,#3a1d14,#241210);overflow:hidden}
+.ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}.ph svg{width:34%;max-width:96px;opacity:.75}
+.media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.media img.bad{display:none}
+.so{position:absolute;left:10px;top:10px;background:rgba(18,9,7,.85);color:var(--err);font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:99px}
+.bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px;flex:1}
+.dish h3{font-size:1.2rem}.ds{color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.9rem;line-height:1.45}
+.pr{color:var(--sf);font-weight:700;margin-top:6px}.pr span{color:var(--mut);font-weight:400;font-size:.9rem}
+.qs{display:flex;align-items:center;gap:8px;margin-top:8px}
+.qs button{width:42px;height:42px;font-size:1.5rem;line-height:1;padding:0;background:#170b08;color:var(--sf);border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.qs button:active{background:var(--sf);color:#2a1200}
+.qs input{width:70px;text-align:center;font-weight:700;font-size:1.1rem;padding:9px 4px}
+.un{color:var(--mut);font-size:.9rem}
+.live{color:var(--mut);font-size:.88rem;min-height:1.45em;margin-top:2px}.on .live{color:var(--sf);font-weight:500}
+
+/* sticky bar */
+.bar{position:fixed;left:0;right:0;bottom:0;background:#120907;border-top:1px solid var(--cu);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px;z-index:5}
+.sm{flex:1;min-width:0;display:flex;gap:10px}
+.k{display:flex;flex-direction:column;font-size:.68rem;color:var(--mut);line-height:1.2;min-width:0}
+.k+.k{border-left:1px solid var(--line);padding-left:10px}
+.k b{font:700 1.1rem Fraunces,serif;color:var(--tx)}.k.t b{color:var(--sf)}
+.bar .btn{padding:12px 18px;flex:none}
+
+.card{border:1px solid var(--cu);border-radius:6px;padding:20px;background:var(--panel);margin-bottom:16px}
 label{display:block;font-size:.88rem;color:var(--mut);margin:12px 0 4px}
 input,textarea{width:100%;background:#170b08;color:var(--tx);border:1px solid var(--line);border-radius:4px;padding:11px;font:inherit}
-.row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.row small{color:var(--mut);display:block}
-.tot{font:700 1.6rem Fraunces,serif;color:var(--sf);display:flex;justify-content:space-between;margin-top:12px}
+.row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.row small{color:var(--mut);display:block}
+.tot{font:700 1.5rem Fraunces,serif;color:var(--sf);display:flex;justify-content:space-between;margin-top:12px}
+.tot.s{font-size:1.05rem;color:var(--tx);margin-top:8px}
 .note{color:var(--mut);font-size:.85rem;margin-top:8px}
 .msg{margin-top:12px}.msg.err{color:var(--err)}.hide{display:none!important}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}@media(max-width:560px){.two{grid-template-columns:1fr}}
 .acts{display:flex;gap:10px;margin-top:16px}.acts .btn{flex:1}
 .done-box{text-align:center;padding:40px 10px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}.trk{scroll-behavior:auto}}
 </style></head><body>
 <header class="hero"><div class="wrap"><h1>Biryani, slow-cooked and sealed with dough.</h1>
-<p>Dum-sealed biryani catering for corporate lunches in BKC and family gatherings in Bandra.</p></div></header>
+<p>Dum-sealed biryani catering for corporate lunches in BKC and family gatherings in Bandra.</p>
+<div class="ban hide" id="ban" aria-roledescription="carousel" aria-label="Featured dishes"><div class="trk" id="trk"></div><div class="dots" id="dots"></div></div></div></header>
 <main class="wrap">
-<div class="steps" id="steps"><span>1. Menu</span><span>2. Guests and cost</span><span>3. Your details</span></div>
+<div class="steps" id="steps"><span>1. Menu</span><span>2. Your details</span></div>
 
-<section id="s1"><h2>Choose your dishes</h2><p class="sub">Pick a category, then tap the dishes you want.</p>
+<section id="s1"><h2>Choose your dishes</h2><p class="sub">Har dish par quantity set karein. Humein log aur kharcha apne aap dikh jayega.</p>
 <div class="chips" id="chips"></div><div class="grid" id="grid"><p class="sub">Loading menu…</p></div></section>
 
-<section id="s2" class="hide"><h2>How many guests?</h2><p class="sub">We work out the quantity and an estimated cost for you.</p>
-<div class="card"><div class="cnt"><button class="btn g" id="minus" aria-label="Fewer guests">−</button><input id="guests" type="number" min="1" value="20" aria-label="Number of guests"><button class="btn g" id="plus" aria-label="More guests">+</button></div><div class="sub" style="text-align:center;margin:0">guests</div></div>
-<div class="card"><div id="sum2"></div></div>
-<div class="acts"><button class="btn g" data-go="1">Back</button><button class="btn" data-go="3">Continue</button></div></section>
-
-<section id="s3" class="hide"><h2>Your details</h2><p class="sub">We confirm your order by phone.</p>
+<section id="s2" class="hide"><h2>Order details</h2><p class="sub">We confirm your order by phone.</p>
+<div class="card"><div id="sum"></div></div>
 <div class="card"><div class="two">
 <div><label for="name">Your name</label><input id="name" autocomplete="name"></div>
-<div><label for="phone">Phone</label><input id="phone" type="tel" autocomplete="tel"></div>
+<div><label for="phone">Phone</label><input id="phone" type="tel" inputmode="tel" autocomplete="tel"></div>
 <div><label for="date">Date</label><input id="date" type="date"></div>
 <div><label for="time">Serve time</label><input id="time" type="time" value="13:00"></div></div>
-<label for="venue">Full address</label><textarea id="venue" rows="2" autocomplete="street-address"></textarea>
+<label for="venue">Venue / full address</label><textarea id="venue" rows="2" autocomplete="street-address"></textarea>
 <label for="notes">Notes (allergies, spice level)</label><textarea id="notes" rows="2"></textarea></div>
-<div class="card"><div id="sum3"></div></div>
 <div class="msg" id="msg" role="status"></div>
-<div class="acts"><button class="btn g" data-go="2">Back</button><button class="btn" id="place">Place order</button></div></section>
+<div class="acts"><button class="btn g" id="back">Back</button><button class="btn" id="place">Place order</button></div></section>
 
-<section id="s4" class="hide"><div class="done-box"><h2>Order placed</h2><p class="sub">Thank you. We will call you shortly to confirm the final quantity and price.</p><button class="btn" onclick="location.reload()">Start a new order</button></div></section>
+<section id="s3" class="hide"><div class="done-box"><h2>Order placed</h2><p class="sub">Thank you. We will call you shortly to confirm the final quantity and price.</p><button class="btn" onclick="location.reload()">Start a new order</button></div></section>
 </main>
-<div class="bar" id="bar"><div id="barTxt">No dishes selected</div><button class="btn" id="next" disabled>Next</button></div>
+<div class="bar" id="bar"><div class="sm" aria-live="polite">
+<div class="k"><span>Total Items</span><b id="bI">0</b></div>
+<div class="k"><span>Estimated Guests</span><b id="bG">0</b></div>
+<div class="k t"><span>Total</span><b id="bT">₹0</b></div></div>
+<button class="btn" id="next" disabled>Proceed</button></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -85,52 +125,113 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.database(),$=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inr=n=>'₹'+Math.round(n).toLocaleString('en-IN');
-let menu={},sel=new Set(),cat='All',step=1;
+const okUrl=u=>/^https?:\/\/\S+$/i.test(u||'');
+const r2=n=>Math.round(n*100)/100;
+const PH='<div class="ph"><svg viewBox="0 0 64 64" fill="none" stroke="#c9854f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 46h52M10 46a22 22 0 0 1 44 0M32 24v-5M27 19h10"/><path d="M14 52h36" opacity=".6"/></svg></div>';
+const BAD="this.classList.add('bad')";
+
+let menu={},cats={},qty={},cat='All',step=1;
 $('date').min=new Date().toISOString().slice(0,10);
 
-db.ref('menu').on('value',s=>{menu=s.val()||{};sel.forEach(id=>{if(!menu[id]||menu[id].available===false)sel.delete(id)});drawMenu();bar()},
-  ()=>{$('grid').innerHTML='<p class="msg err">Menu could not load. Check your connection and refresh.</p>'});
+/* ---------- helpers ---------- */
+const serves=m=>{const s=Number(m.servesPerUnit);if(s>0)return s;const p=Number(m.perGuest);return p>0?r2(1/p):1};
+const stepOf=m=>/^kg$/i.test((m.unit||'').trim())?0.5:1;
+const catOf=m=>m.category||'Biryani';
+const catImg=name=>{for(const k in cats){const c=cats[k];if(c&&String(c.name||'').toLowerCase()===String(name).toLowerCase()&&okUrl(c.image))return c.image}return ''};
+function liveTxt(id){const m=menu[id],q=qty[id]||0,sv=serves(m);
+  if(!q)return `1 ${esc(m.unit||'unit')} ≈ ${sv} logon ke liye`;
+  return `Lagbhag ${Math.max(1,Math.round(q*sv))} logon ke liye | Total: ${inr(q*(Number(m.price)||0))}`}
 
+/* ---------- data ---------- */
+db.ref('menu').on('value',s=>{menu=s.val()||{};
+  for(const id in qty)if(!menu[id]||menu[id].available===false)delete qty[id];
+  drawMenu();drawBanner();bar()},
+  ()=>{$('grid').innerHTML='<p class="msg err">Menu could not load. Check your connection and refresh.</p>'});
+db.ref('categories').on('value',s=>{cats=s.val()||{};drawMenu()},()=>{});
+
+/* ---------- menu ---------- */
+function card(id,m){
+  const off=m.available===false,q=qty[id]||0;
+  return `<article class="dish ${q?'on':''} ${off?'off':''}" data-id="${esc(id)}">
+  <div class="media">${PH}${okUrl(m.image)?`<img src="${esc(m.image)}" alt="${esc(m.name)}" loading="lazy" decoding="async" onerror="${BAD}">`:''}${off?'<span class="so">Sold out today</span>':''}</div>
+  <div class="bd"><h3>${esc(m.name)}</h3>${m.desc?`<span class="ds">${esc(m.desc)}</span>`:''}
+  <div class="pr">${inr(m.price)}${m.unit?` <span>per ${esc(m.unit)}</span>`:''}</div>
+  ${off?'':`<div class="qs"><button type="button" data-a="-" aria-label="Decrease ${esc(m.name)}">−</button><input inputmode="decimal" value="${q}" aria-label="Quantity of ${esc(m.name)}"><button type="button" data-a="+" aria-label="Increase ${esc(m.name)}">+</button><span class="un">${esc(m.unit||'')}</span></div><div class="live">${liveTxt(id)}</div>`}
+  </div></article>`}
 function drawMenu(){
   const ids=Object.keys(menu);
   if(!ids.length){$('chips').innerHTML='';$('grid').innerHTML='<p class="sub">Our menu is being updated. Please check back shortly.</p>';return}
-  const cats=['All',...new Set(ids.map(i=>menu[i].category||'Biryani'))];
-  if(!cats.includes(cat))cat='All';
-  $('chips').innerHTML=cats.map(c=>`<button class="chip ${c===cat?'on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
-  $('grid').innerHTML=ids.filter(i=>cat==='All'||(menu[i].category||'Biryani')===cat).map(id=>{const m=menu[id],off=m.available===false;
-    return `<div class="dish ${sel.has(id)?'on':''} ${off?'off':''}" tabindex="${off?-1:0}" role="button" aria-pressed="${sel.has(id)}" data-id="${esc(id)}">
-    <h3>${esc(m.name)}</h3><small>${esc(m.desc)}</small>
-    <span class="price">${off?'Unavailable today':inr(m.price)+(m.unit?' per '+esc(m.unit):'')}</span>${sel.has(id)?'<span class="tick">✓ Added</span>':''}</div>`}).join('');
+  const names=[...new Set(ids.map(i=>catOf(menu[i])))];
+  if(cat!=='All'&&!names.includes(cat))cat='All';
+  $('chips').innerHTML=['All',...names].map(c=>{const im=c==='All'?'':catImg(c);
+    return `<button class="chip ${c===cat?'on':''} ${im?'':'nc'}" data-c="${esc(c)}">${im?`<img src="${esc(im)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('nc');this.remove()">`:''}${esc(c)}</button>`}).join('');
+  $('grid').innerHTML=ids.filter(i=>cat==='All'||catOf(menu[i])===cat).map(id=>card(id,menu[id])).join('');
 }
-$('chips').onclick=e=>{const c=e.target.dataset.c;if(c){cat=c;drawMenu()}};
-function tog(el){const id=el.dataset.id;if(!menu[id]||menu[id].available===false)return;sel.has(id)?sel.delete(id):sel.add(id);drawMenu();bar()}
-$('grid').onclick=e=>{const d=e.target.closest('.dish');d&&tog(d)};
-$('grid').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const d=e.target.closest('.dish');if(d){e.preventDefault();tog(d)}}};
-function bar(){const n=sel.size;$('barTxt').textContent=n?n+' dish'+(n>1?'es':'')+' selected':'No dishes selected';$('next').disabled=!n}
+$('chips').onclick=e=>{const b=e.target.closest('.chip');if(b){cat=b.dataset.c;drawMenu()}};
 
-const g=()=>Math.max(1,parseInt($('guests').value)||1);
-function rows(){const n=g();return [...sel].map(id=>{const m=menu[id],pg=Number(m.perGuest)||1,qty=Math.ceil(pg*n*100)/100,price=Number(m.price)||0;
-  return {id,name:m.name,unit:m.unit||'',price,perGuest:pg,qty,cost:price*qty}})}
-function sum(){const r=rows(),t=r.reduce((a,i)=>a+i.cost,0);
-  const h=r.map(i=>`<div class="row"><div>${esc(i.name)}<small>${i.qty} ${esc(i.unit)} at ${inr(i.price)}${i.unit?' per '+esc(i.unit):''}</small></div><b>${inr(i.cost)}</b></div>`).join('')+
-  `<div class="tot"><span>Estimated total</span><span>${inr(t)}</span></div><p class="note">This is an estimate. Final price is confirmed by phone and may change with delivery and GST.</p>`;
-  $('sum2').innerHTML=h;$('sum3').innerHTML=h;return {r,t}}
-$('guests').oninput=sum;$('minus').onclick=()=>{$('guests').value=Math.max(1,g()-1);sum()};$('plus').onclick=()=>{$('guests').value=g()+1;sum()};
+function setQ(id,v){const m=menu[id];if(!m||m.available===false)return;
+  v=r2(v);if(!(v>0))delete qty[id];else qty[id]=Math.min(v,9999);upd(id);bar()}
+function upd(id){const el=$('grid').querySelector(`[data-id="${CSS.escape(id)}"]`);if(!el)return;
+  el.classList.toggle('on',!!qty[id]);el.querySelector('input').value=qty[id]||0;el.querySelector('.live').textContent=liveTxt(id)}
+$('grid').addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(!b)return;
+  const el=b.closest('.dish'),id=el.dataset.id,m=menu[id],q=qty[id]||0,st=stepOf(m);
+  setQ(id,b.dataset.a==='+'?(q<1?1:q+st):q-st)});
+$('grid').addEventListener('change',e=>{if(e.target.tagName!=='INPUT')return;
+  const id=e.target.closest('.dish').dataset.id,v=parseFloat(String(e.target.value).replace(',','.'));setQ(id,isNaN(v)?0:v);upd(id)});
 
-function go(n){step=n;[1,2,3,4].forEach(i=>$('s'+i).classList.toggle('hide',i!==n));
-  $('bar').classList.toggle('hide',n!==1);
+/* ---------- totals ---------- */
+function calc(){const r=[];let t=0,g=0;
+  for(const id in qty){const m=menu[id];if(!m||m.available===false)continue;
+    const q=qty[id],p=Number(m.price)||0,sv=serves(m),people=q*sv;
+    r.push({id,name:m.name,category:catOf(m),unit:m.unit||'',price:p,qty:q,servesPerUnit:sv,serves:Math.max(1,Math.round(people)),cost:r2(q*p)});
+    t+=q*p;g=Math.max(g,people)}
+  return{r,t:r2(t),g:Math.round(g),n:r.length}}
+function bar(){const c=calc();$('bI').textContent=c.n;$('bG').textContent=c.g;$('bT').textContent=inr(c.t);$('next').disabled=!c.n}
+
+/* ---------- banner ---------- */
+let bKey='',si=0,hold=false,holdT,scrT,timer;
+function drawBanner(){
+  const s=Object.entries(menu).filter(([,m])=>m.available!==false&&okUrl(m.image)&&m.showInBanner!==false).slice(0,8);
+  const key=s.map(([id,m])=>[id,m.image,m.name,m.price,m.unit].join('~')).join('|');
+  if(key===bKey)return;bKey=key;clearInterval(timer);
+  $('ban').classList.toggle('hide',!s.length||step!==1);if(!s.length){$('trk').innerHTML='';return}
+  $('trk').innerHTML=s.map(([id,m],i)=>`<div class="sl" data-id="${esc(id)}" role="group" aria-label="${i+1} of ${s.length}"><img src="${esc(m.image)}" alt="${esc(m.name)}" ${i?'loading="lazy"':'fetchpriority="high"'} decoding="async" onerror="${BAD}"><div class="cap"><small>${esc(catOf(m))}</small><h3>${esc(m.name)}</h3><span>${inr(m.price)}${m.unit?' per '+esc(m.unit):''}</span></div></div>`).join('');
+  $('dots').innerHTML=s.length>1?s.map((_,i)=>`<button type="button" data-i="${i}" aria-label="Slide ${i+1}"></button>`).join(''):'';
+  si=0;dots();
+  if(s.length>1&&!matchMedia('(prefers-reduced-motion:reduce)').matches)timer=setInterval(()=>{if(hold||document.hidden||step!==1)return;go2((si+1)%s.length)},3500);
+}
+function go2(i){si=i;const t=$('trk');t.scrollTo({left:i*t.clientWidth,behavior:'smooth'});dots()}
+function dots(){[...$('dots').children].forEach((d,i)=>d.classList.toggle('on',i===si))}
+$('trk').addEventListener('scroll',()=>{clearTimeout(scrT);scrT=setTimeout(()=>{const t=$('trk');si=Math.round(t.scrollLeft/(t.clientWidth||1));dots()},90)},{passive:true});
+const pause=()=>{hold=true;clearTimeout(holdT)},resume=()=>{clearTimeout(holdT);holdT=setTimeout(()=>hold=false,4500)};
+['touchstart','pointerdown','mouseenter','focusin'].forEach(ev=>$('ban').addEventListener(ev,pause,{passive:true}));
+['touchend','pointerup','mouseleave','focusout'].forEach(ev=>$('ban').addEventListener(ev,resume,{passive:true}));
+$('dots').onclick=e=>{const b=e.target.closest('button');if(b)go2(+b.dataset.i)};
+$('trk').onclick=e=>{const s=e.target.closest('.sl');if(!s)return;
+  if(cat!=='All'){cat='All';drawMenu()}
+  const el=$('grid').querySelector(`[data-id="${CSS.escape(s.dataset.id)}"]`);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('on');setTimeout(()=>el.classList.toggle('on',!!qty[s.dataset.id]),900)}};
+
+/* ---------- steps ---------- */
+function sum(){const c=calc();
+  $('sum').innerHTML=c.r.map(i=>`<div class="row"><div>${esc(i.name)}<small>${i.qty} ${esc(i.unit)} × ${inr(i.price)} · lagbhag ${i.serves} logon ke liye</small></div><b>${inr(i.cost)}</b></div>`).join('')+
+  `<div class="tot s"><span>Total items</span><span>${c.n}</span></div><div class="tot s"><span>Estimated guests</span><span>${c.g}</span></div>
+  <div class="tot"><span>Estimated total</span><span>${inr(c.t)}</span></div><p class="note">This is an estimate. Final price is confirmed by phone and may change with delivery and GST.</p>`;return c}
+function go(n){step=n;[1,2,3].forEach(i=>$('s'+i).classList.toggle('hide',i!==n));
+  $('bar').classList.toggle('hide',n!==1);$('ban').classList.toggle('hide',n!==1||!bKey);
   [...$('steps').children].forEach((s,i)=>{s.className=i+1===n?'on':i+1<n?'done':''});
-  $('steps').classList.toggle('hide',n===4);if(n>1)sum();scrollTo(0,0)}
-$('next').onclick=()=>go(2);
-document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go));
+  $('steps').classList.toggle('hide',n===3);if(n===2)sum();scrollTo(0,0)}
+$('next').onclick=()=>{if(calc().n)go(2)};$('back').onclick=()=>go(1);
 
 $('place').onclick=()=>{
   const m=$('msg'),f=id=>$(id).value.trim(),phone=f('phone').replace(/\D/g,'');
-  if(!f('name')||phone.length<10||!f('venue')||!f('date')){m.className='msg err';m.textContent='Add your name, a 10-digit phone number, date and full address.';return}
-  const {r,t}=sum();$('place').disabled=true;m.className='msg';m.textContent='Placing order…';
-  db.ref('orders').push({name:f('name'),phone,venue:f('venue'),date:f('date'),time:f('time'),guests:g(),
-    items:r.map(i=>({id:i.id,name:i.name,price:i.price,unit:i.unit,qty:i.qty,cost:i.cost})),total:t,notes:f('notes'),status:'New',ts:firebase.database.ServerValue.TIMESTAMP})
-  .then(()=>go(4)).catch(()=>{m.className='msg err';m.textContent='Could not place the order. Check your connection and try again.';$('place').disabled=false});
+  const c=calc();
+  if(!c.n){m.className='msg err';m.textContent='Please select at least one dish.';return}
+  if(!f('name')||phone.length<10||!f('venue')||!f('date')){m.className='msg err';m.textContent='Add your name, a 10-digit phone number, date and venue address.';return}
+  $('place').disabled=true;m.className='msg';m.textContent='Placing order…';
+  db.ref('orders').push({name:f('name'),phone,venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),
+    guests:c.g,itemCount:c.n,items:c.r,total:c.t,status:'New',ts:firebase.database.ServerValue.TIMESTAMP})
+  .then(()=>go(3)).catch(()=>{m.className='msg err';m.textContent='Could not place the order. Check your connection and try again.';$('place').disabled=false});
 };
 go(1);
 </script></body></html>
