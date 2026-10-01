@@ -374,7 +374,7 @@ function submit(kind){
   db.ref('orders').push({type:kind,...(enq?{replyVia:rv}:{}),...(enq&&rv==='Email'&&email?{email}:{}),name:f('name'),phone,
     ...(enq?{}:{venue:f('venue'),date:f('date'),time:f('time')}),notes:f('notes'),
     guests:c.g,itemCount:c.n,items:c.r,total:c.t,status:enq?'Enquiry':'New',ts:firebase.database.ServerValue.TIMESTAMP})
-  .then(()=>{lastPhone=phone;
+  .then(()=>{lastPhone=phone;$('dtrk').classList.toggle('hide',enq);
     $('dT').textContent=enq?'Enquiry sent':'Order placed';
     $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:'Thank you. We will call you shortly to confirm the final quantity and price.';
     $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
@@ -390,13 +390,12 @@ function openTrack(ph){trackOpen=true;history.pushState({k:'trk'},'');$('trkS').
   if(ph){$('tph').value=ph;checkTrack()}else $('tph').focus()}
 function closeTrackUI(){trackOpen=false;$('trkS').classList.remove('open');document.body.style.overflow=cartOpen?'hidden':''}
 function closeTrack(){history.state&&history.state.k==='trk'?history.back():closeTrackUI()}
-function tCard(o){const s=o.status||'New',idx=STEPS.indexOf(s),enq=s==='Enquiry',
+function tCard(o){const s=o.status||'New',idx=STEPS.indexOf(s),
   when=o.ts?new Date(o.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'',
   bar=idx>=0?`<div class="stp" aria-hidden="true">${STEPS.map((_,i)=>`<i class="${i<=idx?'f':''}"></i>`).join('')}</div>`:'';
-  return `<div class="card tc"><div class="tcr"><b>${o.type==='Enquiry'?'Enquiry':'Order'}${when?' · '+when:''}</b><span class="chip ${s==='Cancelled'?'bad':enq?'enq':''}">${esc(SL[s]||s)}</span></div>${bar}
+  return `<div class="card tc"><div class="tcr"><b>Order${when?' · '+when:''}</b><span class="chip ${s==='Cancelled'?'bad':''}">${esc(SL[s]||s)}</span></div>${bar}
   <small>${(o.items||[]).map(i=>esc(i.name)+(i.qty?' ('+esc(qLabel(i.qty,i.unit))+')':'')).join(', ')}</small>
-  ${o.date&&o.type!=='Enquiry'?`<small>Event: ${esc(o.date)}${o.time?' at '+esc(o.time):''}</small>`:''}
-  ${o.reply?`<small style="color:#7fe3ae">We have replied to your enquiry on ${esc(o.repliedVia||o.replyVia||'WhatsApp')}.</small>`:''}
+  ${o.date?`<small>Event: ${esc(o.date)}${o.time?' at '+esc(o.time):''}</small>`:''}
   <div class="tt">${inr(o.total||0)}</div></div>`}
 async function checkTrack(){
   const p=$('tph').value.replace(/\D/g,'').slice(-10),r=$('tres');
@@ -405,8 +404,8 @@ async function checkTrack(){
   try{
     const q=v=>db.ref('orders').orderByChild('phone').equalTo(v).once('value'),list=[];
     (await Promise.all([q(p),q('91'+p)])).forEach(sn=>{const v=sn.val()||{};for(const k in v)list.push(v[k])});
-    list.sort((a,b)=>(b.ts||0)-(a.ts||0));
-    r.innerHTML=list.length?list.map(tCard).join(''):'<div class="empty"><b>🔍</b>No orders found for this number.</div>'
+    const orders=list.filter(o=>o&&o.type!=='Enquiry'&&o.status!=='Enquiry').sort((a,b)=>(b.ts||0)-(a.ts||0));
+    r.innerHTML=orders.length?orders.map(tCard).join(''):'<div class="empty"><b>🔍</b>No orders found for this number.</div>'
   }catch(e){r.innerHTML='<p class="msg err">Could not check the status. Check your connection and try again.</p>'}
   $('tgo').disabled=false}
 $('tbtn').onclick=()=>openTrack();$('tback').onclick=closeTrack;$('tgo').onclick=checkTrack;
