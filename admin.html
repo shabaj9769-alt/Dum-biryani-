@@ -17,7 +17,7 @@ nav button.on,.btn.p{background:var(--sf);color:#2a1200;border-color:var(--sf);f
 .stat{border:1px solid var(--line);background:var(--panel);padding:14px;border-radius:4px}
 .stat b{display:block;font:800 1.7rem Fraunces,serif;color:var(--sf)}.stat span{color:var(--mut)}
 .o{border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:16px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:10px}
-.o.New{border-left:4px solid var(--sf)}.o small,.mut{color:var(--mut)}
+.o.New{border-left:4px solid var(--sf)}.o.Enquiry{border-left:4px solid #8ab4ff}.o small,.mut{color:var(--mut)}
 @media(max-width:700px){.o{grid-template-columns:1fr}}
 select,input,textarea{background:#170b08;color:var(--tx);border:1px solid var(--line);border-radius:4px;padding:9px;font:inherit;width:100%}
 form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;border:1px solid var(--cu);padding:16px;border-radius:4px;background:var(--panel);margin:16px 0}
@@ -35,10 +35,11 @@ form .full{grid-column:1/-1}
 </style></head><body>
 <div class="wrap" id="app">
 <header><h1>Royal Daawat operations</h1>
-<nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button id="t3">Categories</button></nav></header>
+<nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button id="t3">Categories</button> <button id="t4">Banners</button></nav></header>
 
 <div id="v1"><div class="stats">
 <div class="stat"><b id="sN">0</b><span>New requests</span></div>
+<div class="stat"><b id="sE">0</b><span>Enquiries</span></div>
 <div class="stat"><b id="sC">0</b><span>Confirmed</span></div>
 <div class="stat"><b id="sD">0</b><span>Cooking now</span></div>
 <div class="stat"><b id="sR">₹0</b><span>Confirmed and delivered value</span></div></div>
@@ -53,7 +54,6 @@ form .full{grid-column:1/-1}
 <div><label class="mut" for="mu">Unit (kg, pcs, plate…)</label><input id="mu" placeholder="kg"></div>
 <div><label class="mut" for="ms">Kitne log khayenge per kg/unit?</label><input id="ms" type="number" min="0.1" step="any" value="5" required><div class="hint">e.g. 1 kg = 5 persons</div></div>
 <div class="full"><label class="mut" for="mi">Dish Photo URL</label><div class="pv"><div class="th" id="mpv">No photo</div><input id="mi" type="url" inputmode="url" placeholder="https://…/dish.jpg"></div></div>
-<div class="full"><label class="chk"><input type="checkbox" id="mb" checked><span>Show in Sliding Banner <span class="mut">(photo wali dishes hi banner me dikhti hain)</span></span></label></div>
 <div class="full"><label class="mut" for="md">Description</label><textarea id="md" rows="2"></textarea></div>
 <div class="full"><button class="btn p" type="submit">Save dish</button> <button class="btn" type="button" id="mx">Clear</button></div></form>
 <div id="mlist"><p class="mut">Loading menu…</p></div>
@@ -65,6 +65,16 @@ form .full{grid-column:1/-1}
 <div><label class="mut" for="ci">Category Photo / Icon URL</label><div class="pv"><div class="th" id="cpv">No photo</div><input id="ci" type="url" inputmode="url" placeholder="https://…/icon.jpg"></div></div>
 <div class="full"><button class="btn p" type="submit">Save category</button> <button class="btn" type="button" id="cx">Clear</button></div></form>
 <div id="clist"><p class="mut">Loading categories…</p></div></div>
+
+<div id="v4" class="hide"><form id="bf"><h3 class="full" id="bt">Add banner</h3>
+<input type="hidden" id="bid">
+<div class="full"><label class="mut" for="bi">Banner Photo URL</label><div class="pv"><div class="th" id="bpv">No photo</div><input id="bi" type="url" inputmode="url" required placeholder="https://…/banner.jpg"></div><div class="hint">Wide (16:9) photo sabse achhi lagti hai. Customer app me jitne banner yahan add karoge utne hi slide honge.</div></div>
+<div><label class="mut" for="bn">Banner name (customer app me isi naam se dikhega)</label><input id="bn" placeholder="Chicken Dum Biryani"></div>
+<div><label class="mut" for="bl">Tap karne par kya khule</label><select id="bl"></select></div>
+<div><label class="mut" for="bo">Order (chhota number pehle dikhega)</label><input id="bo" type="number" step="1" value="1"></div>
+<div class="full"><label class="chk"><input type="checkbox" id="ba" checked><span>Show this banner</span></label></div>
+<div class="full"><button class="btn p" type="submit">Save banner</button> <button class="btn" type="button" id="bx">Clear</button></div></form>
+<div id="blist"><p class="mut">Loading banners…</p></div></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -82,23 +92,24 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database(),$=id=>document.getElementById(id);
-const STATUS=['New','Confirmed','Cooking','Out for delivery','Delivered','Cancelled'];
+const STATUS=['New','Enquiry','Confirmed','Cooking','Out for delivery','Delivered','Cancelled'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN');
 const okUrl=u=>/^https?:\/\/\S+$/i.test(u||'');
 const thumb=u=>okUrl(u)?`<div class="th"><img src="${esc(u)}" alt="" loading="lazy" onerror="this.parentNode.textContent='Bad URL'"></div>`:'<div class="th">No photo</div>';
 const serves=m=>{const s=Number(m.servesPerUnit);if(s>0)return s;const p=Number(m.perGuest);return p>0?Math.round(100/p)/100:1};
-let orders={},menu={},cats={};
+let orders={},menu={},cats={},banners={};
 $('flt').innerHTML+=STATUS.map(s=>`<option>${s}</option>`).join('');
 
-const tab=n=>[1,2,3].forEach(i=>{$('v'+i).classList.toggle('hide',i!==n);$('t'+i).classList.toggle('on',i===n)});
-$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);$('t3').onclick=()=>tab(3);
+const tab=n=>[1,2,3,4].forEach(i=>{$('v'+i).classList.toggle('hide',i!==n);$('t'+i).classList.toggle('on',i===n)});
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);$('t3').onclick=()=>tab(3);$('t4').onclick=()=>tab(4);
 
 listen();
 function listen(){
   db.ref('orders').on('value',s=>{orders=s.val()||{};renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
-  db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu();renderCats()});
-  db.ref('categories').on('value',s=>{cats=s.val()||{};renderCats();renderMenu()},()=>$('clist').innerHTML='<p class="err">Could not load categories. Check database rules for the "categories" node.</p>');
+  db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu();renderCats();fillLink()});
+  db.ref('banners').on('value',s=>{banners=s.val()||{};renderBanners()},()=>$('blist').innerHTML='<p class="err">Could not load banners. Check database rules for the "banners" node.</p>');
+  db.ref('categories').on('value',s=>{cats=s.val()||{};renderCats();renderMenu();fillLink()},()=>$('clist').innerHTML='<p class="err">Could not load categories. Check database rules for the "categories" node.</p>');
 }
 $('flt').onchange=()=>renderOrders();
 
@@ -106,14 +117,14 @@ $('flt').onchange=()=>renderOrders();
 function renderOrders(){
   const list=Object.entries(orders).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
   const c=s=>list.filter(([,o])=>o.status===s);
-  $('sN').textContent=c('New').length;$('sC').textContent=c('Confirmed').length;
+  $('sN').textContent=c('New').length;$('sE').textContent=c('Enquiry').length;$('sC').textContent=c('Confirmed').length;
   $('sD').textContent=c('Cooking').length;
   $('sR').textContent=inr(list.filter(([,o])=>['Confirmed','Cooking','Out for delivery','Delivered'].includes(o.status)).reduce((a,[,o])=>a+(o.total||0),0));
   const f=$('flt').value,shown=list.filter(([,o])=>!f||o.status===f);
   $('orders').innerHTML=shown.length?shown.map(([id,o])=>`<div class="o ${esc(o.status)}"><div>
     <h3>${esc(o.name)}</h3>
-    <div>${esc(o.date)} at ${esc(o.time)} · ~${esc(o.guests)} guests</div>
-    <small>${esc(o.venue)} · <a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
+    <div>${o.status==='Enquiry'||o.type==='Enquiry'?'<span class="tag" style="margin:0 6px 0 0;color:#8ab4ff;border-color:#8ab4ff">Enquiry</span>':''}${o.date?esc(o.date)+(o.time?' at '+esc(o.time):'')+' · ':''}~${esc(o.guests)} guests</div>
+    <small>${o.venue?esc(o.venue)+' · ':''}<a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
     <div>${(o.items||[]).map(i=>esc(i.name)+(i.qty?' × '+esc(i.qty)+(i.unit?' '+esc(i.unit):''):'')+(i.serves?' ('+esc(i.serves)+' log)':'')).join(', ')}</div>
     ${o.notes?`<small>Notes: ${esc(o.notes)}</small>`:''}<div><b>${inr(o.total)}</b></div></div>
     <div><select data-id="${esc(id)}" aria-label="Order status">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
@@ -126,7 +137,7 @@ $('orders').addEventListener('click',e=>{const id=e.target.dataset.del;if(id&&co
 function renderMenu(){
   const l=Object.entries(menu);
   $('seed').classList.toggle('hide',l.length>0);
-  $('mlist').innerHTML=l.length?l.map(([id,m])=>`<div class="m"><div class="info">${thumb(m.image)}<div style="min-width:0"><b>${esc(m.name)}</b>${m.image&&m.showInBanner!==false&&m.available!==false?'<span class="tag">In banner</span>':''}${m.available===false?'<span class="tag" style="color:var(--err);border-color:var(--err)">Sold out</span>':''}
+  $('mlist').innerHTML=l.length?l.map(([id,m])=>`<div class="m"><div class="info">${thumb(m.image)}<div style="min-width:0"><b>${esc(m.name)}</b>${m.available===false?'<span class="tag" style="color:var(--err);border-color:var(--err)">Sold out</span>':''}
   <br><small class="mut">${esc(m.category||'Biryani')} · ${inr(m.price)}${m.unit?' per '+esc(m.unit):''} · 1 ${esc(m.unit||'unit')} = ${esc(serves(m))} persons</small><br><small class="mut">${esc(m.desc)}</small></div></div>
   <div><button class="btn" data-av="${esc(id)}">${m.available===false?'Mark available':'Mark sold out'}</button>
   <button class="btn" data-ed="${esc(id)}">Edit</button> <button class="btn d" data-rm="${esc(id)}">Delete</button></div></div>`).join(''):'<p class="mut">No dishes yet. Add one above or load the starter menu.</p>';
@@ -136,8 +147,8 @@ $('mlist').addEventListener('click',e=>{const b=e.target.closest('button');if(!b
   if(t.av)db.ref('menu/'+t.av+'/available').set(menu[t.av].available===false);
   if(t.rm&&confirm('Delete this dish?'))db.ref('menu/'+t.rm).remove();
   if(t.ed){const m=menu[t.ed];$('mid').value=t.ed;$('mn').value=m.name||'';setCat(m.category||'Biryani');$('mp').value=m.price;$('mu').value=m.unit||'';
-    $('ms').value=serves(m);$('mi').value=m.image||'';$('mb').checked=m.showInBanner!==false;$('md').value=m.desc||'';
-    prev('mi','mpv');touched=true;$('mt').textContent='Edit dish';scrollTo(0,0)}});
+    $('ms').value=serves(m);$('mi').value=m.image||'';$('md').value=m.desc||'';
+    prev('mi','mpv');$('mt').textContent='Edit dish';scrollTo(0,0)}});
 
 function fillCatSelect(keep){
   const cur=keep!==undefined?keep:$('mc').value,names=catRows().map(c=>c.name);
@@ -150,19 +161,17 @@ function setCat(n){fillCatSelect(n);$('mcn').value=''}
 const getCat=()=>$('mc').value==='__new'?$('mcn').value.trim():$('mc').value;
 $('mc').onchange=()=>{catNew();if($('mc').value==='__new')$('mcn').focus()};
 function prev(inp,box){const u=$(inp).value.trim();$(box).innerHTML=okUrl(u)?`<img src="${esc(u)}" alt="" onerror="this.parentNode.textContent='Bad URL'">`:'No photo'}
-let touched=false;
-$('mb').onchange=()=>touched=true;
-$('mi').oninput=()=>{prev('mi','mpv');if(!touched)$('mb').checked=okUrl($('mi').value.trim())};
+$('mi').oninput=()=>prev('mi','mpv');
 $('ci').oninput=()=>prev('ci','cpv');
 
-const clear=()=>{const keep=getCat();$('mf').reset();$('mid').value='';setCat(keep||undefined);$('mt').textContent='Add dish';touched=false;prev('mi','mpv')};$('mx').onclick=clear;
+const clear=()=>{const keep=getCat();$('mf').reset();$('mid').value='';setCat(keep||undefined);$('mt').textContent='Add dish';prev('mi','mpv')};$('mx').onclick=clear;
 $('mf').onsubmit=e=>{e.preventDefault();
   const img=$('mi').value.trim(),sv=Number($('ms').value),catName=getCat();
   if(!catName){alert('Category chunein ya naya naam likhein.');return}
   if(img&&!okUrl(img)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
   if(!(sv>0)){alert('"Kitne log khayenge per unit" 0 se zyada hona chahiye.');return}
   const d={name:$('mn').value.trim(),category:catName,price:Number($('mp').value),unit:$('mu').value.trim(),
-    servesPerUnit:sv,image:img||null,showInBanner:$('mb').checked,desc:$('md').value.trim()},id=$('mid').value;
+    servesPerUnit:sv,image:img||null,desc:$('md').value.trim()},id=$('mid').value;
   (id?db.ref('menu/'+id).update(d):db.ref('menu').push({...d,available:true})).then(clear).catch(()=>alert('Save failed. Check database rules.'))};
 
 $('seed').onclick=()=>[
@@ -170,7 +179,7 @@ $('seed').onclick=()=>[
   {name:'Murgh Zafrani Biryani',category:'Biryani',price:780,servesPerUnit:5,desc:'Saffron-marinated chicken layered with fried onions and mint.'},
   {name:'Subz Awadhi Biryani',category:'Biryani',price:650,servesPerUnit:5,desc:'Seasonal vegetables, kewra and whole spices.'},
   {name:'Mirchi ka Salan and Burhani Raita',category:'Sides',price:120,servesPerUnit:6,desc:'Served alongside the biryani.'}
-].forEach(d=>db.ref('menu').push({unit:'kg',showInBanner:true,available:true,...d}));
+].forEach(d=>db.ref('menu').push({unit:'kg',available:true,...d}));
 
 /* ---------- categories ---------- */
 function catRows(){
@@ -201,4 +210,34 @@ $('cf').onsubmit=e=>{e.preventDefault();
   u['categories/'+key]={name,image:image||null};
   if(old&&old!==name)Object.entries(menu).forEach(([did,d])=>{if((d.category||'Biryani')===old)u['menu/'+did+'/category']=name});
   db.ref().update(u).then(cclear).catch(()=>alert('Save failed. Check database rules.'))};
+
+/* ---------- banners ---------- */
+const bRows=()=>Object.entries(banners).filter(([,b])=>b).sort((a,b)=>(Number(a[1].order)||0)-(Number(b[1].order)||0));
+function fillLink(keep){
+  const cur=keep!==undefined?keep:$('bl').value;
+  $('bl').innerHTML='<option value="">Kuch nahi (sirf photo)</option>'
+   +'<optgroup label="Category kholo">'+catRows().map(c=>`<option value="cat:${esc(c.name)}">${esc(c.name)}</option>`).join('')+'</optgroup>'
+   +'<optgroup label="Dish kholo">'+Object.entries(menu).map(([id,m])=>`<option value="dish:${esc(id)}">${esc(m.name)}</option>`).join('')+'</optgroup>';
+  $('bl').value=cur||'';if($('bl').value!==(cur||''))$('bl').value=''}
+const nextOrder=()=>bRows().reduce((a,[,b])=>Math.max(a,Number(b.order)||0),0)+1;
+function linkOf(b){return b.dishId?(menu[b.dishId]?'Opens dish: '+menu[b.dishId].name:'Linked dish removed'):b.category?'Opens category: '+b.category:'No link'}
+function renderBanners(){
+  const l=bRows();
+  if(!$('bid').value)$('bo').value=nextOrder();
+  $('blist').innerHTML=l.length?l.map(([id,b])=>`<div class="m"><div class="info">${thumb(b.image)}<div style="min-width:0"><b>${esc(b.title||'(no name)')}</b>${b.active===false?'<span class="tag" style="color:var(--err);border-color:var(--err)">Hidden</span>':'<span class="tag">Live</span>'}\n  <br><small class="mut">Order ${esc(b.order??0)} · ${esc(linkOf(b))}</small></div></div>\n  <div><button class="btn" data-bv="${esc(id)}">${b.active===false?'Show':'Hide'}</button> <button class="btn" data-be="${esc(id)}">Edit</button> <button class="btn d" data-bd="${esc(id)}">Delete</button></div></div>`).join(''):'<p class="mut">No banners yet. Upar photo URL daal kar pehla banner add karein.</p>';
+}
+$('blist').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset;
+  if(t.bv)db.ref('banners/'+t.bv+'/active').set(banners[t.bv].active===false);
+  if(t.bd&&confirm('Delete this banner?'))db.ref('banners/'+t.bd).remove();
+  if(t.be){const x=banners[t.be];$('bid').value=t.be;$('bi').value=x.image||'';$('bn').value=x.title||'';$('bo').value=x.order??1;$('ba').checked=x.active!==false;
+    fillLink(x.dishId?'dish:'+x.dishId:x.category?'cat:'+x.category:'');prev('bi','bpv');$('bt').textContent='Edit banner';scrollTo(0,0)}});
+$('bi').oninput=()=>prev('bi','bpv');
+const bclear=()=>{$('bf').reset();$('bid').value='';$('bt').textContent='Add banner';fillLink('');prev('bi','bpv');$('bo').value=nextOrder()};$('bx').onclick=bclear;
+$('bf').onsubmit=e=>{e.preventDefault();
+  const image=$('bi').value.trim(),link=$('bl').value,id=$('bid').value;
+  if(!okUrl(image)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
+  const d={image,title:$('bn').value.trim()||null,order:Number($('bo').value)||0,active:$('ba').checked,
+    dishId:link.startsWith('dish:')?link.slice(5):null,category:link.startsWith('cat:')?link.slice(4):null};
+  (id?db.ref('banners/'+id).set(d):db.ref('banners').push(d)).then(bclear).catch(()=>alert('Save failed. Check database rules.'))};
+fillLink('');
 </script></body></html>
