@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1c0e0b" id="tc">
 <title>Menu</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
@@ -142,25 +142,25 @@ input,textarea{width:100%;background:var(--inp);color:var(--tx);border:1px solid
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.trk{scroll-behavior:auto}}
 
 /* compact mobile tuning (no features removed) */
-html{font-size:15px}
-body{font-size:13.5px;line-height:1.45}
+html{font-size:16px;overflow-x:hidden}
+body{font-size:14px;line-height:1.45;overflow-x:hidden}
 .hero{padding:14px 0 12px}
 .hero h1{font-size:clamp(1.2rem,5.2vw,2rem);padding-right:46px}
-.hero p{font-size:.78rem;margin-top:4px;line-height:1.4}
+.hero p{font-size:.82rem;margin-top:4px;line-height:1.4}
 .hero.mini{padding:10px 0 8px}
 .callb{width:36px;height:36px;box-shadow:0 3px 8px rgba(0,0,0,.45),0 0 0 2px rgba(47,191,113,.22)}
 .callb svg{width:17px;height:17px}
 .ban{margin-top:10px;border-radius:12px}
-.sl{aspect-ratio:21/9;max-height:170px}
+.sl{aspect-ratio:16/9;max-height:230px}
 .cap{padding:30px 12px 10px}
 .cap h3{font-size:clamp(1rem,4vw,1.3rem)}
-.sbar{padding:6px 0}.sw,.tbtn{height:38px}
-h2{font-size:1.15rem;margin:12px 0 2px}.sub{font-size:.78rem;margin:0 0 10px}
-.cg{grid-template-columns:repeat(4,1fr);gap:10px 8px}
+.sbar{padding:8px 0}.sw,.tbtn{height:42px}
+h2{font-size:1.25rem;margin:14px 0 2px}.sub{font-size:.82rem;margin:0 0 12px}
+.cg{grid-template-columns:repeat(3,1fr);gap:12px 10px}
 @media(min-width:620px){.cg{grid-template-columns:repeat(6,1fr)}}
 .tile{border-radius:14px;font-size:1.6rem;box-shadow:0 3px 8px rgba(0,0,0,.35);margin-bottom:3px}
-.ct b{font-size:.72rem}.ct small{font-size:.62rem}
-.dish h3{font-size:.85rem}
+.ct b{font-size:.8rem}.ct small{font-size:.68rem}
+.dish h3{font-size:.9rem}
 
 .tsel{display:flex;align-items:center;gap:6px}.tsel span{color:var(--mut);font-weight:700}
 .tsel select{flex:1;min-width:0;width:auto;background:var(--inp);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:9px 6px;font:inherit;font-size:.92rem}
