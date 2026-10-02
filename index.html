@@ -140,6 +140,30 @@ input,textarea{width:100%;background:var(--inp);color:var(--tx);border:1px solid
 .tc small{display:block;color:var(--mut);font-size:.8rem;line-height:1.4}.tc .tt{color:var(--sf);font-weight:700;margin-top:4px}
 .hide{display:none!important}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}.trk{scroll-behavior:auto}}
+
+/* compact mobile tuning (no features removed) */
+html{font-size:15px}
+body{font-size:13.5px;line-height:1.45}
+.hero{padding:14px 0 12px}
+.hero h1{font-size:clamp(1.2rem,5.2vw,2rem);padding-right:46px}
+.hero p{font-size:.78rem;margin-top:4px;line-height:1.4}
+.hero.mini{padding:10px 0 8px}
+.callb{width:36px;height:36px;box-shadow:0 3px 8px rgba(0,0,0,.45),0 0 0 2px rgba(47,191,113,.22)}
+.callb svg{width:17px;height:17px}
+.ban{margin-top:10px;border-radius:12px}
+.sl{aspect-ratio:21/9;max-height:170px}
+.cap{padding:30px 12px 10px}
+.cap h3{font-size:clamp(1rem,4vw,1.3rem)}
+.sbar{padding:6px 0}.sw,.tbtn{height:38px}
+h2{font-size:1.15rem;margin:12px 0 2px}.sub{font-size:.78rem;margin:0 0 10px}
+.cg{grid-template-columns:repeat(4,1fr);gap:10px 8px}
+@media(min-width:620px){.cg{grid-template-columns:repeat(6,1fr)}}
+.tile{border-radius:14px;font-size:1.6rem;box-shadow:0 3px 8px rgba(0,0,0,.35);margin-bottom:3px}
+.ct b{font-size:.72rem}.ct small{font-size:.62rem}
+.dish h3{font-size:.85rem}
+
+.tsel{display:flex;align-items:center;gap:6px}.tsel span{color:var(--mut);font-weight:700}
+.tsel select{flex:1;min-width:0;width:auto;background:var(--inp);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:9px 6px;font:inherit;font-size:.92rem}
 </style>
 <script>
 function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
@@ -189,7 +213,7 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 <div><label for="name">Your name</label><input id="name" autocomplete="name"></div>
 <div><label for="phone">Phone</label><input id="phone" type="tel" inputmode="tel" autocomplete="tel"></div>
 <div id="dtw"><label for="date">Date</label><input id="date" type="date"></div>
-<div id="tmw"><label for="time">Serve time</label><input id="time" type="time" value="13:00"></div></div>
+<div id="tmw"><label for="tH">Serve time</label><div class="tsel"><select id="tH" aria-label="Hour"><option selected>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select><span>:</span><select id="tM" aria-label="Minute"><option selected>00</option><option>05</option><option>10</option><option>15</option><option>20</option><option>25</option><option>30</option><option>35</option><option>40</option><option>45</option><option>50</option><option>55</option></select><select id="tP" aria-label="AM or PM"><option>AM</option><option selected>PM</option></select></div><input id="time" type="hidden" value="1:00 PM"></div></div><script>(function(){var h=document.getElementById("tH"),m=document.getElementById("tM"),p=document.getElementById("tP"),t=document.getElementById("time");function u(){t.value=h.value+":"+m.value+" "+p.value}[h,m,p].forEach(function(e){e.addEventListener("change",u)});u()})()</script>
 <div id="vnw"><label for="venue">Venue / full address</label><textarea id="venue" rows="2" autocomplete="street-address"></textarea></div>
 <label for="notes" id="nL">Notes (allergies, spice level)</label><textarea id="notes" rows="2"></textarea></div>
 <div class="card hide" id="rcard"><h3>Enquiry reply</h3><p class="note" style="margin:0 0 8px">Where should we send the reply to your enquiry?</p>
