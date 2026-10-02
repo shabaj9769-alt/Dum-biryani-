@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Royal Daawat · Operations</title>
+<title>Store operations</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#1c0e0b;--panel:#2a1612;--line:#5a3a2c;--cu:#c9854f;--sf:#f0b44c;--tx:#f5ead8;--mut:#b9a58f;--ok:#8fcf9b;--err:#ff8a7a}
@@ -44,9 +44,25 @@ form .full{grid-column:1/-1}
 .qn{background:rgba(138,180,255,.1);border:1px solid rgba(138,180,255,.45);border-radius:6px;padding:8px 10px;margin:8px 0}.qn small{color:#8ab4ff;display:block;font-weight:700}
 form.ef{margin:6px 0 14px;border-color:var(--sf)}
 .hide{display:none!important}.err{color:var(--err)}
+input[type=color]{height:44px;padding:3px;cursor:pointer}
+.tsw{display:flex;flex-wrap:wrap;gap:10px}
+.ts{display:flex;align-items:center;gap:8px;background:var(--panel);color:var(--tx);border:2px solid var(--line);border-radius:8px;padding:7px 12px 7px 8px;font:inherit;cursor:pointer}
+.ts.on{border-color:var(--sf);font-weight:700}
+.ts .cc{width:26px;height:26px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center}
+.ts .cc i{width:9px;height:9px;border-radius:50%}
+.tpv{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg);color:var(--tx);max-width:420px;padding-bottom:12px}
+.tpv .h{padding:14px;background:radial-gradient(ellipse at 85% 0,var(--g1) 0,transparent 60%),radial-gradient(ellipse at 0 100%,var(--g2) 0,transparent 55%);border-bottom:1px solid var(--line)}
+.tpv .h b{font:800 1.3rem Fraunces,serif;display:block}.tpv .h small{color:var(--mut)}
+.tpv .s{margin:10px 12px;background:var(--inp);border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--mut);font-size:.85rem}
+.tpv .g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 12px}
+.tpv .d{border:1px solid var(--line);background:var(--panel);border-radius:10px;overflow:hidden}
+.tpv .d .p{height:44px;background:linear-gradient(135deg,var(--ph1),var(--ph2))}
+.tpv .d div.t{padding:7px 9px;font-size:.85rem}.tpv .d b{display:block}.tpv .d span{color:var(--sf);font-weight:700}
+.tpv .d em{display:block;margin-top:6px;text-align:center;font-style:normal;font-weight:800;font-size:.75rem;padding:5px;border-radius:8px;border:1.5px solid var(--gr2,#2fbf71);color:var(--gt)}
+.tpv .bt{display:block;margin:12px 12px 0;text-align:center;background:var(--sf);color:var(--bt);font-weight:700;border-radius:10px;padding:10px}
 </style></head><body>
 <div class="wrap" id="app">
-<header><h1>Royal Daawat operations</h1>
+<header><h1 id="ah">Store operations</h1>
 <nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button id="t3">Categories</button> <button id="t4">Banners</button> <button id="t5">Settings</button></nav></header>
 
 <div id="v1"><div class="stats">
@@ -79,10 +95,20 @@ form.ef{margin:6px 0 14px;border-color:var(--sf)}
 <div id="clist"><p class="mut">Loading categories…</p></div></div>
 
 <div id="v5" class="hide"><form id="sf"><h3 class="full">Store settings</h3>
-<div><label class="mut" for="sn">Store name</label><input id="sn" placeholder="Royal Daawat"><div class="hint">Customer app ke upar bade naam me yahi dikhega.</div></div>
+<div><label class="mut" for="sn">Store name</label><input id="sn" placeholder="Store name"><div class="hint">Customer app ke upar bade naam me yahi dikhega. Jo yahan likhoge wahi dikhega, khali chhodoge to naam nahi dikhega.</div></div>
 <div><label class="mut" for="sp">Support phone number</label><input id="sp" type="tel" inputmode="tel" placeholder="8779612829"><div class="hint">Customer app ka call icon isi number par call lagayega.</div></div>
 <div class="full"><label class="mut" for="sx">Description (naam ke neeche)</label><textarea id="sx" rows="3" placeholder="Jo likhoge wahi customer app me dikhega"></textarea><div class="hint">Khali chhodoge to kuch nahi dikhega.</div></div>
-<div class="full"><button class="btn p" type="submit">Save settings</button> <span id="smsg" class="mut"></span></div></form></div>
+<div class="full"><button class="btn p" type="submit">Save settings</button> <span id="smsg" class="mut"></span></div></form>
+
+<form id="tf"><h3 class="full">Customer app background theme</h3>
+<div class="full"><label class="mut">Ready-made themes (tap karke chunein)</label><div class="tsw" id="tsw"></div></div>
+<div><label class="mut" for="tbg">Background colour (apni pasand ka)</label><input id="tbg" type="color" value="#1c0e0b"><div class="hint">Cards, search bar aur header ke shade apne aap isi se ban jayenge. Halka colour chunoge to text apne aap dark ho jayega.</div></div>
+<div><label class="mut" for="tac">Button / price colour</label><input id="tac" type="color" value="#f0b44c"></div>
+<div class="full"><label class="mut">Customer app aisa dikhega</label>
+<div class="tpv" id="tpv"><div class="h"><b id="tpn">Your store name</b><small>Tap a category, then pick your dishes.</small></div><div class="s">🔍 Search dishes or categories…</div>
+<div class="g"><div class="d"><div class="p"></div><div class="t"><b>Dum Biryani</b><span>₹950 per kg</span><em>ADD</em></div></div><div class="d"><div class="p"></div><div class="t"><b>Zafrani Pulao</b><span>₹780 per kg</span><em>ADD</em></div></div></div>
+<span class="bt">Place order</span></div></div>
+<div class="full"><button class="btn p" type="submit">Save theme</button> <button class="btn" type="button" id="trs">Default theme</button> <span id="tmsg" class="mut"></span><div class="hint">Save karte hi customer app me naya theme dikh jayega (refresh ki zarurat nahi).</div></div></form></div>
 
 <div id="v4" class="hide"><form id="bf"><h3 class="full" id="bt">Add banner</h3>
 <input type="hidden" id="bid">
@@ -117,7 +143,7 @@ const okUrl=u=>/^https?:\/\/\S+$/i.test(u||'');
 const thumb=u=>okUrl(u)?`<div class="th"><img src="${esc(u)}" alt="" loading="lazy" onerror="this.parentNode.textContent='Bad URL'"></div>`:'<div class="th">No photo</div>';
 const serves=m=>{const s=Number(m.servesPerUnit);if(s>0)return s;const p=Number(m.perGuest);return p>0?Math.round(100/p)/100:1};
 let orders={},menu={},cats={},banners={},drafts={},settings={};
-const shop=()=>String(settings.name||'').trim()||'Royal Daawat';
+const shop=()=>String(settings.name||'').trim();
 $('flt').innerHTML+=STATUS.map(s=>`<option>${s}</option>`).join('');
 
 const tab=n=>[1,2,3,4,5].forEach(i=>{$('v'+i).classList.toggle('hide',i!==n);$('t'+i).classList.toggle('on',i===n)});
@@ -127,7 +153,8 @@ listen();
 function listen(){
   db.ref('orders').on('value',s=>{orders=s.val()||{};renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
   db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu();renderCats();fillLink()});
-  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sx').value=settings.text||''}});
+  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sx').value=settings.text||''}
+    adminName();loadTheme()});
   db.ref('banners').on('value',s=>{banners=s.val()||{};renderBanners()},()=>$('blist').innerHTML='<p class="err">Could not load banners. Check database rules for the "banners" node.</p>');
   db.ref('categories').on('value',s=>{cats=s.val()||{};renderCats();renderMenu();fillLink()},()=>$('clist').innerHTML='<p class="err">Could not load categories. Check database rules for the "categories" node.</p>');
 }
@@ -170,7 +197,7 @@ const isEnq=o=>o.type==='Enquiry'||o.status==='Enquiry'||!!o.replyVia;
 const chOf=o=>o.replyVia==='Email'?'Email':'WhatsApp';
 const waNum=p=>{const d=String(p||'').replace(/\D/g,'');return d.length===10?'91'+d:d};
 function draftOf(id,o){if(drafts[id]!==undefined)return drafts[id];
-  return `Hello ${o.name||''},\n\nThank you for your enquiry with ${shop()}.\n\n${o.notes?'Your question: '+o.notes+'\n\n':''}Your items: ${(o.items||[]).map(i=>i.name+(i.qty?' — '+qL(i.qty,i.unit):'')).join(', ')}\nEstimated total: ${inr(o.total)}\n\n`}
+  return `Hello ${o.name||''},\n\nThank you for your enquiry with ${shop()||'us'}.\n\n${o.notes?'Your question: '+o.notes+'\n\n':''}Your items: ${(o.items||[]).map(i=>i.name+(i.qty?' — '+qL(i.qty,i.unit):'')).join(', ')}\nEstimated total: ${inr(o.total)}\n\n`}
 function replyBox(id,o){if(!isEnq(o))return '';const ch=chOf(o),to=ch==='Email'?o.email:'+'+waNum(o.phone);
   if(ch==='Email'&&!o.email)return `<div class="rp"><small class="err">Customer ne email nahi diya. Phone se contact karein: <a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small></div>`;
   return `<div class="rp"><small class="mut">Customer reply chahta hai: <b style="color:var(--sf)">${ch==='Email'?'✉️ Email':'💬 WhatsApp'}</b> · ${esc(to)}${o.reply?` · <span style="color:var(--ok)">Replied ✓ (${esc(o.repliedVia||ch)})</span>`:''}</small>
@@ -180,7 +207,7 @@ $('orders').addEventListener('input',e=>{const id=e.target.dataset.rp;if(id)draf
 $('orders').addEventListener('click',e=>{const b=e.target.closest('button[data-send]');if(!b)return;
   const id=b.dataset.send,o=orders[id];if(!o)return;const ch=chOf(o),msg=drafts[id]!==undefined?drafts[id]:draftOf(id,o);
   if(!msg.trim()){alert('Pehle reply likhein.');return}
-  const url=ch==='Email'?'mailto:'+encodeURIComponent(o.email||'')+'?subject='+encodeURIComponent('Your enquiry · '+shop())+'&body='+encodeURIComponent(msg)
+  const url=ch==='Email'?'mailto:'+encodeURIComponent(o.email||'')+'?subject='+encodeURIComponent('Your enquiry'+(shop()?' · '+shop():''))+'&body='+encodeURIComponent(msg)
     :'https://wa.me/'+waNum(o.phone)+'?text='+encodeURIComponent(msg);
   db.ref('orders/'+id).update({reply:msg,repliedVia:ch,repliedAt:firebase.database.ServerValue.TIMESTAMP});
   ch==='Email'?(location.href=url):window.open(url,'_blank')});
@@ -330,6 +357,41 @@ $('bf').onsubmit=e=>{e.preventDefault();
   (id?db.ref('banners/'+id).set(d):db.ref('banners').push(d)).then(bclear).catch(()=>alert('Save failed. Check database rules.'))};
 fillLink('');
 $('sf').onsubmit=e=>{e.preventDefault();
-  db.ref('settings').set({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,text:$('sx').value.trim()||null})
+  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,text:$('sx').value.trim()||null})
   .then(()=>{$('smsg').textContent='Saved ✓';setTimeout(()=>$('smsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
+/* ---------- customer app theme ---------- */
+function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
+function cMix(a,b,t){const A=cHex(a),B=cHex(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+function cLum(c){const[r,g,b]=cHex(c).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b}
+function themeVars(bg,ac){
+  if(!/^#[0-9a-f]{6}$/i.test(bg))bg='#1c0e0b';if(!/^#[0-9a-f]{6}$/i.test(ac))ac='#f0b44c';
+  const d=cLum(bg)<.205,W='#ffffff',K='#000000',tx=d?'#f5ead8':'#2a1a12',panel=d?cMix(bg,W,.06):cMix(bg,K,.04);
+  return{'--bg':bg,'--panel':panel,'--line':d?cMix(bg,W,.2):cMix(bg,K,.16),'--cu':cMix(ac,bg,.25),'--sf':ac,'--tx':tx,'--mut':cMix(tx,bg,d?.38:.4),
+    '--err':d?'#ff8a7a':'#c0392b','--ok':d?'#8fcf9b':'#1c7a3f','--inp':d?cMix(bg,K,.35):cMix(bg,W,.7),'--foot':d?cMix(bg,K,.4):cMix(bg,K,.08),
+    '--g1':cMix(bg,ac,d?.2:.16),'--g2':cMix(bg,ac,d?.08:.06),'--sbg':'rgba('+cHex(bg).join(',')+',.94)','--bt':cLum(ac)>.3?'#2a1200':'#ffffff',
+    '--ph1':cMix(bg,d?W:K,d?.1:.06),'--ph2':panel,'--don':cMix(panel,'#1f9d57',.1),'--stp':cMix(bg,d?W:K,d?.18:.12),'--xbg':d?cMix(bg,'#ff0000',.18):'#f7d4cf',
+    '--pl':cMix(bg,ac,d?.14:.12),'--pl2':cMix(bg,ac,.35),'--pl3':d?cMix(ac,W,.55):cMix(ac,K,.25),'--gt':d?'#7fe3ae':'#14733f','--gt2':d?'#9bd9b6':'#2a7a50'}}
+const TH={royal:{n:'Royal brown',bg:'#1c0e0b',ac:'#f0b44c'},midnight:{n:'Midnight blue',bg:'#0d1626',ac:'#f0b44c'},forest:{n:'Forest green',bg:'#0e1f17',ac:'#f0c24c'},
+  plum:{n:'Deep plum',bg:'#22112e',ac:'#f0b44c'},maroon:{n:'Maroon',bg:'#2b0c14',ac:'#f5c16c'},charcoal:{n:'Charcoal black',bg:'#111111',ac:'#f0b44c'},cream:{n:'Light cream',bg:'#fbf3e6',ac:'#b4561b'}};
+let th={preset:'royal',bg:'#1c0e0b',ac:'#f0b44c'},thDirty=false;
+function drawTh(sync){
+  $('tsw').innerHTML=Object.entries(TH).map(([k,t])=>`<button type="button" class="ts ${th.preset===k?'on':''}" data-k="${k}" aria-pressed="${th.preset===k}"><span class="cc" style="background:${t.bg};border-color:${t.ac}"><i style="background:${t.ac}"></i></span>${t.n}</button>`).join('')
+    +`<button type="button" class="ts ${th.preset==='custom'?'on':''}" data-k="custom" aria-pressed="${th.preset==='custom'}"><span class="cc" style="background:${esc(th.bg)};border-color:${esc(th.ac)}"><i style="background:${esc(th.ac)}"></i></span>Custom</button>`;
+  if(sync){$('tbg').value=th.bg;$('tac').value=th.ac}
+  const v=themeVars(th.bg,th.ac),p=$('tpv');for(const k in v)p.style.setProperty(k,v[k]);
+  $('tpn').textContent=shop()||'Your store name'}
+function loadTheme(){const t=settings.theme;
+  if(!thDirty&&!$('tf').contains(document.activeElement)){
+    th=t&&t.bg?{preset:t.preset||'custom',bg:t.bg,ac:t.ac||'#f0b44c'}:{preset:'royal',bg:TH.royal.bg,ac:TH.royal.ac};drawTh(true)}
+  else drawTh(false)}
+function adminName(){const n=shop();$('ah').textContent=n?n+' operations':'Store operations';document.title=n?n+' · Operations':'Store operations'}
+$('tsw').onclick=e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=b.dataset.k;
+  if(k!=='custom')th={preset:k,bg:TH[k].bg,ac:TH[k].ac};else th.preset='custom';thDirty=true;drawTh(true)};
+$('tbg').oninput=()=>{th.preset='custom';th.bg=$('tbg').value;thDirty=true;drawTh(false)};
+$('tac').oninput=()=>{th.preset='custom';th.ac=$('tac').value;thDirty=true;drawTh(false)};
+$('trs').onclick=()=>{th={preset:'royal',bg:TH.royal.bg,ac:TH.royal.ac};thDirty=true;drawTh(true)};
+$('tf').onsubmit=e=>{e.preventDefault();
+  db.ref('settings/theme').set({preset:th.preset,bg:th.bg,ac:th.ac})
+  .then(()=>{thDirty=false;$('tmsg').textContent='Saved ✓';setTimeout(()=>$('tmsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
+drawTh(true);
 </script></body></html>
