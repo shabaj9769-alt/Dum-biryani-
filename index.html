@@ -164,6 +164,15 @@ h2{font-size:1.25rem;margin:14px 0 2px}.sub{font-size:.82rem;margin:0 0 12px}
 
 .tsel{display:flex;align-items:center;gap:6px}.tsel span{color:var(--mut);font-weight:700}
 .tsel select{flex:1;min-width:0;width:auto;background:var(--inp);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:9px 6px;font:inherit;font-size:.92rem}
+/* fix: desktop-site view — full banner, call button never overlaps text */
+.hero .wrap{padding-right:64px;padding-left:14px}
+.hero h1,.hero p{padding-right:0;max-width:none}
+.callb{right:14px;top:0}
+.hero.mini .wrap{padding-right:64px}
+.ban{margin-right:-50px}
+.sl{aspect-ratio:16/9;max-height:none}
+.sl img{object-fit:contain;background:var(--panel)}
+@media(min-width:620px){.sl{aspect-ratio:2/1}.sl img{object-fit:cover}}
 </style>
 <script>
 function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
