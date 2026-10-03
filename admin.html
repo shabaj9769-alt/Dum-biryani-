@@ -163,7 +163,7 @@ $('flt').onchange=()=>renderOrders();
 /* ---------- orders (Enquiries / Placed orders folders) ---------- */
 const openO={};
 const fD=d=>{if(!d)return '';const x=new Date(d+'T00:00:00');return isNaN(x)?d:x.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})};
-const fT=t=>{if(!t)return '';const [h,m]=String(t).split(':').map(Number);return isNaN(h)?t:((h%12)||12)+':'+String(m||0).padStart(2,'0')+' '+(h<12?'AM':'PM')};
+const fT=t=>{if(!t)return '';t=String(t).trim();const ap=t.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);if(ap)return (+ap[1])+':'+ap[2]+' '+ap[3].toUpperCase();const [h,m]=t.split(':').map(Number);return isNaN(h)?t:((h%12)||12)+':'+String(m||0).padStart(2,'0')+' '+(h<12?'AM':'PM')};
 const fTs=ts=>ts?new Date(ts).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'';
 const qL=(q,u)=>!u?String(q):/^\d/.test(String(u).trim())?`${q} × ${u}`:`${q} ${u}`;
 function orderCard(id,o){const enq=isEnq(o);
