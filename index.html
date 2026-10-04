@@ -7,7 +7,7 @@
 <style>
 :root{--bg:#1c0e0b;--panel:#2a1612;--line:#5a3a2c;--cu:#c9854f;--sf:#f0b44c;--tx:#f5ead8;--mut:#b9a58f;--ok:#8fcf9b;--err:#ff8a7a;
 --gr:#1f9d57;--gr2:#2fbf71;--pl:#3a1d4a;--pl2:#5b2d7a;--pl3:#e6c3f7;
---inp:var(--inp);--foot:#120907;--g1:#4a2418;--g2:#3a1650;--sbg:rgba(28,14,11,.94);--bt:var(--bt);--ph1:#3a1d14;--ph2:#2a1612;--don:#25180f;--stp:#3a2519;--xbg:#4a1c1c;--gt:var(--gt);--gt2:var(--gt2)}
+--inp:#120907;--foot:#120907;--g1:#4a2418;--g2:#3a1650;--sbg:rgba(28,14,11,.94);--bt:#2a1200;--ph1:#3a1d14;--ph2:#2a1612;--don:#25180f;--stp:#3a2519;--xbg:#4a1c1c;--gt:#7fe3ae;--gt2:#9bd9b6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 'Hanken Grotesk',sans-serif;padding-bottom:24px;-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 h1,h2,h3{font-family:Fraunces,serif;margin:0;line-height:1.1}
 .wrap{max-width:900px;margin:auto;padding:0 14px}
@@ -174,12 +174,18 @@ h2{font-size:1.25rem;margin:14px 0 2px}.sub{font-size:.82rem;margin:0 0 12px}
 .sl img.bad{display:none}
 /* no-beef badge + FSSAI + smaller banner */
 .trust{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
-.nb{display:inline-flex;align-items:center;gap:7px;padding:6px 14px 6px 8px;border-radius:99px;font-weight:800;font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#d92d20,#8f1410);border:1px solid rgba(255,255,255,.28);box-shadow:0 4px 12px rgba(217,45,32,.4),inset 0 1px 0 rgba(255,255,255,.25)}
+.nb{display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:99px;font-weight:800;font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#d92d20,#8f1410);border:1px solid rgba(255,255,255,.28);box-shadow:0 4px 12px rgba(217,45,32,.4),inset 0 1px 0 rgba(255,255,255,.25)}
 .nb i{font-style:normal;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#fff;font-size:.8rem;line-height:1}
 .fs{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:99px;font-weight:700;font-size:.74rem;color:var(--gt);background:rgba(47,191,113,.12);border:1px solid rgba(47,191,113,.45)}
 .fs b{font-family:'Hanken Grotesk',sans-serif;letter-spacing:.06em;color:var(--tx)}
 .ban{max-width:560px;margin-left:auto;margin-right:auto}
 .sl img{max-height:none}
+/* order sections + delivery area */
+.omode{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 2px}
+.omode button{padding:12px 8px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--tx);font-weight:800;cursor:pointer}
+.omode button.on{background:var(--sf);color:var(--bt);border-color:var(--sf)}
+.odesc{margin:6px 0 0;color:var(--mut);font-size:.82rem}
+#locw{grid-column:1/-1}
 </style>
 <script>
 function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
@@ -203,8 +209,10 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 </head><body>
 <header class="hero" id="hero"><div class="wrap"><h1 id="hn"></h1>
 <p id="ht" class="hide"></p>
-<div class="trust"><span class="nb" title="Beef is never used"><i>🐄</i>No Beef Used</span><span class="fs hide" id="fs">FSSAI Lic. No: <b id="fsn"></b></span></div>
+<div class="trust"><span class="nb" title="Beef is never used">No Beef Used</span><span class="fs hide" id="fs">FSSAI Lic. No: <b id="fsn"></b></span></div>
 <div class="ban hide" id="ban" aria-roledescription="carousel" aria-label="Featured dishes"><div class="trk" id="trk"></div><div class="dots" id="dots"></div></div></div></header>
+
+<div class="wrap hide" id="omw"><div class="omode" id="omode"><button type="button" data-o="daily">🍽️ Daily Order</button><button type="button" data-o="booking">📅 Order Booking</button></div><p class="odesc" id="odesc"></p></div>
 
 <div class="sbar"><div class="wrap"><div class="sw"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
 <input id="q" type="search" placeholder="Search dishes or categories…" autocomplete="off" enterkeyhint="search" aria-label="Search dishes">
@@ -233,6 +241,7 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 <div id="dtw"><label for="date">Date</label><input id="date" type="date"></div>
 <div id="tmw"><label for="tH">Serve time</label><div class="tsel"><select id="tH" aria-label="Hour"><option selected>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select><span>:</span><select id="tM" aria-label="Minute"><option selected>00</option><option>05</option><option>10</option><option>15</option><option>20</option><option>25</option><option>30</option><option>35</option><option>40</option><option>45</option><option>50</option><option>55</option></select><select id="tP" aria-label="AM or PM"><option>AM</option><option selected>PM</option></select></div><input id="time" type="hidden" value="1:00 PM"></div></div><script>(function(){var h=document.getElementById("tH"),m=document.getElementById("tM"),p=document.getElementById("tP"),t=document.getElementById("time");function u(){t.value=h.value+":"+m.value+" "+p.value}[h,m,p].forEach(function(e){e.addEventListener("change",u)});u()})()</script>
 <div id="vnw"><label for="venue">Venue / full address</label><textarea id="venue" rows="2" autocomplete="street-address"></textarea></div>
+<div id="locw" class="hide"><button type="button" class="btn" id="locb" style="width:100%">📍 Use my current location</button><p class="note" id="locn" style="margin:6px 0 0"></p></div>
 <label for="notes" id="nL">Notes (allergies, spice level)</label><textarea id="notes" rows="2"></textarea></div>
 <div class="card hide" id="rcard"><h3>Enquiry reply</h3><p class="note" style="margin:0 0 8px">Where should we send the reply to your enquiry?</p>
 <div class="rv" role="radiogroup" aria-label="Reply method"><label class="rc"><input type="radio" name="rv" value="WhatsApp" checked><span>💬 WhatsApp</span></label><label class="rc"><input type="radio" name="rv" value="Email"><span>✉️ Email</span></label></div>
@@ -252,19 +261,9 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="data.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAZKvp9yhCq9l-7-wXiy-qkx3llHw_-618",
-  authDomain: "biryani-category.firebaseapp.com",
-  databaseURL: "https://biryani-category-default-rtdb.firebaseio.com",
-  projectId: "biryani-category",
-  storageBucket: "biryani-category.firebasestorage.app",
-  messagingSenderId: "86398170612",
-  appId: "1:86398170612:web:2029aeed3ca7cad88af5a1",
-  measurementId: "G-XJ6RXX1GX3"
-};
-firebase.initializeApp(firebaseConfig);
-const db=firebase.database(),$=id=>document.getElementById(id);
+const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inr=n=>'₹'+Math.round(n).toLocaleString('en-IN');
 const okUrl=u=>/^https?:\/\/\S+$/i.test(u||'');
@@ -272,10 +271,10 @@ const r2=n=>Math.round(n*100)/100;
 const PH='<div class="ph"><svg viewBox="0 0 64 64" fill="none" stroke="#c9854f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 46h52M10 46a22 22 0 0 1 44 0M32 24v-5M27 19h10"/><path d="M14 52h36" opacity=".6"/></svg></div>';
 const BAD="this.classList.add('bad')";
 const PAL=[['#7a35a3','#2b1040'],['#1f9d57','#0c3d24'],['#d4701f','#4d2208'],['#b8325a','#430f20'],['#2f7fb8','#0f2a44']];
-const EMO=[[/biryani|pulao|rice/i,'🍛'],[/kebab|tikka|tandoor|grill/i,'🍢'],[/dessert|sweet|mithai|kheer/i,'🍮'],[/drink|beverage|lassi|juice/i,'🥤'],[/side|raita|salad|salan/i,'🥗'],[/bread|roti|naan|paratha/i,'🫓'],[/curry|gravy|korma|handi/i,'🍲'],[/starter|snack/i,'🍗']];
+const EMO=[[/biryani|pulao|rice/i,'🍛'],[/kebab|tikka|tandoor|grill/i,'🍢'],[/dessert|sweet|mithai|kheer/i,'🍮'],[/drink|beverage|lassi|juice/i,'🥤'],[/side|raita|salad|salan/i,'🥗'],[/bread|roti|naan|paratha/i,'🫓'],[/curry|gravy|korma|handi/i,'🍲'],[/starter|snack/i,'🍽️']];
 const emo=n=>(EMO.find(([r])=>r.test(n))||[0,'🍽️'])[1];
 
-let menu={},cats={},qty={},cat='',cartOpen=false,trackOpen=false,mode='order',st={};
+let menu={},cats={},qtyBy={daily:{},booking:{}},qty=qtyBy.daily,omode='daily',closed=false,loc=null,cat='',cartOpen=false,trackOpen=false,mode='order',st={};
 const DEF_PH='8779612829';
 function applySt(){
   const name=String(st.name||'').trim(),txt=String(st.text||'').trim(),raw=String(st.phone||'').trim()||DEF_PH,d=raw.replace(/[^\d]/g,'');
@@ -284,10 +283,66 @@ function applySt(){
   applyTheme(st.theme);try{st.theme?localStorage.setItem('rd_theme',JSON.stringify(st.theme)):localStorage.removeItem('rd_theme')}catch(e){}
   const tel=raw.startsWith('+')?'+'+d:(d.length===10?'+91'+d:'+'+d);
   document.querySelectorAll('[data-tel]').forEach(a=>{a.href='tel:'+tel;a.title='Support: '+raw});
-  document.querySelectorAll('[data-phtxt]').forEach(x=>x.textContent=raw)}
+  document.querySelectorAll('[data-phtxt]').forEach(x=>x.textContent=raw);applyModes()}
 try{const n=localStorage.getItem('rd_name');if(n)$('hn').textContent=n}catch(e){}
 db.ref('settings').on('value',s=>{st=s.val()||{};applySt()},()=>{});
-$('date').min=new Date().toISOString().slice(0,10);
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+$('date').min=ymd(new Date());
+
+/* ---------- Daily Order / Order Booking (admin settings) ---------- */
+const inModeOf=(m,k)=>(m.orderType==='daily')===(k==='daily'),inMode=m=>inModeOf(m,omode);
+/* shop open/close (admin settings) */
+const tmin=s=>{const m=String(s||'').trim().match(/^(\d{1,2}):(\d{2})\s*(am|pm)?$/i);if(!m)return null;let h=+m[1];const p=(m[3]||'').toLowerCase();if(p)h=h%12+(p==='pm'?12:0);return h*60+ +m[2]};
+/* REAL time: Firebase server clock + shop timezone (customer phone clock is ignored) */
+const SHOP_TZ='Asia/Kolkata';let tOff=0;
+db.ref('.info/serverTimeOffset').on('value',s=>{tOff=Number(s.val())||0;if(Object.keys(st).length)applyModes()},()=>{});
+function shopNow(){const p={};new Intl.DateTimeFormat('en-GB',{timeZone:SHOP_TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(Date.now()+tOff)).forEach(x=>p[x.type]=x.value);
+  return{ymd:`${p.year}-${p.month}-${p.day}`,min:(+p.hour%24)*60+ +p.minute}}
+const addD=(s,n)=>{const[y,m,d]=s.split('-').map(Number);return new Date(Date.UTC(y,m-1,d+n)).toISOString().slice(0,10)};
+const nowMin=()=>shopNow().min;
+const f12=s=>{const m=tmin(s);if(m==null)return '';const h=Math.floor(m/60);return ((h%12)||12)+':'+String(m%60).padStart(2,'0')+' '+(h<12?'AM':'PM')};
+const inHours=x=>{const o=tmin(st.shopOpen),c=tmin(st.shopClose);if(o==null||c==null||o===c)return true;return o<c?(x>=o&&x<c):(x>=o||x<c)};
+const dailyOpen=()=>st.dailyOn!==false&&inHours(nowMin());
+const secOpen=k=>k==='daily'?dailyOpen():st.bookingOn!==false;
+const hav=(a,b,c,d)=>{const R=6371,r=x=>x*Math.PI/180,p=r(c-a),q=r(d-b),h=Math.sin(p/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(q/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
+function geoOn(){const la=Number(st.shopLat),lo=Number(st.shopLng),km=Number(omode==='daily'?st.dailyKm:st.bookKm);
+  return st.shopLat!=null&&st.shopLng!=null&&isFinite(la)&&isFinite(lo)&&km>0?{la,lo,km}:null}
+function setOmode(m){omode=m;qty=qtyBy[m];cat='';$('q').value='';applyModes();render();bar();scrollTo(0,0)}
+function applyModes(){
+  const dEn=st.dailyOn!==false,dOn=dailyOpen(),bOn=st.bookingOn!==false;closed=!dOn&&!bOn;
+  if(omode==='daily'&&!dOn&&bOn)return setOmode('booking');
+  if(omode==='booking'&&!bOn&&dOn)return setOmode('daily');
+  const o=tmin(st.shopOpen),c=tmin(st.shopClose),hrs=o!=null&&c!=null&&o!==c,g=geoOn();
+  $('omode').classList.toggle('hide',!(dOn&&bOn));
+  document.querySelectorAll('#omode button').forEach(b=>b.classList.toggle('on',b.dataset.o===omode));
+  let t;
+  if(closed)t='Orders abhi band hain.'+(hrs&&dEn?` Shop ${f12(st.shopOpen)} se ${f12(st.shopClose)} tak khula rehta hai.`:'');
+  else if(!dOn)t=dEn?`🔴 Shop abhi band hai (khulne ka time ${f12(st.shopOpen)}). Daily Order band hai, Order Booking chalu hai.`:'Daily Order abhi band hai, Order Booking chalu hai.';
+  else t=(omode==='daily'?'Aaj ke liye order, delivery aapke address par.':'Party / function ke liye advance booking, date aur time chunein.')+(hrs&&omode==='daily'?` Shop timing: ${f12(st.shopOpen)} – ${f12(st.shopClose)}.`:'')+(g?` Delivery sirf ${g.km} km ke andar.`:'');
+  $('odesc').textContent=t;syncUI()}
+function syncUI(){const e=mode==='enquiry',d=omode==='daily',g=geoOn(),dm=$('date'),today=shopNow().ymd;
+  document.querySelector('.seg').classList.toggle('hide',d);
+  ['dtw','tmw'].forEach(i=>$(i).classList.toggle('hide',e));
+  if(d){dm.min=today;dm.max=addD(today,1);if(!dm.value||dm.value<dm.min)dm.value=today}
+  else{const n=Math.floor(Number(st.bookMinDays));dm.removeAttribute('max');dm.min=addD(today,isNaN(n)||n<0?1:n);if(dm.value&&dm.value<dm.min)dm.value=''}
+  $('dtw').querySelector('label').textContent=d?'Delivery date':'Date';$('tmw').querySelector('label').textContent=d?'Delivery time':'Serve time';
+  $('locw').classList.toggle('hide',e||!g);
+  $('vnw').querySelector('label').textContent=d?'Delivery address':'Venue / full address';
+  $('odT').textContent=e?'Enquiry details':d?'Daily order details':'Booking details';
+  $('place').textContent=e?'Send enquiry':d?'Place order':'Confirm booking';
+  showLoc()}
+setInterval(()=>{if(Object.keys(st).length)applyModes()},30000);
+function showLoc(){const g=geoOn(),n=$('locn');if(!g)return;
+  if(!loc){n.className='note';n.textContent=`Delivery sirf ${g.km} km ke andar hai. Pehle location check karein.`;return}
+  loc.d=hav(loc.lat,loc.lng,g.la,g.lo);const ok=loc.d<=g.km;
+  n.className=ok?'note':'msg err';
+  n.textContent=ok?`✅ Aap ${loc.d.toFixed(1)} km door ho. Delivery available hai.`:`❌ Aap ${loc.d.toFixed(1)} km door ho. Hum sirf ${g.km} km ke andar delivery karte hain.`}
+$('locb').onclick=()=>{const n=$('locn');n.className='note';n.textContent='Location le raha hu…';
+  if(!navigator.geolocation){n.className='msg err';n.textContent='Is browser me location support nahi hai.';return}
+  navigator.geolocation.getCurrentPosition(p=>{loc={lat:p.coords.latitude,lng:p.coords.longitude};showLoc()},
+    e=>{n.className='msg err';n.textContent=e&&e.code===1?'Location permission band hai. Browser settings me allow karke dobara dabayein.':'Location nahi mil paayi. Dobara try karein.'},
+    {enableHighAccuracy:true,timeout:15000,maximumAge:60000})};
+$('omode').onclick=e=>{const b=e.target.closest('button[data-o]');if(b&&b.dataset.o!==omode)setOmode(b.dataset.o)};
 
 /* ---------- helpers ---------- */
 const serves=m=>{const s=Number(m.servesPerUnit);if(s>0)return s;const p=Number(m.perGuest);return p>0?r2(1/p):1};
@@ -300,28 +355,28 @@ const catImg=name=>{for(const k in cats){const c=cats[k];if(c&&String(c.name||''
   for(const id in menu){const m=menu[id];if(m&&catOf(m).toLowerCase()===String(name).toLowerCase()&&okUrl(m.image))return m.image}return ''};
 function liveTxt(id){const m=menu[id],q=qty[id]||0,sv=serves(m);
   if(!q)return '';
-  return `Serves about ${Math.max(1,Math.round(q*sv))} | Total: ${inr(q*(Number(m.price)||0))}`}
+  return (omode==='daily'?'':`Serves about ${Math.max(1,Math.round(q*sv))} | `)+`Total: ${inr(q*(Number(m.price)||0))}`}
 
 /* ---------- data ---------- */
 db.ref('menu').on('value',s=>{menu=s.val()||{};
-  for(const id in qty)if(!menu[id]||menu[id].available===false)delete qty[id];
+  for(const k in qtyBy)for(const id in qtyBy[k])if(!menu[id]||menu[id].available===false||!inModeOf(menu[id],k))delete qtyBy[k][id];
   render();bar();if(cartOpen)renderCart()},
   ()=>{$('cg').innerHTML='<p class="msg err">Menu could not load. Check your connection and refresh.</p>'});
 db.ref('categories').on('value',s=>{cats=s.val()||{};render()},()=>{});
 
 /* ---------- views ---------- */
 function render(){
-  const q=$('q').value.trim().toLowerCase(),mini=!!(cat||q);
-  $('hero').classList.toggle('mini',mini);$('home').classList.toggle('hide',mini);$('list').classList.toggle('hide',!mini);$('qx').classList.toggle('hide',!$('q').value);
+  const q=$('q').value.trim().toLowerCase(),dly=omode==='daily',mini=dly||!!(cat||q);
+  $('hero').classList.toggle('mini',!!(cat||q));$('lback').classList.toggle('hide',dly);$('home').classList.toggle('hide',mini);$('list').classList.toggle('hide',!mini);$('qx').classList.toggle('hide',!$('q').value);
   if(!mini){drawCats();requestAnimationFrame(()=>{const t=$('trk');t.scrollTo({left:si*t.clientWidth})});return}
-  const ids=Object.keys(menu).filter(id=>{const m=menu[id];
+  const ids=Object.keys(menu).filter(id=>{const m=menu[id];if(!inMode(m))return false;
     if(q){const hay=(m.name+' '+(m.desc||'')+' '+catOf(m)).toLowerCase();return q.split(/\s+/).every(w=>hay.includes(w))}
-    return catOf(m)===cat});
-  $('lt').innerHTML=q?`Search: “${esc($('q').value.trim())}”<small>${ids.length} dish${ids.length===1?'':'es'} found</small>`:`${esc(cat)}<small>${ids.length} dish${ids.length===1?'':'es'}</small>`;
-  $('grid').innerHTML=ids.length?ids.map(id=>card(id,menu[id],!!q)).join(''):`<div class="empty"><b>🔍</b>${q?'No dishes found. Try a different name.':'No dishes in this category yet.'}</div>`;
+    return dly||catOf(m)===cat});
+  $('lt').innerHTML=q?`Search: “${esc($('q').value.trim())}”<small>${ids.length} dish${ids.length===1?'':'es'} found</small>`:dly?`Daily Menu<small>${ids.length} dish${ids.length===1?'':'es'}</small>`:`${esc(cat)}<small>${ids.length} dish${ids.length===1?'':'es'}</small>`;
+  $('grid').innerHTML=ids.length?ids.map(id=>card(id,menu[id],!!q)).join(''):`<div class="empty"><b>🔍</b>${q?'No dishes found. Try a different name.':dly?'Daily menu abhi khali hai.':'No dishes in this category yet.'}</div>`;
 }
 function drawCats(){
-  const ids=Object.keys(menu);
+  const ids=Object.keys(menu).filter(i=>inMode(menu[i]));
   if(!ids.length){$('cg').innerHTML='<p class="sub" style="grid-column:1/-1">Our menu is being updated. Please check back shortly.</p>';return}
   const names=[...new Set(ids.map(i=>catOf(menu[i])))];
   $('cg').innerHTML=names.map((n,i)=>{const im=catImg(n),p=PAL[i%PAL.length],c=ids.filter(d=>catOf(menu[d])===n).length;
@@ -369,18 +424,19 @@ function calc(){const r=[];let t=0,g=0;
     r.push({id,name:m.name,category:catOf(m),unit:m.unit||'',price:p,qty:q,servesPerUnit:sv,serves:Math.max(1,Math.round(people)),cost:r2(q*p)});
     t+=q*p;g=Math.max(g,people)}
   return{r,t:r2(t),g:Math.round(g),n:r.length}}
-function bar(){const c=calc();$('bI').textContent=c.n;$('bG').textContent=c.g;$('bT').textContent=inr(c.t);
+function dchg(c){if(mode==='enquiry')return{amt:0,show:false};const d=omode==='daily',ch=Number(d?st.dailyCharge:st.bookCharge)||0,fr=Number(d?st.dailyFree:st.bookFree)||0;return{amt:ch>0&&!(fr>0&&c.t>=fr)?ch:0,show:ch>0}}
+function bar(){const c=calc();$('bG').parentNode.classList.toggle('hide',omode==='daily');$('bI').textContent=c.n;$('bG').textContent=c.g;$('bT').textContent=inr(c.t);
   $('next').disabled=!c.n;$('fbar').classList.toggle('hide',!c.n);document.body.classList.toggle('hasbar',c.n>0)}
-function renderCart(){const c=calc();
+function renderCart(){const c=calc(),dc=dchg(c);
   $('cN').textContent=`${c.n} item${c.n===1?'':'s'} in your cart`;
   $('clist').innerHTML=c.r.map(i=>`<div class="cr" data-id="${esc(i.id)}"><div class="ci"><b>${esc(i.name)}</b>
-    <small>${inr(i.price)}${i.unit?' per '+esc(i.unit):''} × ${esc(qLabel(i.qty,i.unit))} = ${inr(i.cost)}</small><small class="g">Serves about ${i.serves} people</small></div>
+    <small>${inr(i.price)}${i.unit?' per '+esc(i.unit):''} × ${esc(qLabel(i.qty,i.unit))} = ${inr(i.cost)}</small>${omode==='daily'?'':`<small class="g">Serves about ${i.serves} people</small>`}</div>
     <div class="cc"><div class="pill"><button type="button" data-a="-" aria-label="Decrease">−</button><input inputmode="decimal" value="${i.qty}" aria-label="Quantity of ${esc(i.name)}"><button type="button" data-a="+" aria-label="Increase">+</button></div>
     <button type="button" class="x" data-a="x" aria-label="Remove ${esc(i.name)}">✕</button></div></div>`).join('');
-  $('ctot').innerHTML=`<div class="tr"><span>Total items</span><b>${c.n}</b></div><div class="tr"><span>Estimated guests</span><b>${c.g}</b></div>
-  <div class="tr big"><span>Estimated total</span><b>${inr(c.t)}</b></div><p class="note">This is an estimate. Final price is confirmed by phone and may change with delivery and GST.</p>`;
-  $('fT').textContent=inr(c.t)}
-function openCart(){if(!calc().n)return;renderCart();cartOpen=true;history.pushState({k:'cart'},'');
+  $('ctot').innerHTML=`<div class="tr"><span>Total items</span><b>${c.n}</b></div>${omode==='daily'?'':`<div class="tr"><span>Estimated guests</span><b>${c.g}</b></div>`}
+  ${dc.show?`<div class="tr"><span>Items total</span><b>${inr(c.t)}</b></div><div class="tr"><span>Delivery charge</span><b>${dc.amt?inr(dc.amt):'Free'}</b></div>`:''}<div class="tr big"><span>Estimated total</span><b>${inr(c.t+dc.amt)}</b></div><p class="note">This is an estimate. Final price is confirmed by phone and may change with delivery and GST.</p>`;
+  $('fT').textContent=inr(c.t+dc.amt)}
+function openCart(){if(!calc().n)return;setMode(omode==='daily'?'order':mode);renderCart();cartOpen=true;history.pushState({k:'cart'},'');
   $('cart').classList.add('open');document.body.style.overflow='hidden';$('cart').scrollTop=0}
 function closeCartUI(){cartOpen=false;$('cart').classList.remove('open');document.body.style.overflow=''}
 function closeCart(){history.state&&history.state.k==='cart'?history.back():closeCartUI()}
@@ -415,10 +471,10 @@ const pause=()=>{hold=true;clearTimeout(holdT)},resume=()=>{clearTimeout(holdT);
 ['touchend','pointerup','mouseleave','focusout'].forEach(ev=>$('ban').addEventListener(ev,resume,{passive:true}));
 $('dots').onclick=e=>{const b=e.target.closest('button');if(b)go2(+b.dataset.i)};
 $('trk').onclick=e=>{const sl=e.target.closest('.sl');if(!sl)return;const bn=banners[+sl.dataset.i];if(!bn)return;
-  const m=bn.dishId&&menu[bn.dishId];$('q').value='';
-  if(m){if(cat!==catOf(m))openCat(catOf(m));else render();
+  const m=bn.dishId&&menu[bn.dishId];$('q').value='';const bk=m&&(m.orderType==='daily'?'daily':'booking');if(m&&!inMode(m)&&secOpen(bk))setOmode(bk);
+  if(m){if(omode!=='daily'&&cat!==catOf(m))openCat(catOf(m));else render();
     setTimeout(()=>{const el=$('grid').querySelector(`[data-id="${CSS.escape(bn.dishId)}"]`);el&&el.scrollIntoView({behavior:'smooth',block:'center'})},80)}
-  else if(bn.category)openCat(bn.category)};
+  else if(bn.category&&omode!=='daily')openCat(bn.category)};
 
 /* ---------- place order / enquiry ---------- */
 const rvVal=()=>(document.querySelector('input[name=rv]:checked')||{}).value||'WhatsApp';
@@ -428,19 +484,27 @@ function setMode(m){mode=m;const e=m==='enquiry';
   document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
   ['dtw','tmw','vnw'].forEach(i=>$(i).classList.toggle('hide',e));$('rcard').classList.toggle('hide',!e);
   $('odT').textContent=e?'Enquiry details':'Order details';$('nL').textContent=e?'Your question / requirements':'Notes (allergies, spice level)';
-  $('place').textContent=e?'Send enquiry':'Place order';$('msg').textContent='';$('msg').className='msg'}
+  $('place').textContent=e?'Send enquiry':'Place order';$('msg').textContent='';$('msg').className='msg';syncUI();if(cartOpen)renderCart()}
 document.querySelector('.seg').onclick=e=>{const b=e.target.closest('button[data-m]');if(b)setMode(b.dataset.m)};
 function submit(kind){
   const enq=kind==='Enquiry',m=$('msg'),f=id=>$(id).value.trim(),phone=f('phone').replace(/\D/g,''),c=calc();
   if(!c.n){m.className='msg err';m.textContent='Please add at least one dish.';return}
+  if(closed||!secOpen(omode)){m.className='msg err';m.textContent=omode==='daily'?'Shop abhi band hai, Daily Order band hai. Order Booking chalu hai.':'Order Booking abhi band hai.';return}
+  const g=!enq&&geoOn();
+  if(g){if(!loc){m.className='msg err';m.textContent='Pehle "📍 Use my current location" dabake apna location check karein.';return}
+    loc.d=hav(loc.lat,loc.lng,g.la,g.lo);if(loc.d>g.km){m.className='msg err';m.textContent=`Aap ${loc.d.toFixed(1)} km door ho. Hum sirf ${g.km} km ke andar delivery karte hain.`;return}}
   const rv=rvVal(),email=f('email');
   if(enq){if(!f('name')||phone.length<10){m.className='msg err';m.textContent='Please enter your name and a 10-digit phone number to send an enquiry.';return}
     if(rv==='Email'&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){m.className='msg err';m.textContent='Please enter a valid email address so we can reply.';$('email').focus();return}}
   else if(!f('name')||phone.length<10||!f('venue')||!f('date')){m.className='msg err';m.textContent='Add your name, a 10-digit phone number, date and venue address.';return}
+  if(!enq&&omode==='daily'){const tm=tmin(f('time')),t0=shopNow().ymd,bad=s=>{m.className='msg err';m.textContent=s};
+    if(f('date')<t0){bad('Aaj ya kal ki date chunein.');return}
+    if(tm!=null&&!inHours(tm)){bad(`Shop ${f12(st.shopOpen)} se ${f12(st.shopClose)} tak khula hai. Is beech ka time chunein.`);return}
+    if(f('date')===t0&&tm!=null&&tm<nowMin()){bad('Ye time nikal chuka hai. Aage ka time chunein.');return}}
   $('place').disabled=true;m.className='msg';m.textContent=enq?'Sending enquiry…':'Placing order…';
   db.ref('orders').push({type:kind,...(enq?{replyVia:rv}:{}),...(enq&&rv==='Email'&&email?{email}:{}),name:f('name'),phone,
-    ...(enq?{}:{venue:f('venue'),date:f('date'),time:f('time')}),notes:f('notes'),
-    guests:c.g,itemCount:c.n,items:c.r,total:c.t,status:enq?'Enquiry':'New',ts:firebase.database.ServerValue.TIMESTAMP})
+    orderType:omode==='daily'?'Daily':'Booking',...(enq?{}:{venue:f('venue'),date:f('date'),time:f('time')}),...(g&&loc?{custLat:loc.lat,custLng:loc.lng,distKm:Math.round(loc.d*10)/10}:{}),notes:f('notes'),
+    guests:c.g,itemCount:c.n,items:c.r,subtotal:c.t,delivery:enq?0:dchg(c).amt,total:r2(c.t+(enq?0:dchg(c).amt)),status:enq?'Enquiry':'New',ts:SERVER_TS})
   .then(()=>{lastPhone=phone;$('dtrk').classList.toggle('hide',enq);
     $('dT').textContent=enq?'Enquiry sent':'Order placed';
     $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:'Thank you. We will call you shortly to confirm the final quantity and price.';
@@ -460,9 +524,9 @@ function closeTrack(){history.state&&history.state.k==='trk'?history.back():clos
 function tCard(o){const s=o.status||'New',idx=STEPS.indexOf(s),
   when=o.ts?new Date(o.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'',
   bar=idx>=0?`<div class="stp" aria-hidden="true">${STEPS.map((_,i)=>`<i class="${i<=idx?'f':''}"></i>`).join('')}</div>`:'';
-  return `<div class="card tc"><div class="tcr"><b>Order${when?' · '+when:''}</b><span class="chip ${s==='Cancelled'?'bad':''}">${esc(SL[s]||s)}</span></div>${bar}
+  return `<div class="card tc"><div class="tcr"><b>${o.orderType==='Daily'?'Daily order':o.orderType==='Booking'?'Booking':'Order'}${when?' · '+when:''}</b><span class="chip ${s==='Cancelled'?'bad':''}">${esc(SL[s]||s)}</span></div>${bar}
   <small>${(o.items||[]).map(i=>esc(i.name)+(i.qty?' ('+esc(qLabel(i.qty,i.unit))+')':'')).join(', ')}</small>
-  ${o.date?`<small>Event: ${esc(o.date)}${o.time?' at '+esc(o.time):''}</small>`:''}
+  ${o.date&&o.orderType!=='Daily'?`<small>Event: ${esc(o.date)}${o.time?' at '+esc(o.time):''}</small>`:''}
   <div class="tt">${inr(o.total||0)}</div></div>`}
 async function checkTrack(){
   const p=$('tph').value.replace(/\D/g,'').slice(-10),r=$('tres');

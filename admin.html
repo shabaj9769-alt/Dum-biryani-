@@ -60,12 +60,13 @@ input[type=color]{height:44px;padding:3px;cursor:pointer}
 .tpv .d div.t{padding:7px 9px;font-size:.85rem}.tpv .d b{display:block}.tpv .d span{color:var(--sf);font-weight:700}
 .tpv .d em{display:block;margin-top:6px;text-align:center;font-style:normal;font-weight:800;font-size:.75rem;padding:5px;border-radius:8px;border:1.5px solid var(--gr2,#2fbf71);color:var(--gt)}
 .tpv .bt{display:block;margin:12px 12px 0;text-align:center;background:var(--sf);color:var(--bt);font-weight:700;border-radius:10px;padding:10px}
+#osw,#msw{display:flex;gap:8px;margin:16px 0 0}#osw button,#msw button{flex:1;background:var(--panel);color:var(--tx);border:1px solid var(--line);padding:12px;border-radius:4px;font:700 1rem Fraunces,serif;cursor:pointer}#osw button.on,#msw button.on{background:var(--sf);color:#2a1200;border-color:var(--sf)}#osw .bdg{background:#d92d20;color:#fff;border-radius:99px;padding:1px 9px;font-size:.75rem;margin-left:6px}#osw button.on .bdg{background:#2a1200;color:var(--sf)}
 </style></head><body>
 <div class="wrap" id="app">
 <header><h1 id="ah">Store operations</h1>
 <nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button id="t3">Categories</button> <button id="t4">Banners</button> <button id="t5">Settings</button></nav></header>
 
-<div id="v1"><div class="stats">
+<div id="v1"><div id="osw"></div><div class="stats">
 <div class="stat"><b id="sN">0</b><span>New requests</span></div>
 <div class="stat"><b id="sE">0</b><span>Enquiries</span></div>
 <div class="stat"><b id="sC">0</b><span>Confirmed</span></div>
@@ -74,13 +75,15 @@ input[type=color]{height:44px;padding:3px;cursor:pointer}
 <select id="flt" aria-label="Filter orders" style="max-width:220px;margin-bottom:14px"><option value="">All statuses</option></select>
 <div id="orders"><p class="mut">Loading orders…</p></div></div>
 
-<div id="v2" class="hide"><form id="mf"><h3 class="full" id="mt">Add dish</h3>
+<div id="v2" class="hide"><div id="msw"><button type="button" data-m="daily">🍽️ Daily Menu</button><button type="button" data-m="booking">📅 Booking Menu</button></div>
+<p class="mut" style="margin:8px 0 0">Daily aur Booking ka menu, category aur price bilkul alag hai. Daily me category nahi hoti, dish seedha dikhti hai.</p>
+<form id="mf"><h3 class="full" id="mt">Add dish</h3>
 <input type="hidden" id="mid">
 <div><label class="mut" for="mn">Name</label><input id="mn" required></div>
-<div><label class="mut" for="mc">Category (isi me dish add hogi)</label><select id="mc" required></select><input id="mcn" class="hide" placeholder="Naye category ka naam" style="margin-top:6px"></div>
+<div id="mcw"><label class="mut" for="mc">Category (sirf Booking menu ke liye)</label><select id="mc" required></select><input id="mcn" class="hide" placeholder="Naye category ka naam" style="margin-top:6px"></div>
 <div><label class="mut" for="mp">Price (₹)</label><input id="mp" type="number" min="0" step="any" required></div>
 <div><label class="mut" for="mu">Unit (kg, pcs, plate…)</label><input id="mu" placeholder="kg"></div>
-<div><label class="mut" for="ms">Kitne log khayenge per kg/unit?</label><input id="ms" type="number" min="0.1" step="any" value="5" required><div class="hint">e.g. 1 kg = 5 persons</div></div>
+<div id="msvw"><label class="mut" for="ms">Kitne log khayenge per kg/unit?</label><input id="ms" type="number" min="0.1" step="any" value="5" required><div class="hint">e.g. 1 kg = 5 persons</div></div>
 <div class="full"><label class="mut" for="mi">Dish Photo URL</label><div class="pv"><div class="th" id="mpv">No photo</div><input id="mi" type="url" inputmode="url" placeholder="https://…/dish.jpg"></div></div>
 <div class="full"><label class="mut" for="md">Description</label><textarea id="md" rows="2"></textarea></div>
 <div class="full"><button class="btn p" type="submit">Save dish</button> <button class="btn" type="button" id="mx">Clear</button></div></form>
@@ -99,6 +102,22 @@ input[type=color]{height:44px;padding:3px;cursor:pointer}
 <div><label class="mut" for="sp">Support phone number</label><input id="sp" type="tel" inputmode="tel" placeholder="8779612829"><div class="hint">Customer app ka call icon isi number par call lagayega.</div></div>
 <div><label class="mut" for="sfs">FSSAI number</label><input id="sfs" inputmode="numeric" maxlength="14" placeholder="14 digit FSSAI number"><div class="hint">Customer app ke header me "FSSAI Lic. No" ke saath dikhega. Khali chhodoge to nahi dikhega.</div></div>
 <div class="full"><label class="mut" for="sx">Description (naam ke neeche)</label><textarea id="sx" rows="3" placeholder="Jo likhoge wahi customer app me dikhega"></textarea><div class="hint">Khali chhodoge to kuch nahi dikhega.</div></div>
+<h3 class="full">Order sections</h3>
+<div class="full"><label class="chk"><input type="checkbox" id="sdo" checked><span>Daily Order chalu rakho (manual switch)</span></label></div>
+<div class="full"><label class="chk"><input type="checkbox" id="sbo" checked><span>Order Booking chalu rakho</span></label></div>
+<div><label class="mut" for="sdc">Daily Order delivery charge (₹)</label><input id="sdc" type="number" min="0" step="any" placeholder="30"><div class="hint">0 ya khali = delivery free.</div></div>
+<div><label class="mut" for="sdf">Daily Order: itne ₹ ke upar free delivery</label><input id="sdf" type="number" min="0" step="any" placeholder="500"><div class="hint">Khali = kabhi free nahi.</div></div>
+<div><label class="mut" for="sbc">Order Booking delivery charge (₹)</label><input id="sbc" type="number" min="0" step="any" placeholder="200"></div>
+<div><label class="mut" for="sbf">Order Booking: itne ₹ ke upar free delivery</label><input id="sbf" type="number" min="0" step="any" placeholder="5000"></div>
+<div><label class="mut" for="sot">Shop open time</label><input id="sot" type="time"></div>
+<div><label class="mut" for="sct">Shop close time</label><input id="sct" type="time"><div class="hint">Dono khali = hamesha khula. Ye India time (IST) me chalta hai, customer ke phone ki clock se nahi. Is time ke bahar sirf Daily Order band hoga, Order Booking chalta rahega.</div></div>
+<div><label class="mut" for="sbd">Booking kitne din pehle karni hogi</label><input id="sbd" type="number" min="0" step="1" value="1"><div class="hint">1 = kal ya uske baad ki date. 0 = aaj ki date bhi chalegi.</div></div>
+<h3 class="full">Delivery area (location)</h3>
+<div><label class="mut" for="sla">Shop latitude</label><input id="sla" inputmode="decimal" placeholder="19.076090"></div>
+<div><label class="mut" for="sln">Shop longitude</label><input id="sln" inputmode="decimal" placeholder="72.877426"></div>
+<div class="full"><button type="button" class="btn" id="sgeo">📍 Meri current location use karo</button></div>
+<div><label class="mut" for="sdk">Daily Order delivery radius (km)</label><input id="sdk" type="number" min="0" step="any" placeholder="5"><div class="hint">Khali ya 0 = koi limit nahi.</div></div>
+<div><label class="mut" for="sbk">Order Booking delivery radius (km)</label><input id="sbk" type="number" min="0" step="any" placeholder="15"><div class="hint">Khali ya 0 = koi limit nahi.</div></div>
 <div class="full"><button class="btn p" type="submit">Save settings</button> <span id="smsg" class="mut"></span></div></form>
 
 <form id="tf"><h3 class="full">Customer app background theme</h3>
@@ -124,37 +143,36 @@ input[type=color]{height:44px;padding:3px;cursor:pointer}
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="data.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAZKvp9yhCq9l-7-wXiy-qkx3llHw_-618",
-  authDomain: "biryani-category.firebaseapp.com",
-  databaseURL: "https://biryani-category-default-rtdb.firebaseio.com",
-  projectId: "biryani-category",
-  storageBucket: "biryani-category.firebasestorage.app",
-  messagingSenderId: "86398170612",
-  appId: "1:86398170612:web:2029aeed3ca7cad88af5a1",
-  measurementId: "G-XJ6RXX1GX3"
-};
-firebase.initializeApp(firebaseConfig);
-const db=firebase.database(),$=id=>document.getElementById(id);
+const $=id=>document.getElementById(id);
 const STATUS=['New','Enquiry','Confirmed','Cooking','Out for delivery','Delivered','Cancelled'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN');
 const okUrl=u=>/^https?:\/\/\S+$/i.test(u||'');
 const thumb=u=>okUrl(u)?`<div class="th"><img src="${esc(u)}" alt="" loading="lazy" onerror="this.parentNode.textContent='Bad URL'"></div>`:'<div class="th">No photo</div>';
 const serves=m=>{const s=Number(m.servesPerUnit);if(s>0)return s;const p=Number(m.perGuest);return p>0?Math.round(100/p)/100:1};
-let orders={},menu={},cats={},banners={},drafts={},settings={};
+let orders={},menu={},cats={},banners={},drafts={},settings={},mtype='daily';
 const shop=()=>String(settings.name||'').trim();
 $('flt').innerHTML+=STATUS.map(s=>`<option>${s}</option>`).join('');
 
 const tab=n=>[1,2,3,4,5].forEach(i=>{$('v'+i).classList.toggle('hide',i!==n);$('t'+i).classList.toggle('on',i===n)});
 $('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);$('t3').onclick=()=>tab(3);$('t4').onclick=()=>tab(4);$('t5').onclick=()=>tab(5);
 
-listen();
+/* admin login (sirf API mode me chalta hai; Firebase mode me gate nahi dikhta) */
+function gate(go){
+  if(!window.DATA_AUTH||!DATA_AUTH.required){go();return}
+  const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:99;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px';
+  o.innerHTML='<form id="lgf" style="max-width:340px;width:100%;margin:0"><h3 class="full">Admin login</h3><div class="full"><label class="mut" for="lgp">Password</label><input id="lgp" type="password" autocomplete="current-password" required></div><div class="full"><button class="btn p" type="submit">Login</button> <span id="lgm" class="err"></span></div></form>';
+  document.body.appendChild(o);
+  const ok=()=>{o.remove();const b=document.createElement('button');b.textContent='Logout';b.onclick=()=>DATA_AUTH.logout().finally(()=>location.reload());document.querySelector('nav').appendChild(b);go()};
+  DATA_AUTH.check().then(v=>{if(v)ok()});
+  $('lgf').onsubmit=async e=>{e.preventDefault();$('lgm').textContent='';try{await DATA_AUTH.login($('lgp').value);ok()}catch(x){$('lgm').textContent='Password galat hai.'}}}
+gate(listen);
 function listen(){
   db.ref('orders').on('value',s=>{orders=s.val()||{};renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
   db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu();renderCats();fillLink()});
-  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sfs').value=settings.fssai||'';$('sx').value=settings.text||''}
+  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sfs').value=settings.fssai||'';$('sx').value=settings.text||'';$('sdo').checked=settings.dailyOn!==false;$('sbo').checked=settings.bookingOn!==false;$('sbd').value=settings.bookMinDays??1;$('sot').value=settings.shopOpen||'';$('sdc').value=settings.dailyCharge??'';$('sdf').value=settings.dailyFree??'';$('sbc').value=settings.bookCharge??'';$('sbf').value=settings.bookFree??'';$('sct').value=settings.shopClose||'';$('sla').value=settings.shopLat??'';$('sln').value=settings.shopLng??'';$('sdk').value=settings.dailyKm??'';$('sbk').value=settings.bookKm??''}
     adminName();loadTheme()});
   db.ref('banners').on('value',s=>{banners=s.val()||{};renderBanners()},()=>$('blist').innerHTML='<p class="err">Could not load banners. Check database rules for the "banners" node.</p>');
   db.ref('categories').on('value',s=>{cats=s.val()||{};renderCats();renderMenu();fillLink()},()=>$('clist').innerHTML='<p class="err">Could not load categories. Check database rules for the "categories" node.</p>');
@@ -162,7 +180,8 @@ function listen(){
 $('flt').onchange=()=>renderOrders();
 
 /* ---------- orders (Enquiries / Placed orders folders) ---------- */
-const openO={};
+const openO={};let omode='daily';
+$('osw').onclick=e=>{const b=e.target.closest('button[data-o]');if(b){omode=b.dataset.o;renderOrders()}};
 const fD=d=>{if(!d)return '';const x=new Date(d+'T00:00:00');return isNaN(x)?d:x.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})};
 const fT=t=>{if(!t)return '';t=String(t).trim();const ap=t.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);if(ap)return (+ap[1])+':'+ap[2]+' '+ap[3].toUpperCase();const [h,m]=t.split(':').map(Number);return isNaN(h)?t:((h%12)||12)+':'+String(m||0).padStart(2,'0')+' '+(h<12?'AM':'PM')};
 const fTs=ts=>ts?new Date(ts).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'';
@@ -170,15 +189,17 @@ const qL=(q,u)=>!u?String(q):/^\d/.test(String(u).trim())?`${q} × ${u}`:`${q} $
 function orderCard(id,o){const enq=isEnq(o);
   return `<div class="o ${esc(o.status)}"><div>
     <h3>${esc(o.name)}</h3>
-    <div class="dt">${o.date?`<div>📅 <b>Booking:</b> ${esc(fD(o.date))}${o.time?' · '+esc(fT(o.time)):''}</div>`:''}<div>🕒 <b>${enq?'Enquiry sent':'Order placed'}:</b> ${esc(fTs(o.ts)||'—')}</div></div>
-    <small>${enq?'<span class="tag" style="margin:0 6px 0 0;color:#8ab4ff;border-color:#8ab4ff">Enquiry</span>':''}~${esc(o.guests)} guests · ${o.venue?esc(o.venue)+' · ':''}<a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
-    <div style="margin-top:4px">${(o.items||[]).map(i=>esc(i.name)+(i.qty?' — '+esc(qL(i.qty,i.unit)):'')+(i.serves?' ('+esc(i.serves)+' log)':'')).join('<br>')}</div>
+    <div class="dt">${o.date?`<div>📅 <b>${o.orderType==='Daily'?'Delivery date':'Booking'}:</b> ${esc(fD(o.date))}${o.time?' · '+esc(fT(o.time)):''}</div>`:''}<div>🕒 <b>${enq?'Enquiry sent':'Order placed'}:</b> ${esc(fTs(o.ts)||'—')}</div></div>
+    <small><span class="tag" style="margin:0 6px 0 0">${o.orderType==='Daily'?'Daily':'Booking'}</span>${o.distKm!=null?`<a style="color:var(--sf)" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${esc(o.custLat)},${esc(o.custLng)}">📍 ${esc(o.distKm)} km</a> · `:''}${enq?'<span class="tag" style="margin:0 6px 0 0;color:#8ab4ff;border-color:#8ab4ff">Enquiry</span>':''}${o.orderType==='Daily'?'':`~${esc(o.guests)} guests · `}${o.venue?esc(o.venue)+' · ':''}<a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
+    <div style="margin-top:4px">${(o.items||[]).map(i=>esc(i.name)+(i.qty?' — '+esc(qL(i.qty,i.unit)):'')+(i.serves&&o.orderType!=='Daily'?' ('+esc(i.serves)+' log)':'')).join('<br>')}</div>
     ${enq?`<div class="qn"><small>❓ Customer ka sawaal</small>${o.notes?esc(o.notes):'<span class="mut">(Customer ne kuch nahi likha)</span>'}</div>`:(o.notes?`<small>Notes: ${esc(o.notes)}</small>`:'')}
-    <div><b>${inr(o.total)}</b></div></div>
+    <div><b>${inr(o.total)}</b>${o.delivery?` <small class="mut">(delivery ₹${esc(o.delivery)} included)</small>`:''}</div></div>
     <div><select data-id="${esc(id)}" aria-label="Order status">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
     <button class="btn d" data-del="${esc(id)}" style="margin-top:8px;width:100%">Delete</button></div>${replyBox(id,o)}</div>`}
 function renderOrders(){
-  const list=Object.entries(orders).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
+  const all=Object.entries(orders).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0)),tk=o=>o.orderType==='Daily'?'daily':'booking',nw=k=>all.filter(([,o])=>tk(o)===k&&(o.status==='New'||(isEnq(o)&&!o.reply))).length;
+  $('osw').innerHTML=[['daily','🍽️ Daily Orders'],['booking','📅 Order Booking']].map(([k,t])=>`<button type="button" data-o="${k}" class="${omode===k?'on':''}">${t}${nw(k)?`<span class="bdg">${nw(k)}</span>`:''}</button>`).join('');
+  const list=all.filter(([,o])=>tk(o)===omode);
   const c=s=>list.filter(([,o])=>o.status===s);
   $('sN').textContent=c('New').length;$('sE').textContent=c('Enquiry').length;$('sC').textContent=c('Confirmed').length;
   $('sD').textContent=c('Cooking').length;
@@ -188,7 +209,7 @@ function renderOrders(){
   const fold=(k,ic,title,l,nw,empty)=>{const open=!!openO[k];
     return `<div class="fold"><button type="button" class="fh" data-fold="${k}" aria-expanded="${open}"><span>${ic} ${title}</span><span class="fr">${nw?`<span class="bdg">${nw} new</span>`:''}<span>${l.length}</span><span class="chev">${open?'▾':'▸'}</span></span></button>
     <div class="fb ${open?'':'hide'}">${l.length?l.map(([id,o])=>orderCard(id,o)).join(''):`<p class="mut" style="margin:0">${empty}</p>`}</div></div>`};
-  $('orders').innerHTML=fold('enq','💬','Enquiries',enqL,enqL.filter(([,o])=>!o.reply).length,'No enquiries here.')
+  $('orders').innerHTML=(omode==='daily'?'':fold('enq','💬','Enquiries',enqL,enqL.filter(([,o])=>!o.reply).length,'No enquiries here.'))
     +fold('ord','📦','Placed orders',ordL,ordL.filter(([,o])=>o.status==='New').length,'No orders here.');
 }
 $('orders').addEventListener('click',e=>{const h=e.target.closest('[data-fold]');if(!h)return;openO[h.dataset.fold]=!openO[h.dataset.fold];renderOrders()});
@@ -210,7 +231,7 @@ $('orders').addEventListener('click',e=>{const b=e.target.closest('button[data-s
   if(!msg.trim()){alert('Pehle reply likhein.');return}
   const url=ch==='Email'?'mailto:'+encodeURIComponent(o.email||'')+'?subject='+encodeURIComponent('Your enquiry'+(shop()?' · '+shop():''))+'&body='+encodeURIComponent(msg)
     :'https://wa.me/'+waNum(o.phone)+'?text='+encodeURIComponent(msg);
-  db.ref('orders/'+id).update({reply:msg,repliedVia:ch,repliedAt:firebase.database.ServerValue.TIMESTAMP});
+  db.ref('orders/'+id).update({reply:msg,repliedVia:ch,repliedAt:SERVER_TS});
   ch==='Email'?(location.href=url):window.open(url,'_blank')});
 $('orders').addEventListener('change',e=>{const id=e.target.dataset.id;id&&db.ref('orders/'+id+'/status').set(e.target.value)});
 $('orders').addEventListener('click',e=>{const id=e.target.dataset.del;if(id&&confirm('Delete this order permanently?'))db.ref('orders/'+id).remove()});
@@ -219,27 +240,29 @@ $('orders').addEventListener('click',e=>{const id=e.target.dataset.del;if(id&&co
 const openF={};let editId='';
 const ckey=n=>String(n||'Biryani').toLowerCase();
 function editForm(id,m){
-  const names=catRows().map(c=>c.name),cur=m.category||'Biryani';if(!names.some(n=>ckey(n)===ckey(cur)))names.push(cur);
+  const isD=m.orderType==='daily',names=catRows().map(c=>c.name),cur=m.category||'Biryani';if(!names.some(n=>ckey(n)===ckey(cur)))names.push(cur);
   return `<form class="ef" data-ef="${esc(id)}"><h3 class="full">Edit: ${esc(m.name)}</h3>
   <div><label class="mut">Name</label><input name="n" required value="${esc(m.name)}" aria-label="Name"></div>
-  <div><label class="mut">Category</label><select name="c" aria-label="Category">${names.map(n=>`<option value="${esc(n)}" ${ckey(n)===ckey(cur)?'selected':''}>${esc(n)}</option>`).join('')}<option value="__new">+ Naya category…</option></select><input name="cn" class="hide" placeholder="Naye category ka naam" style="margin-top:6px" aria-label="New category name"></div>
+  <div class="${isD?'hide':''}"><label class="mut">Category</label><select name="c" aria-label="Category">${names.map(n=>`<option value="${esc(n)}" ${ckey(n)===ckey(cur)?'selected':''}>${esc(n)}</option>`).join('')}<option value="__new">+ Naya category…</option></select><input name="cn" class="hide" placeholder="Naye category ka naam" style="margin-top:6px" aria-label="New category name"></div>
   <div><label class="mut">Price (₹)</label><input name="p" type="number" min="0" step="any" required value="${esc(m.price)}" aria-label="Price"></div>
   <div><label class="mut">Unit (kg, pcs, plate…)</label><input name="u" value="${esc(m.unit||'')}" aria-label="Unit"></div>
-  <div><label class="mut">Kitne log khayenge per unit?</label><input name="s" type="number" min="0.1" step="any" required value="${esc(serves(m))}" aria-label="Persons per unit"></div>
+  <div class="${isD?'hide':''}"><label class="mut">Kitne log khayenge per unit?</label><input name="s" type="number" min="0.1" step="any" required value="${esc(serves(m))}" aria-label="Persons per unit"></div>
   <div class="full"><label class="mut">Dish Photo URL</label><div class="pv">${thumb(m.image)}<input name="i" type="url" inputmode="url" value="${esc(m.image||'')}" placeholder="https://…/dish.jpg" aria-label="Photo URL"></div></div>
   <div class="full"><label class="mut">Description</label><textarea name="d" rows="2" aria-label="Description">${esc(m.desc||'')}</textarea></div>
   <div class="full"><button class="btn p" type="submit">Save changes</button> <button class="btn" type="button" data-ecancel="1">Cancel</button></div></form>`}
 function dishRow(id,m){const ed=editId===id;
   return `<div class="m"><div class="info">${thumb(m.image)}<div style="min-width:0"><b>${esc(m.name)}</b>${m.available===false?'<span class="tag" style="color:var(--err);border-color:var(--err)">Sold out</span>':''}
-  <br><small class="mut">${inr(m.price)}${m.unit?' per '+esc(m.unit):''} · 1 ${esc(m.unit||'unit')} = ${esc(serves(m))} persons</small>${m.desc?`<br><small class="mut">${esc(m.desc)}</small>`:''}</div></div>
-  <div><button class="btn" data-av="${esc(id)}">${m.available===false?'Mark available':'Mark sold out'}</button> <button class="btn ${ed?'p':''}" data-ed="${esc(id)}">${ed?'Close':'Edit'}</button> <button class="btn d" data-rm="${esc(id)}">Delete</button></div></div>${ed?editForm(id,m):''}`}
+  <br><small class="mut">${inr(m.price)}${m.unit?' per '+esc(m.unit):''}${m.orderType==='daily'?'':` · 1 ${esc(m.unit||'unit')} = ${esc(serves(m))} persons`}</small>${m.desc?`<br><small class="mut">${esc(m.desc)}</small>`:''}</div></div>
+  <div><button class="btn ${m.available===false?'p':''}" data-av="${esc(id)}">${m.available===false?'✅ Wapas available karo':'🚫 Sold out karo'}</button> <button class="btn ${ed?'p':''}" data-ed="${esc(id)}">${ed?'Close':'Edit'}</button> <button class="btn d" data-rm="${esc(id)}">Delete</button></div></div>${ed?editForm(id,m):''}`}
 function renderMenu(){
   const l=Object.entries(menu);
-  $('seed').classList.toggle('hide',l.length>0);
+  $('seed').classList.toggle('hide',l.length>0||mtype==='daily');
   const a=document.activeElement;
   if(editId&&a&&a.closest&&a.closest('form.ef')&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)){fillCatSelect();return}
+  if(mtype==='daily'){const dl=l.filter(([,m])=>m.orderType==='daily');
+    $('mlist').innerHTML=dl.length?dl.map(([id,m])=>dishRow(id,m)).join(''):'<p class="mut">Daily menu abhi khali hai. Upar se dish add karo, wo seedha Daily Order me dikhegi.</p>';fillCatSelect();return}
   const rows=catRows();
-  $('mlist').innerHTML=rows.length?rows.map(c=>{const k=ckey(c.name),items=l.filter(([,m])=>ckey(m.category)===k),open=!!openF[k];
+  $('mlist').innerHTML=rows.length?rows.map(c=>{const k=ckey(c.name),items=l.filter(([,m])=>m.orderType!=='daily'&&ckey(m.category)===k),open=!!openF[k];
     return `<div class="fold"><button type="button" class="fh" data-cf="${esc(k)}" aria-expanded="${open}"><span>📁 ${esc(c.name)}</span><span class="fr"><span>${items.length} dish${items.length===1?'':'es'}</span><span class="chev">${open?'▾':'▸'}</span></span></button>
     <div class="fb ${open?'':'hide'}">${items.length?items.map(([id,m])=>dishRow(id,m)).join(''):'<p class="mut" style="margin:0">Is category me abhi koi dish nahi hai.</p>'}
     <button class="btn p" type="button" data-cadd2="${esc(c.name)}" style="margin-top:10px">+ Add dish in ${esc(c.name)}</button></div></div>`}).join(''):'<p class="mut">No dishes yet. Add one above or load the starter menu.</p>';
@@ -258,12 +281,12 @@ $('mlist').addEventListener('input',e=>{const t=e.target;
   if(t.name==='i'&&t.form&&t.form.classList.contains('ef')){const box=t.form.querySelector('.pv .th'),u=t.value.trim();
     if(box)box.innerHTML=okUrl(u)?`<img src="${esc(u)}" alt="" onerror="this.parentNode.textContent='Bad URL'">`:'No photo'}});
 $('mlist').addEventListener('submit',e=>{const f=e.target;if(!f.classList.contains('ef'))return;e.preventDefault();
-  const id=f.dataset.ef,g=n=>f.elements[n],catName=g('c').value==='__new'?g('cn').value.trim():g('c').value,img=g('i').value.trim(),sv=Number(g('s').value);
+  const id=f.dataset.ef,isD=(menu[id]||{}).orderType==='daily',g=n=>f.elements[n],catName=isD?'x':(g('c').value==='__new'?g('cn').value.trim():g('c').value),img=g('i').value.trim(),sv=isD?1:Number(g('s').value);
   if(!catName){alert('Category chunein ya naya naam likhein.');return}
   if(img&&!okUrl(img)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
   if(!(sv>0)){alert('"Kitne log khayenge per unit" 0 se zyada hona chahiye.');return}
-  openF[ckey(catName)]=true;
-  db.ref('menu/'+id).update({name:g('n').value.trim(),category:catName,price:Number(g('p').value),unit:g('u').value.trim(),servesPerUnit:sv,image:img||null,desc:g('d').value.trim()})
+  if(!isD)openF[ckey(catName)]=true;
+  db.ref('menu/'+id).update({name:g('n').value.trim(),category:isD?null:catName,price:Number(g('p').value),unit:g('u').value.trim(),servesPerUnit:sv,image:img||null,desc:g('d').value.trim()})
   .then(()=>{editId='';renderMenu()}).catch(()=>alert('Save failed. Check database rules.'))});
 
 function fillCatSelect(keep){
@@ -272,7 +295,7 @@ function fillCatSelect(keep){
   $('mc').innerHTML=names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')+'<option value="__new">+ Naya category…</option>';
   $('mc').value=cur&&(names.includes(cur)||cur==='__new')?cur:(names[0]||'__new');
   catNew()}
-function catNew(){const n=$('mc').value==='__new';$('mcn').classList.toggle('hide',!n);$('mcn').required=n}
+function catNew(){const n=$('mc').value==='__new'&&mtype==='booking';$('mcn').classList.toggle('hide',!n);$('mcn').required=n}
 function setCat(n){fillCatSelect(n);$('mcn').value=''}
 const getCat=()=>$('mc').value==='__new'?$('mcn').value.trim():$('mc').value;
 $('mc').onchange=()=>{catNew();if($('mc').value==='__new')$('mcn').focus()};
@@ -280,17 +303,23 @@ function prev(inp,box){const u=$(inp).value.trim();$(box).innerHTML=okUrl(u)?`<i
 $('mi').oninput=()=>prev('mi','mpv');
 $('ci').oninput=()=>prev('ci','cpv');
 
-const clear=()=>{const keep=getCat();$('mf').reset();$('mid').value='';setCat(keep||undefined);$('mt').textContent='Add dish';prev('mi','mpv')};$('mx').onclick=clear;
+const clear=()=>{const keep=getCat();$('mf').reset();$('mid').value='';setCat(keep||undefined);$('mt').textContent=mtype==='daily'?'Add Daily dish':'Add Booking dish';prev('mi','mpv')};$('mx').onclick=clear;
+function applyMType(){const d=mtype==='daily';
+  document.querySelectorAll('#msw button').forEach(b=>b.classList.toggle('on',b.dataset.m===mtype));
+  $('mcw').classList.toggle('hide',d);$('msvw').classList.toggle('hide',d);
+  $('mt').textContent=d?'Add Daily dish':'Add Booking dish';catNew();renderMenu()}
+$('msw').onclick=e=>{const b=e.target.closest('button[data-m]');if(b){mtype=b.dataset.m;editId='';applyMType()}};
 $('mf').onsubmit=e=>{e.preventDefault();
-  const img=$('mi').value.trim(),sv=Number($('ms').value),catName=getCat();
+  const dly=mtype==='daily',img=$('mi').value.trim(),sv=dly?1:Number($('ms').value),catName=dly?'x':getCat();
   if(!catName){alert('Category chunein ya naya naam likhein.');return}
   if(img&&!okUrl(img)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
   if(!(sv>0)){alert('"Kitne log khayenge per unit" 0 se zyada hona chahiye.');return}
-  const d={name:$('mn').value.trim(),category:catName,price:Number($('mp').value),unit:$('mu').value.trim(),
-    servesPerUnit:sv,image:img||null,desc:$('md').value.trim()},id=$('mid').value;
-  openF[ckey(catName)]=true;
+  const d={name:$('mn').value.trim(),category:dly?null:catName,price:Number($('mp').value),unit:$('mu').value.trim(),
+    servesPerUnit:sv,orderType:dly?'daily':'booking',image:img||null,desc:$('md').value.trim()},id=$('mid').value;
+  if(!dly)openF[ckey(catName)]=true;
   (id?db.ref('menu/'+id).update(d):db.ref('menu').push({...d,available:true})).then(clear).catch(()=>alert('Save failed. Check database rules.'))};
 
+applyMType();
 $('seed').onclick=()=>[
   {name:'Dum Gosht Pateli Biryani',category:'Biryani',price:950,servesPerUnit:5,desc:'Aged basmati and tender mutton, sealed with dough and slow-cooked.'},
   {name:'Murgh Zafrani Biryani',category:'Biryani',price:780,servesPerUnit:5,desc:'Saffron-marinated chicken layered with fried onions and mint.'},
@@ -302,7 +331,7 @@ $('seed').onclick=()=>[
 function catRows(){
   const m=new Map();
   Object.entries(cats).forEach(([id,c])=>{if(c&&c.name)m.set(c.name.toLowerCase(),{id,name:c.name,image:c.image||'',n:0})});
-  Object.values(menu).forEach(d=>{const n=d.category||'Biryani',k=n.toLowerCase();
+  Object.values(menu).filter(d=>d.orderType!=='daily').forEach(d=>{const n=d.category||'Biryani',k=n.toLowerCase();
     if(!m.has(k))m.set(k,{id:'',name:n,image:'',n:0});m.get(k).n++});
   return [...m.values()];
 }
@@ -357,8 +386,17 @@ $('bf').onsubmit=e=>{e.preventDefault();
     dishId:link.startsWith('dish:')?link.slice(5):null,category:link.startsWith('cat:')?link.slice(4):null};
   (id?db.ref('banners/'+id).set(d):db.ref('banners').push(d)).then(bclear).catch(()=>alert('Save failed. Check database rules.'))};
 fillLink('');
+const nv=id=>{const v=$(id).value.trim();return v===''?null:Number(v)};
+$('sgeo').onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>{$('sla').value=p.coords.latitude.toFixed(6);$('sln').value=p.coords.longitude.toFixed(6)},()=>alert('Location allow karein ya latitude/longitude khud likhein.'),{enableHighAccuracy:true,timeout:15000}):alert('Is browser me location support nahi hai.');
 $('sf').onsubmit=e=>{e.preventDefault();
-  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,fssai:$('sfs').value.trim()||null,text:$('sx').value.trim()||null})
+  const la=nv('sla'),lo=nv('sln'),dk=nv('sdk'),bk=nv('sbk');
+  if(['sdc','sdf','sbc','sbf'].some(i=>nv(i)!==null&&(isNaN(nv(i))||nv(i)<0))){alert('Delivery charge aur free-delivery amount 0 ya usse zyada hone chahiye.');return}
+  if(!$('sot').value!==!$('sct').value){alert('Shop open aur close time dono bharein (ya dono khali chhodein).');return}
+  if((la===null)!==(lo===null)){alert('Latitude aur longitude dono bharein.');return}
+  if(la!==null&&(isNaN(la)||isNaN(lo)||Math.abs(la)>90||Math.abs(lo)>180)){alert('Latitude (-90 se 90) aur longitude (-180 se 180) sahi likhein.');return}
+  if([dk,bk].some(v=>v!==null&&(isNaN(v)||v<0))){alert('Radius (km) 0 ya usse zyada number hona chahiye.');return}
+  if(((dk||0)>0||(bk||0)>0)&&la===null){alert('Radius lagane ke liye shop ki latitude/longitude zaroori hai.');return}
+  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,fssai:$('sfs').value.trim()||null,text:$('sx').value.trim()||null,dailyOn:$('sdo').checked,bookingOn:$('sbo').checked,bookMinDays:Math.max(0,Math.floor(Number($('sbd').value)||0)),dailyCharge:nv('sdc'),dailyFree:nv('sdf'),bookCharge:nv('sbc'),bookFree:nv('sbf'),shopOpen:$('sot').value||null,shopClose:$('sct').value||null,shopLat:la,shopLng:lo,dailyKm:dk,bookKm:bk})
   .then(()=>{$('smsg').textContent='Saved ✓';setTimeout(()=>$('smsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
 /* ---------- customer app theme ---------- */
 function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
