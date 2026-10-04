@@ -175,7 +175,8 @@ h2{font-size:1.25rem;margin:14px 0 2px}.sub{font-size:.82rem;margin:0 0 12px}
 .sl img.bad{display:none}
 /* no-beef badge + FSSAI + smaller banner */
 .trust{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
-.nb{display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:99px;font-weight:800;font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#d92d20,#8f1410);border:1px solid rgba(255,255,255,.28);box-shadow:0 4px 12px rgba(217,45,32,.4),inset 0 1px 0 rgba(255,255,255,.25)}
+.nb{display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:99px;font-weight:800;font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,var(--gr2),var(--gr));border:1px solid rgba(255,255,255,.28);box-shadow:0 4px 12px rgba(31,157,87,.45),inset 0 1px 0 rgba(255,255,255,.25)}
+.nb.nbf{background:linear-gradient(135deg,#d92d20,#8f1410);box-shadow:0 4px 12px rgba(217,45,32,.4),inset 0 1px 0 rgba(255,255,255,.25)}
 .nb i{font-style:normal;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#fff;font-size:.8rem;line-height:1}
 .fs{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:99px;font-weight:700;font-size:.74rem;color:var(--gt);background:rgba(47,191,113,.12);border:1px solid rgba(47,191,113,.45)}
 .fs b{font-family:'Hanken Grotesk',sans-serif;letter-spacing:.06em;color:var(--tx)}
@@ -236,7 +237,7 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 </head><body>
 <header class="hero" id="hero"><div class="wrap"><h1 id="hn"></h1>
 <p id="ht" class="hide"></p>
-<div class="trust"><span class="nb" title="Our food is always Halal">Food is always Halal</span><span class="fs hide" id="fs">FSSAI Lic. No: <b id="fsn"></b></span></div>
+<div class="trust"><span class="nb nbf" title="No beef is used in our food">No Beef Used</span><span class="nb" title="Our food is always Halal">Food is always Halal</span><span class="fs hide" id="fs">FSSAI Lic. No: <b id="fsn"></b></span></div>
 <div class="ban hide" id="ban" aria-roledescription="carousel" aria-label="Featured dishes"><div class="trk" id="trk"></div><div class="dots" id="dots"></div></div></div></header>
 
 <div class="wrap" id="omw"><div class="omode" id="omode"><button type="button" data-o="daily">🥡 Daily Parcel</button><button type="button" data-o="booking">📅 Order Booking</button></div><p class="odesc" id="odesc"></p></div>
