@@ -187,6 +187,32 @@ h2{font-size:1.25rem;margin:14px 0 2px}.sub{font-size:.82rem;margin:0 0 12px}
 .omode button.on{background:var(--sf);color:var(--bt);border-color:var(--sf)}
 .odesc{margin:6px 0 0;color:var(--mut);font-size:.82rem}
 #locw{grid-column:1/-1}
+
+/* ---- stylish shop look ---- */
+.hero{padding:22px 0 18px;border-bottom:1px solid var(--cu);box-shadow:0 1px 0 rgba(240,180,76,.25),0 12px 30px rgba(0,0,0,.35)}
+.hero h1{font-weight:800;letter-spacing:.01em;background:linear-gradient(100deg,var(--tx) 10%,var(--sf) 55%,var(--cu));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-size:clamp(1.5rem,6.4vw,2.4rem)}
+.hero.mini{padding:12px 0 10px}.hero.mini h1{font-size:1.2rem}
+.nb{letter-spacing:.06em;font-size:.72rem;padding:6px 14px}
+.omode{background:var(--inp);border:1px solid var(--line);border-radius:16px;padding:4px;gap:4px;box-shadow:inset 0 2px 8px rgba(0,0,0,.4)}
+.omode button{border:0;background:none;color:var(--mut);border-radius:12px;padding:13px 8px;font:700 .95rem Fraunces,serif;transition:background .2s,color .2s}
+.omode button.on{background:linear-gradient(135deg,var(--sf),var(--cu));color:var(--bt);box-shadow:0 4px 14px rgba(240,180,76,.35)}
+.odesc{text-align:center;margin-top:10px}
+.sbar{border-bottom:1px solid var(--cu)}.sw{border-radius:14px}
+.tbtn{border-radius:14px;border-color:var(--cu);color:var(--sf)}
+h2{font-size:1.4rem;display:flex;align-items:center;gap:12px}h2:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--cu),transparent)}
+.tile{border-radius:22px;border:1.5px solid var(--cu);box-shadow:0 8px 18px rgba(0,0,0,.45),0 0 0 3px rgba(240,180,76,.08)}
+.ct b{font:700 .88rem Fraunces,serif;color:var(--tx)}
+.dish{border-radius:18px;border-color:var(--line);background:linear-gradient(180deg,var(--panel),var(--bg));box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.dish.on{border-color:var(--sf);box-shadow:0 0 0 1px var(--sf),0 8px 22px rgba(240,180,76,.18)}
+.dish h3{font-size:.98rem}
+.pr{display:inline-block;align-self:flex-start;background:rgba(240,180,76,.12);border:1px solid rgba(240,180,76,.4);border-radius:99px;padding:1px 10px;font-size:.88rem}
+.av{background:rgba(18,9,7,.85);border:1px solid rgba(47,191,113,.5)}
+.add{border-radius:12px;height:36px;border-color:var(--sf);background:rgba(240,180,76,.1);color:var(--sf)}
+.add:active{background:var(--sf);color:var(--bt)}
+.fbar{border-radius:20px;background:linear-gradient(135deg,#2a1612,#120907);border:1px solid var(--sf);box-shadow:0 12px 32px rgba(0,0,0,.65),0 0 0 3px rgba(240,180,76,.12)}
+.k{color:var(--mut)}.k b{color:var(--sf)}.k+.k{border-color:var(--line)}
+.vc{background:linear-gradient(135deg,var(--sf),var(--cu));color:var(--bt);border-radius:14px}
+.card{border-radius:18px}.btn{border-radius:12px}
 </style>
 <script>
 function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
@@ -213,7 +239,7 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 <div class="trust"><span class="nb" title="Beef is never used">No Beef Used</span><span class="fs hide" id="fs">FSSAI Lic. No: <b id="fsn"></b></span></div>
 <div class="ban hide" id="ban" aria-roledescription="carousel" aria-label="Featured dishes"><div class="trk" id="trk"></div><div class="dots" id="dots"></div></div></div></header>
 
-<div class="wrap" id="omw"><div class="omode" id="omode"><button type="button" data-o="daily">🍽️ Daily Order</button><button type="button" data-o="booking">📅 Order Booking</button></div><p class="odesc" id="odesc"></p></div>
+<div class="wrap" id="omw"><div class="omode" id="omode"><button type="button" data-o="daily">🥡 Daily Parcel</button><button type="button" data-o="booking">📅 Order Booking</button></div><p class="odesc" id="odesc"></p></div>
 
 <div class="sbar"><div class="wrap"><div class="sw"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
 <input id="q" type="search" placeholder="Search dishes or categories…" autocomplete="off" enterkeyhint="search" aria-label="Search dishes">
@@ -318,8 +344,8 @@ function applyModes(){
   document.querySelectorAll('#omode button').forEach(b=>b.classList.toggle('on',b.dataset.o===omode));
   let t;
   if(closed)t='Orders are closed right now.'+(hrs&&dEn?` The shop is open from ${f12(st.shopOpen)} to ${f12(st.shopClose)}.`:'');
-  else if(!dOn)t=dEn?`🔴 The shop is closed right now (opens at ${f12(st.shopOpen)}). Daily Order is closed, Order Booking is open.`:'Daily Order is closed right now, Order Booking is open.';
-  else t=(omode==='daily'?'Order for today, delivered to your address.':'Advance booking for parties and functions. Choose a date and time.')+(hrs&&omode==='daily'?` Shop timing: ${f12(st.shopOpen)} – ${f12(st.shopClose)}.`:'')+(g?` Delivery only within ${g.km} km.`:'');
+  else if(!dOn)t=dEn?`🔴 The shop is closed right now (opens at ${f12(st.shopOpen)}). Daily Parcel is closed, Order Booking is open.`:'Daily Order is closed right now, Order Booking is open.';
+  else t=(omode==='daily'?'Parcel for today, packed fresh and sent to your address.':'Advance booking for parties and functions. Choose a date and time.')+(hrs&&omode==='daily'?` Shop timing: ${f12(st.shopOpen)} – ${f12(st.shopClose)}.`:'')+(g?` Delivery only within ${g.km} km.`:'');
   $('odesc').textContent=t;syncUI()}
 function syncUI(){const e=mode==='enquiry',d=omode==='daily',g=geoOn(),dm=$('date'),today=shopNow().ymd;
   document.querySelector('.seg').classList.toggle('hide',d);
@@ -329,8 +355,8 @@ function syncUI(){const e=mode==='enquiry',d=omode==='daily',g=geoOn(),dm=$('dat
   $('dtw').querySelector('label').textContent=d?'Delivery date':'Date';$('tmw').querySelector('label').textContent=d?'Delivery time':'Serve time';
   $('locw').classList.toggle('hide',e||!g);
   $('vnw').querySelector('label').textContent=d?'Delivery address':'Venue / full address';
-  $('odT').textContent=e?'Enquiry details':d?'Daily order details':'Booking details';
-  $('place').textContent=e?'Send enquiry':d?'Place order':'Confirm booking';
+  $('odT').textContent=e?'Enquiry details':d?'Daily parcel details':'Booking details';
+  $('place').textContent=e?'Send enquiry':d?'Order parcel':'Confirm booking';
   showLoc()}
 setInterval(()=>{if(Object.keys(st).length)applyModes()},30000);
 function showLoc(){const g=geoOn(),n=$('locn');if(!g)return;
@@ -373,8 +399,8 @@ function render(){
   const ids=Object.keys(menu).filter(id=>{const m=menu[id];if(!inMode(m))return false;
     if(q){const hay=(m.name+' '+(m.desc||'')+' '+catOf(m)).toLowerCase();return q.split(/\s+/).every(w=>hay.includes(w))}
     return dly||catOf(m)===cat});
-  $('lt').innerHTML=q?`Search: “${esc($('q').value.trim())}”<small>${ids.length} dish${ids.length===1?'':'es'} found</small>`:dly?`Daily Menu<small>${ids.length} dish${ids.length===1?'':'es'}</small>`:`${esc(cat)}<small>${ids.length} dish${ids.length===1?'':'es'}</small>`;
-  $('grid').innerHTML=ids.length?ids.map(id=>card(id,menu[id],!!q)).join(''):`<div class="empty"><b>🔍</b>${q?'No dishes found. Try a different name.':dly?'The daily menu is empty right now.':'No dishes in this category yet.'}</div>`;
+  $('lt').innerHTML=q?`Search: “${esc($('q').value.trim())}”<small>${ids.length} dish${ids.length===1?'':'es'} found</small>`:dly?`Parcel Menu<small>${ids.length} dish${ids.length===1?'':'es'}</small>`:`${esc(cat)}<small>${ids.length} dish${ids.length===1?'':'es'}</small>`;
+  $('grid').innerHTML=ids.length?ids.map(id=>card(id,menu[id],!!q)).join(''):`<div class="empty"><b>🔍</b>${q?'No dishes found. Try a different name.':dly?'The parcel menu is empty right now.':'No dishes in this category yet.'}</div>`;
 }
 function drawCats(){
   const ids=Object.keys(menu).filter(i=>inMode(menu[i]));
@@ -491,7 +517,7 @@ document.querySelector('.seg').onclick=e=>{const b=e.target.closest('button[data
 function submit(kind){
   const enq=kind==='Enquiry',m=$('msg'),f=id=>$(id).value.trim(),phone=f('phone').replace(/\D/g,''),c=calc();
   if(!c.n){m.className='msg err';m.textContent='Please add at least one dish.';return}
-  if(closed||!secOpen(omode)){m.className='msg err';m.textContent=omode==='daily'?'The shop is closed, so Daily Order is unavailable. Order Booking is open.':'Order Booking is closed right now.';return}
+  if(closed||!secOpen(omode)){m.className='msg err';m.textContent=omode==='daily'?'The shop is closed, so Daily Parcel is unavailable. Order Booking is open.':'Order Booking is closed right now.';return}
   const g=!enq&&geoOn();
   if(g){if(!loc){m.className='msg err';m.textContent='Please tap "📍 Use my current location" to check your location first.';return}
     loc.d=hav(loc.lat,loc.lng,g.la,g.lo);if(loc.d>g.km){m.className='msg err';m.textContent=`You are ${loc.d.toFixed(1)} km away. We deliver only within ${g.km} km.`;return}}
@@ -509,7 +535,7 @@ function submit(kind){
     guests:c.g,itemCount:c.n,items:c.r,subtotal:c.t,delivery:enq?0:dchg(c).amt,total:r2(c.t+(enq?0:dchg(c).amt)),status:enq?'Enquiry':'New',ts:SERVER_TS})
   .then(()=>{lastPhone=phone;$('dtrk').classList.toggle('hide',enq);
     $('dT').textContent=enq?'Enquiry sent':'Order placed';
-    $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:(omode==='daily'?'Thank you! Your order has been placed. The price is final, so no confirmation call is needed.':'Thank you. We will call you shortly to confirm the final quantity and price.');
+    $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:(omode==='daily'?'Thank you! Your parcel order has been placed. The price is final, so no confirmation call is needed.':'Thank you. We will call you shortly to confirm the final quantity and price.');
     $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
   .catch(()=>{m.className='msg err';m.textContent=(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false});
 }
@@ -526,7 +552,7 @@ function closeTrack(){history.state&&history.state.k==='trk'?history.back():clos
 function tCard(o){const s=o.status||'New',idx=STEPS.indexOf(s),
   when=o.ts?new Date(o.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'',
   bar=idx>=0?`<div class="stp" aria-hidden="true">${STEPS.map((_,i)=>`<i class="${i<=idx?'f':''}"></i>`).join('')}</div>`:'';
-  return `<div class="card tc"><div class="tcr"><b>${o.orderType==='Daily'?'Daily order':o.orderType==='Booking'?'Booking':'Order'}${when?' · '+when:''}</b><span class="chip ${s==='Cancelled'?'bad':''}">${esc(SL[s]||s)}</span></div>${bar}
+  return `<div class="card tc"><div class="tcr"><b>${o.orderType==='Daily'?'Daily parcel':o.orderType==='Booking'?'Booking':'Order'}${when?' · '+when:''}</b><span class="chip ${s==='Cancelled'?'bad':''}">${esc(SL[s]||s)}</span></div>${bar}
   <small>${(o.items||[]).map(i=>esc(i.name)+(i.qty?' ('+esc(qLabel(i.qty,i.unit))+')':'')).join(', ')}</small>
   ${o.date&&o.orderType!=='Daily'?`<small>Event: ${esc(o.date)}${o.time?' at '+esc(o.time):''}</small>`:''}
   <div class="tt">${inr(o.total||0)}</div></div>`}
