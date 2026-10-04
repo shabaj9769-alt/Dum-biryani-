@@ -236,7 +236,7 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 </head><body>
 <header class="hero" id="hero"><div class="wrap"><h1 id="hn"></h1>
 <p id="ht" class="hide"></p>
-<div class="trust"><span class="nb" title="Beef is never used">No Beef Used</span><span class="fs hide" id="fs">FSSAI Lic. No: <b id="fsn"></b></span></div>
+<div class="trust"><span class="nb" title="Our food is always Halal">Food is always Halal</span><span class="fs hide" id="fs">FSSAI Lic. No: <b id="fsn"></b></span></div>
 <div class="ban hide" id="ban" aria-roledescription="carousel" aria-label="Featured dishes"><div class="trk" id="trk"></div><div class="dots" id="dots"></div></div></div></header>
 
 <div class="wrap" id="omw"><div class="omode" id="omode"><button type="button" data-o="daily">🥡 Daily Parcel</button><button type="button" data-o="booking">📅 Order Booking</button></div><p class="odesc" id="odesc"></p></div>
@@ -364,7 +364,7 @@ function showLoc(){const g=geoOn(),n=$('locn');if(!g)return;
   loc.d=hav(loc.lat,loc.lng,g.la,g.lo);const ok=loc.d<=g.km;
   n.className=ok?'note':'msg err';
   n.textContent=ok?`✅ You are ${loc.d.toFixed(1)} km away. Delivery is available.`:`❌ You are ${loc.d.toFixed(1)} km away. We deliver only within ${g.km} km.`}
-$('locb').onclick=()=>{const n=$('locn');n.className='note';n.textContent='Location le raha hu…';
+$('locb').onclick=()=>{const n=$('locn');n.className='note';n.textContent='Getting your location…';
   if(!navigator.geolocation){n.className='msg err';n.textContent='Location is not supported in this browser.';return}
   navigator.geolocation.getCurrentPosition(p=>{loc={lat:p.coords.latitude,lng:p.coords.longitude};showLoc()},
     e=>{n.className='msg err';n.textContent=e&&e.code===1?'Location permission is blocked. Allow it in your browser settings and tap again.':'Could not get your location. Please try again.'},
@@ -461,7 +461,7 @@ function renderCart(){const c=calc(),dc=dchg(c);
     <div class="cc"><div class="pill"><button type="button" data-a="-" aria-label="Decrease">−</button><input inputmode="decimal" value="${i.qty}" aria-label="Quantity of ${esc(i.name)}"><button type="button" data-a="+" aria-label="Increase">+</button></div>
     <button type="button" class="x" data-a="x" aria-label="Remove ${esc(i.name)}">✕</button></div></div>`).join('');
   $('ctot').innerHTML=`<div class="tr"><span>Total items</span><b>${c.n}</b></div>${omode==='daily'?'':`<div class="tr"><span>Estimated guests</span><b>${c.g}</b></div>`}
-  ${dc.show?`<div class="tr"><span>Items total</span><b>${inr(c.t)}</b></div><div class="tr"><span>Delivery charge</span><b>${dc.amt?inr(dc.amt):'Free'}</b></div>`:''}<div class="tr big"><span>${omode==='daily'?'Total':'Estimated total'}</span><b>${inr(c.t+dc.amt)}</b></div><p class="note">${omode==='daily'?'This is the final price (delivery and GST included). No extra charges.':'This is an estimate. Final price is confirmed by phone and may change with delivery and GST.'}</p>`;
+  ${dc.show?`<div class="tr"><span>Items total</span><b>${inr(c.t)}</b></div><div class="tr"><span>Delivery charge</span><b>${dc.amt?inr(dc.amt):'Free'}</b></div>`:''}<div class="tr big"><span>${omode==='daily'?'Total':'Estimated total'}</span><b>${inr(c.t+dc.amt)}</b></div><p class="note">${omode==='daily'?'This is the final price. No extra charges.':'This is an estimate. Final price is confirmed by phone and may change with delivery.'}</p>`;
   const fl=$('fT').parentNode.querySelector('small');if(fl)fl.textContent=omode==='daily'?'Total':'Estimated total';
   $('fT').textContent=inr(c.t+dc.amt)}
 function openCart(){if(!calc().n)return;setMode(omode==='daily'?'order':mode);renderCart();cartOpen=true;history.pushState({k:'cart'},'');
