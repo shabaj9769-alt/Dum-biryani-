@@ -97,6 +97,7 @@ input[type=color]{height:44px;padding:3px;cursor:pointer}
 <div id="v5" class="hide"><form id="sf"><h3 class="full">Store settings</h3>
 <div><label class="mut" for="sn">Store name</label><input id="sn" placeholder="Store name"><div class="hint">Customer app ke upar bade naam me yahi dikhega. Jo yahan likhoge wahi dikhega, khali chhodoge to naam nahi dikhega.</div></div>
 <div><label class="mut" for="sp">Support phone number</label><input id="sp" type="tel" inputmode="tel" placeholder="8779612829"><div class="hint">Customer app ka call icon isi number par call lagayega.</div></div>
+<div><label class="mut" for="sfs">FSSAI number</label><input id="sfs" inputmode="numeric" maxlength="14" placeholder="14 digit FSSAI number"><div class="hint">Customer app ke header me "FSSAI Lic. No" ke saath dikhega. Khali chhodoge to nahi dikhega.</div></div>
 <div class="full"><label class="mut" for="sx">Description (naam ke neeche)</label><textarea id="sx" rows="3" placeholder="Jo likhoge wahi customer app me dikhega"></textarea><div class="hint">Khali chhodoge to kuch nahi dikhega.</div></div>
 <div class="full"><button class="btn p" type="submit">Save settings</button> <span id="smsg" class="mut"></span></div></form>
 
@@ -112,7 +113,7 @@ input[type=color]{height:44px;padding:3px;cursor:pointer}
 
 <div id="v4" class="hide"><form id="bf"><h3 class="full" id="bt">Add banner</h3>
 <input type="hidden" id="bid">
-<div class="full"><label class="mut" for="bi">Banner Photo URL</label><div class="pv"><div class="th" id="bpv">No photo</div><input id="bi" type="url" inputmode="url" required placeholder="https://…/banner.jpg"></div><div class="hint">Wide (16:9) photo sabse achhi lagti hai. Customer app me jitne banner yahan add karoge utne hi slide honge.</div></div>
+<div class="full"><label class="mut" for="bi">Banner Photo URL</label><div class="pv"><div class="th" id="bpv">No photo</div><input id="bi" type="url" inputmode="url" required placeholder="https://…/banner.jpg"></div><div class="hint">Best size: 1280 × 720 px (16:9), 200 KB se kam. Customer app me ye chhota (max 560px wide) dikhega. Customer app me jitne banner yahan add karoge utne hi slide honge.</div></div>
 <div><label class="mut" for="bn">Banner name (customer app me isi naam se dikhega)</label><input id="bn" placeholder="Chicken Dum Biryani"></div>
 <div><label class="mut" for="bl">Tap karne par kya khule</label><select id="bl"></select></div>
 <div><label class="mut" for="bo">Order (chhota number pehle dikhega)</label><input id="bo" type="number" step="1" value="1"></div>
@@ -153,7 +154,7 @@ listen();
 function listen(){
   db.ref('orders').on('value',s=>{orders=s.val()||{};renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
   db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu();renderCats();fillLink()});
-  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sx').value=settings.text||''}
+  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sfs').value=settings.fssai||'';$('sx').value=settings.text||''}
     adminName();loadTheme()});
   db.ref('banners').on('value',s=>{banners=s.val()||{};renderBanners()},()=>$('blist').innerHTML='<p class="err">Could not load banners. Check database rules for the "banners" node.</p>');
   db.ref('categories').on('value',s=>{cats=s.val()||{};renderCats();renderMenu();fillLink()},()=>$('clist').innerHTML='<p class="err">Could not load categories. Check database rules for the "categories" node.</p>');
@@ -357,7 +358,7 @@ $('bf').onsubmit=e=>{e.preventDefault();
   (id?db.ref('banners/'+id).set(d):db.ref('banners').push(d)).then(bclear).catch(()=>alert('Save failed. Check database rules.'))};
 fillLink('');
 $('sf').onsubmit=e=>{e.preventDefault();
-  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,text:$('sx').value.trim()||null})
+  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,fssai:$('sfs').value.trim()||null,text:$('sx').value.trim()||null})
   .then(()=>{$('smsg').textContent='Saved ✓';setTimeout(()=>$('smsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
 /* ---------- customer app theme ---------- */
 function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
