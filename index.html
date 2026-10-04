@@ -172,6 +172,14 @@ h2{font-size:1.25rem;margin:14px 0 2px}.sub{font-size:.82rem;margin:0 0 12px}
 .sl{aspect-ratio:auto;max-height:none;display:flex;align-items:center;justify-content:center;background:var(--panel)}
 .sl img{position:static;width:100%;height:auto;max-height:70vh;object-fit:contain;display:block}
 .sl img.bad{display:none}
+/* no-beef badge + FSSAI + smaller banner */
+.trust{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.nb{display:inline-flex;align-items:center;gap:7px;padding:6px 14px 6px 8px;border-radius:99px;font-weight:800;font-size:.78rem;letter-spacing:.09em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#d92d20,#8f1410);border:1px solid rgba(255,255,255,.28);box-shadow:0 4px 12px rgba(217,45,32,.4),inset 0 1px 0 rgba(255,255,255,.25)}
+.nb i{font-style:normal;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#fff;font-size:.8rem;line-height:1}
+.fs{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:99px;font-weight:700;font-size:.74rem;color:var(--gt);background:rgba(47,191,113,.12);border:1px solid rgba(47,191,113,.45)}
+.fs b{font-family:'Hanken Grotesk',sans-serif;letter-spacing:.06em;color:var(--tx)}
+.ban{max-width:560px;margin-left:auto;margin-right:auto}
+.sl img{max-height:none}
 </style>
 <script>
 function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
@@ -195,6 +203,7 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 </head><body>
 <header class="hero" id="hero"><div class="wrap"><h1 id="hn"></h1>
 <p id="ht" class="hide"></p>
+<div class="trust"><span class="nb" title="Beef is never used"><i>🐄</i>No Beef Used</span><span class="fs hide" id="fs">FSSAI Lic. No: <b id="fsn"></b></span></div>
 <div class="ban hide" id="ban" aria-roledescription="carousel" aria-label="Featured dishes"><div class="trk" id="trk"></div><div class="dots" id="dots"></div></div></div></header>
 
 <div class="sbar"><div class="wrap"><div class="sw"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -270,7 +279,7 @@ let menu={},cats={},qty={},cat='',cartOpen=false,trackOpen=false,mode='order',st
 const DEF_PH='8779612829';
 function applySt(){
   const name=String(st.name||'').trim(),txt=String(st.text||'').trim(),raw=String(st.phone||'').trim()||DEF_PH,d=raw.replace(/[^\d]/g,'');
-  $('hn').textContent=name;$('ht').textContent=txt;$('ht').classList.toggle('hide',!txt);document.title=name||'Menu';
+  $('hn').textContent=name;$('ht').textContent=txt;const fz=String(st.fssai||'').trim();$('fsn').textContent=fz;$('fs').classList.toggle('hide',!fz);$('ht').classList.toggle('hide',!txt);document.title=name||'Menu';
   try{name?localStorage.setItem('rd_name',name):localStorage.removeItem('rd_name')}catch(e){}
   applyTheme(st.theme);try{st.theme?localStorage.setItem('rd_theme',JSON.stringify(st.theme)):localStorage.removeItem('rd_theme')}catch(e){}
   const tel=raw.startsWith('+')?'+'+d:(d.length===10?'+91'+d:'+'+d);
