@@ -317,9 +317,9 @@ function applyModes(){
   $('omode').classList.toggle('hide',!(dOn&&bOn));
   document.querySelectorAll('#omode button').forEach(b=>b.classList.toggle('on',b.dataset.o===omode));
   let t;
-  if(closed)t='Orders abhi band hain.'+(hrs&&dEn?` Shop ${f12(st.shopOpen)} se ${f12(st.shopClose)} tak khula rehta hai.`:'');
-  else if(!dOn)t=dEn?`🔴 Shop abhi band hai (khulne ka time ${f12(st.shopOpen)}). Daily Order band hai, Order Booking chalu hai.`:'Daily Order abhi band hai, Order Booking chalu hai.';
-  else t=(omode==='daily'?'Aaj ke liye order, delivery aapke address par.':'Party / function ke liye advance booking, date aur time chunein.')+(hrs&&omode==='daily'?` Shop timing: ${f12(st.shopOpen)} – ${f12(st.shopClose)}.`:'')+(g?` Delivery sirf ${g.km} km ke andar.`:'');
+  if(closed)t='Orders are closed right now.'+(hrs&&dEn?` The shop is open from ${f12(st.shopOpen)} to ${f12(st.shopClose)}.`:'');
+  else if(!dOn)t=dEn?`🔴 The shop is closed right now (opens at ${f12(st.shopOpen)}). Daily Order is closed, Order Booking is open.`:'Daily Order is closed right now, Order Booking is open.';
+  else t=(omode==='daily'?'Order for today, delivered to your address.':'Advance booking for parties and functions. Choose a date and time.')+(hrs&&omode==='daily'?` Shop timing: ${f12(st.shopOpen)} – ${f12(st.shopClose)}.`:'')+(g?` Delivery only within ${g.km} km.`:'');
   $('odesc').textContent=t;syncUI()}
 function syncUI(){const e=mode==='enquiry',d=omode==='daily',g=geoOn(),dm=$('date'),today=shopNow().ymd;
   document.querySelector('.seg').classList.toggle('hide',d);
@@ -334,14 +334,14 @@ function syncUI(){const e=mode==='enquiry',d=omode==='daily',g=geoOn(),dm=$('dat
   showLoc()}
 setInterval(()=>{if(Object.keys(st).length)applyModes()},30000);
 function showLoc(){const g=geoOn(),n=$('locn');if(!g)return;
-  if(!loc){n.className='note';n.textContent=`Delivery sirf ${g.km} km ke andar hai. Pehle location check karein.`;return}
+  if(!loc){n.className='note';n.textContent=`Delivery is only within ${g.km} km. Please check your location first.`;return}
   loc.d=hav(loc.lat,loc.lng,g.la,g.lo);const ok=loc.d<=g.km;
   n.className=ok?'note':'msg err';
-  n.textContent=ok?`✅ Aap ${loc.d.toFixed(1)} km door ho. Delivery available hai.`:`❌ Aap ${loc.d.toFixed(1)} km door ho. Hum sirf ${g.km} km ke andar delivery karte hain.`}
+  n.textContent=ok?`✅ You are ${loc.d.toFixed(1)} km away. Delivery is available.`:`❌ You are ${loc.d.toFixed(1)} km away. We deliver only within ${g.km} km.`}
 $('locb').onclick=()=>{const n=$('locn');n.className='note';n.textContent='Location le raha hu…';
-  if(!navigator.geolocation){n.className='msg err';n.textContent='Is browser me location support nahi hai.';return}
+  if(!navigator.geolocation){n.className='msg err';n.textContent='Location is not supported in this browser.';return}
   navigator.geolocation.getCurrentPosition(p=>{loc={lat:p.coords.latitude,lng:p.coords.longitude};showLoc()},
-    e=>{n.className='msg err';n.textContent=e&&e.code===1?'Location permission band hai. Browser settings me allow karke dobara dabayein.':'Location nahi mil paayi. Dobara try karein.'},
+    e=>{n.className='msg err';n.textContent=e&&e.code===1?'Location permission is blocked. Allow it in your browser settings and tap again.':'Could not get your location. Please try again.'},
     {enableHighAccuracy:true,timeout:15000,maximumAge:60000})};
 $('omode').onclick=e=>{const b=e.target.closest('button[data-o]');if(b&&b.dataset.o!==omode)setOmode(b.dataset.o)};
 
@@ -374,7 +374,7 @@ function render(){
     if(q){const hay=(m.name+' '+(m.desc||'')+' '+catOf(m)).toLowerCase();return q.split(/\s+/).every(w=>hay.includes(w))}
     return dly||catOf(m)===cat});
   $('lt').innerHTML=q?`Search: “${esc($('q').value.trim())}”<small>${ids.length} dish${ids.length===1?'':'es'} found</small>`:dly?`Daily Menu<small>${ids.length} dish${ids.length===1?'':'es'}</small>`:`${esc(cat)}<small>${ids.length} dish${ids.length===1?'':'es'}</small>`;
-  $('grid').innerHTML=ids.length?ids.map(id=>card(id,menu[id],!!q)).join(''):`<div class="empty"><b>🔍</b>${q?'No dishes found. Try a different name.':dly?'Daily menu abhi khali hai.':'No dishes in this category yet.'}</div>`;
+  $('grid').innerHTML=ids.length?ids.map(id=>card(id,menu[id],!!q)).join(''):`<div class="empty"><b>🔍</b>${q?'No dishes found. Try a different name.':dly?'The daily menu is empty right now.':'No dishes in this category yet.'}</div>`;
 }
 function drawCats(){
   const ids=Object.keys(menu).filter(i=>inMode(menu[i]));
@@ -435,7 +435,7 @@ function renderCart(){const c=calc(),dc=dchg(c);
     <div class="cc"><div class="pill"><button type="button" data-a="-" aria-label="Decrease">−</button><input inputmode="decimal" value="${i.qty}" aria-label="Quantity of ${esc(i.name)}"><button type="button" data-a="+" aria-label="Increase">+</button></div>
     <button type="button" class="x" data-a="x" aria-label="Remove ${esc(i.name)}">✕</button></div></div>`).join('');
   $('ctot').innerHTML=`<div class="tr"><span>Total items</span><b>${c.n}</b></div>${omode==='daily'?'':`<div class="tr"><span>Estimated guests</span><b>${c.g}</b></div>`}
-  ${dc.show?`<div class="tr"><span>Items total</span><b>${inr(c.t)}</b></div><div class="tr"><span>Delivery charge</span><b>${dc.amt?inr(dc.amt):'Free'}</b></div>`:''}<div class="tr big"><span>${omode==='daily'?'Total':'Estimated total'}</span><b>${inr(c.t+dc.amt)}</b></div><p class="note">${omode==='daily'?'Yeh final price hai (delivery aur GST sab shamil). Koi extra charge nahi.':'This is an estimate. Final price is confirmed by phone and may change with delivery and GST.'}</p>`;
+  ${dc.show?`<div class="tr"><span>Items total</span><b>${inr(c.t)}</b></div><div class="tr"><span>Delivery charge</span><b>${dc.amt?inr(dc.amt):'Free'}</b></div>`:''}<div class="tr big"><span>${omode==='daily'?'Total':'Estimated total'}</span><b>${inr(c.t+dc.amt)}</b></div><p class="note">${omode==='daily'?'This is the final price (delivery and GST included). No extra charges.':'This is an estimate. Final price is confirmed by phone and may change with delivery and GST.'}</p>`;
   const fl=$('fT').parentNode.querySelector('small');if(fl)fl.textContent=omode==='daily'?'Total':'Estimated total';
   $('fT').textContent=inr(c.t+dc.amt)}
 function openCart(){if(!calc().n)return;setMode(omode==='daily'?'order':mode);renderCart();cartOpen=true;history.pushState({k:'cart'},'');
@@ -491,25 +491,25 @@ document.querySelector('.seg').onclick=e=>{const b=e.target.closest('button[data
 function submit(kind){
   const enq=kind==='Enquiry',m=$('msg'),f=id=>$(id).value.trim(),phone=f('phone').replace(/\D/g,''),c=calc();
   if(!c.n){m.className='msg err';m.textContent='Please add at least one dish.';return}
-  if(closed||!secOpen(omode)){m.className='msg err';m.textContent=omode==='daily'?'Shop abhi band hai, Daily Order band hai. Order Booking chalu hai.':'Order Booking abhi band hai.';return}
+  if(closed||!secOpen(omode)){m.className='msg err';m.textContent=omode==='daily'?'The shop is closed, so Daily Order is unavailable. Order Booking is open.':'Order Booking is closed right now.';return}
   const g=!enq&&geoOn();
-  if(g){if(!loc){m.className='msg err';m.textContent='Pehle "📍 Use my current location" dabake apna location check karein.';return}
-    loc.d=hav(loc.lat,loc.lng,g.la,g.lo);if(loc.d>g.km){m.className='msg err';m.textContent=`Aap ${loc.d.toFixed(1)} km door ho. Hum sirf ${g.km} km ke andar delivery karte hain.`;return}}
+  if(g){if(!loc){m.className='msg err';m.textContent='Please tap "📍 Use my current location" to check your location first.';return}
+    loc.d=hav(loc.lat,loc.lng,g.la,g.lo);if(loc.d>g.km){m.className='msg err';m.textContent=`You are ${loc.d.toFixed(1)} km away. We deliver only within ${g.km} km.`;return}}
   const rv=rvVal(),email=f('email');
   if(enq){if(!f('name')||phone.length<10){m.className='msg err';m.textContent='Please enter your name and a 10-digit phone number to send an enquiry.';return}
     if(rv==='Email'&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){m.className='msg err';m.textContent='Please enter a valid email address so we can reply.';$('email').focus();return}}
   else if(!f('name')||phone.length<10||!f('venue')||!f('date')){m.className='msg err';m.textContent='Add your name, a 10-digit phone number, date and venue address.';return}
   if(!enq&&omode==='daily'){const tm=tmin(f('time')),t0=shopNow().ymd,bad=s=>{m.className='msg err';m.textContent=s};
-    if(f('date')<t0){bad('Aaj ya kal ki date chunein.');return}
-    if(tm!=null&&!inHours(tm)){bad(`Shop ${f12(st.shopOpen)} se ${f12(st.shopClose)} tak khula hai. Is beech ka time chunein.`);return}
-    if(f('date')===t0&&tm!=null&&tm<nowMin()){bad('Ye time nikal chuka hai. Aage ka time chunein.');return}}
+    if(f('date')<t0){bad('Please choose today or tomorrow.');return}
+    if(tm!=null&&!inHours(tm)){bad(`The shop is open from ${f12(st.shopOpen)} to ${f12(st.shopClose)}. Please choose a time within these hours.`);return}
+    if(f('date')===t0&&tm!=null&&tm<nowMin()){bad('That time has already passed. Please choose a later time.');return}}
   $('place').disabled=true;m.className='msg';m.textContent=enq?'Sending enquiry…':'Placing order…';
   db.ref('orders').push({type:kind,...(enq?{replyVia:rv}:{}),...(enq&&rv==='Email'&&email?{email}:{}),name:f('name'),phone,
     orderType:omode==='daily'?'Daily':'Booking',...(enq?{}:{venue:f('venue'),date:f('date'),time:f('time')}),...(g&&loc?{custLat:loc.lat,custLng:loc.lng,distKm:Math.round(loc.d*10)/10}:{}),notes:f('notes'),
     guests:c.g,itemCount:c.n,items:c.r,subtotal:c.t,delivery:enq?0:dchg(c).amt,total:r2(c.t+(enq?0:dchg(c).amt)),status:enq?'Enquiry':'New',ts:SERVER_TS})
   .then(()=>{lastPhone=phone;$('dtrk').classList.toggle('hide',enq);
     $('dT').textContent=enq?'Enquiry sent':'Order placed';
-    $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:(omode==='daily'?'Thank you! Aapka order place ho gaya hai. Price final hai, confirmation ke liye call ki zaroorat nahi.':'Thank you. We will call you shortly to confirm the final quantity and price.');
+    $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:(omode==='daily'?'Thank you! Your order has been placed. The price is final, so no confirmation call is needed.':'Thank you. We will call you shortly to confirm the final quantity and price.');
     $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
   .catch(()=>{m.className='msg err';m.textContent=(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false});
 }
