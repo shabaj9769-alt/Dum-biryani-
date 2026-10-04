@@ -193,7 +193,7 @@ function orderCard(id,o){const enq=isEnq(o);
     <small><span class="tag" style="margin:0 6px 0 0">${o.orderType==='Daily'?'Daily':'Booking'}</span>${o.distKm!=null?`<a style="color:var(--sf)" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${esc(o.custLat)},${esc(o.custLng)}">📍 ${esc(o.distKm)} km</a> · `:''}${enq?'<span class="tag" style="margin:0 6px 0 0;color:#8ab4ff;border-color:#8ab4ff">Enquiry</span>':''}${o.orderType==='Daily'?'':`~${esc(o.guests)} guests · `}${o.venue?esc(o.venue)+' · ':''}<a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
     <div style="margin-top:4px">${(o.items||[]).map(i=>esc(i.name)+(i.qty?' — '+esc(qL(i.qty,i.unit)):'')+(i.serves&&o.orderType!=='Daily'?' ('+esc(i.serves)+' log)':'')).join('<br>')}</div>
     ${enq?`<div class="qn"><small>❓ Customer ka sawaal</small>${o.notes?esc(o.notes):'<span class="mut">(Customer ne kuch nahi likha)</span>'}</div>`:(o.notes?`<small>Notes: ${esc(o.notes)}</small>`:'')}
-    <div><b>${inr(o.total)}</b>${o.delivery?` <small class="mut">(delivery ₹${esc(o.delivery)} included)</small>`:''}</div></div>
+    <div>${o.orderType==='Daily'?'<small class="mut">Final total: </small>':''}<b>${inr(o.total)}</b>${o.delivery?` <small class="mut">(delivery ₹${esc(o.delivery)} included)</small>`:''}</div></div>
     <div><select data-id="${esc(id)}" aria-label="Order status">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
     <button class="btn d" data-del="${esc(id)}" style="margin-top:8px;width:100%">Delete</button></div>${replyBox(id,o)}</div>`}
 function renderOrders(){
@@ -251,7 +251,7 @@ function editForm(id,m){
   <div class="full"><label class="mut">Description</label><textarea name="d" rows="2" aria-label="Description">${esc(m.desc||'')}</textarea></div>
   <div class="full"><button class="btn p" type="submit">Save changes</button> <button class="btn" type="button" data-ecancel="1">Cancel</button></div></form>`}
 function dishRow(id,m){const ed=editId===id;
-  return `<div class="m"><div class="info">${thumb(m.image)}<div style="min-width:0"><b>${esc(m.name)}</b>${m.available===false?'<span class="tag" style="color:var(--err);border-color:var(--err)">Sold out</span>':''}
+  return `<div class="m"><div class="info">${thumb(m.image)}<div style="min-width:0"><b>${esc(m.name)}</b>${m.available===false?'<span class="tag" style="color:var(--err);border-color:var(--err)">Sold out</span>':'<span class="tag" style="color:#2fbf71;border-color:#2fbf71">● Available</span>'}
   <br><small class="mut">${inr(m.price)}${m.unit?' per '+esc(m.unit):''}${m.orderType==='daily'?'':` · 1 ${esc(m.unit||'unit')} = ${esc(serves(m))} persons`}</small>${m.desc?`<br><small class="mut">${esc(m.desc)}</small>`:''}</div></div>
   <div><button class="btn ${m.available===false?'p':''}" data-av="${esc(id)}">${m.available===false?'✅ Wapas available karo':'🚫 Sold out karo'}</button> <button class="btn ${ed?'p':''}" data-ed="${esc(id)}">${ed?'Close':'Edit'}</button> <button class="btn d" data-rm="${esc(id)}">Delete</button></div></div>${ed?editForm(id,m):''}`}
 function renderMenu(){
