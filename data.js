@@ -7,7 +7,7 @@
   var MODE = 'firebase';            // 'firebase' | 'api'
   var API = '/api', POLL_MS = 5000; // sirf 'api' mode ke liye
   var FB = {
-    apiKey: "AIzaSyAZKvp9yhCq9l-7-wXiy-qkx3llHw_-618",
+    apiKey: "AIzaSyAZKvp9yhCq9i-7-wXiy-qkx3llHw_-6l8",
     authDomain: "biryani-category.firebaseapp.com",
     databaseURL: "https://biryani-category-default-rtdb.firebaseio.com",
     projectId: "biryani-category",
@@ -17,12 +17,18 @@
     measurementId: "G-XJ6RXX1GX3"
   };
   window.DATA_MODE = MODE;
+  window.NOTIFY_URL = '/api/notify';  // Vercel function. Website kisi aur host par ho to poora URL likho: https://<project>.vercel.app/api/notify
 
   if (MODE === 'firebase') {
     firebase.initializeApp(FB);
     window.db = firebase.database();
     window.SERVER_TS = firebase.database.ServerValue.TIMESTAMP;
-    window.DATA_AUTH = { required: false };
+    window.DATA_AUTH = {
+      required: !!firebase.auth,   // sirf admin page par firebase-auth script hai
+      check: function () { return new Promise(function (r) { var u = firebase.auth().onAuthStateChanged(function (x) { u(); r(!!x); }); }); },
+      login: function (pw, email) { return firebase.auth().signInWithEmailAndPassword(String(email || '').trim(), pw); },
+      logout: function () { return firebase.auth().signOut(); }
+    };
     return;
   }
 
