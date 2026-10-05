@@ -31,3 +31,6 @@ Value `{".sv":"timestamp"}` aaye to server asli time daal de. `null` = field del
 1. Backend + database banao, Firebase data import karo.
 2. `data.js` me `MODE='api'`, dono HTML se firebase `<script>` tags hatao, test karo.
 3. Sab theek chale to hi Firebase rules `read:false, write:false` karo.
+
+## My Orders (email login)
+Order par `tracking/<code>` me `em` (lowercase email) bhi jata hai. Customer email-link se login karta hai aur `tracking` ko `orderByChild('em').equalTo(<apna verified email>)` se padhta hai. API mode me: server verified email se hi filter kare, kisi aur email ka data kabhi nahi.
