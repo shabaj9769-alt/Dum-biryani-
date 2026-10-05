@@ -170,7 +170,7 @@ input[type=color]{height:44px;padding:3px;cursor:pointer}
     window.db = firebase.database();
     window.SERVER_TS = firebase.database.ServerValue.TIMESTAMP;
     window.DATA_AUTH = {
-      required: !!firebase.auth && (function(){try{return localStorage.getItem('adminLock')==='1'}catch(e){return false}})(),   // sirf admin page par firebase-auth script hai
+      required: !!firebase.auth,   // sirf admin page par firebase-auth script hai
       check: function () { return new Promise(function (r) { var u = firebase.auth().onAuthStateChanged(function (x) { u(); r(!!x); }); }); },
       login: function (pw, email) { return firebase.auth().signInWithEmailAndPassword(String(email || '').trim(), pw); },
       logout: function () { return firebase.auth().signOut(); }
@@ -255,7 +255,7 @@ function rl(){if(window.ReactNativeWebView)window.ReactNativeWebView.postMessage
   const b=document.createElement('button');b.id='lockb';b.textContent=on?'🔒 Lock ON':'🔓 Lock OFF';
   b.onclick=()=>{const q=on?'Lock band karna hai? Phir login nahi puchega.':'Lock ON karna hai? Pehle Firebase me admin email/password user banao, nahi to login nahi hoga.';
     if(!confirm(q))return;try{on?localStorage.removeItem('adminLock'):localStorage.setItem('adminLock','1')}catch(e){}rl()};
-  document.querySelector('nav').appendChild(b)})();
+  })();
 function gate(go){
   if(!window.DATA_AUTH||!DATA_AUTH.required){go();return}
   const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:99;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px';
@@ -263,7 +263,7 @@ function gate(go){
   document.body.appendChild(o);
   const ok=()=>{o.remove();const b=document.createElement('button');b.textContent='Logout';b.onclick=()=>DATA_AUTH.logout().finally(()=>rl());document.querySelector('nav').appendChild(b);go()};
   DATA_AUTH.check().then(v=>{if(v)ok()});
-  $('lgf').onsubmit=async e=>{e.preventDefault();$('lgm').textContent='';try{await DATA_AUTH.login($('lgp').value,$('lge').value);ok()}catch(x){$('lgm').textContent='Login nahi hua ('+((x&&x.code)||'error')+') '+String((x&&x.message)||'').slice(0,300)}}}
+  $('lgf').onsubmit=async e=>{e.preventDefault();$('lgm').textContent='';try{await DATA_AUTH.login($('lgp').value,$('lge').value);ok()}catch(x){$('lgm').textContent='Login nahi hua ('+((x&&x.code)||'error')+')'}}}
 async function regPush(){let n=0;const t=setInterval(()=>{const k=window.__PUSH_TOKEN;if(k){clearInterval(t);db.ref('adminTokens/'+k.replace(/[.#$\[\]\/]/g,'_')).set({t:k,ts:SERVER_TS})}else if(++n>90)clearInterval(t)},1000)}
 gate(()=>{listen();regPush()});
 function listen(){
