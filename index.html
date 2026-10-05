@@ -283,8 +283,9 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 
 <div class="sheet" id="trkS" style="z-index:21" role="dialog" aria-modal="true" aria-label="Track order">
 <div class="sh"><div class="wrap"><h2>Track order</h2><button type="button" class="pillb" id="tback">‹ Back</button></div></div>
-<div class="wrap sbody"><div class="card"><h3>Check your order status</h3><p class="note" style="margin:0 0 4px">Enter the phone number you used while ordering.</p>
+<div class="wrap sbody"><div class="card"><h3>Check your order status</h3><p class="note" style="margin:0 0 4px">Enter your phone number and the tracking code shown after you placed the order.</p>
 <label for="tph">Phone number</label><input id="tph" type="tel" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile number">
+<label for="tco" style="margin-top:8px">Tracking code</label><input id="tco" autocapitalize="characters" autocomplete="off" placeholder="DB-XXXXXXXX">
 <button class="btn grn" id="tgo" style="width:100%;margin-top:12px">Check status</button></div><div id="tres" aria-live="polite"></div></div></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -531,23 +532,27 @@ function submit(kind){
     if(tm!=null&&!inHours(tm)){bad(`The shop is open from ${f12(st.shopOpen)} to ${f12(st.shopClose)}. Please choose a time within these hours.`);return}
     if(f('date')===t0&&tm!=null&&tm<nowMin()){bad('That time has already passed. Please choose a later time.');return}}
   $('place').disabled=true;m.className='msg';m.textContent=enq?'Sending enquiry…':'Placing order…';
-  db.ref('orders').push({type:kind,...(enq?{replyVia:rv}:{}),...(enq&&rv==='Email'&&email?{email}:{}),name:f('name'),phone,
+  const code=enq?'':mkCode(),key=db.ref('orders').push().key,od={type:kind,...(enq?{replyVia:rv}:{}),...(enq&&rv==='Email'&&email?{email}:{}),name:f('name'),phone,
     orderType:omode==='daily'?'Daily':'Booking',...(enq?{}:{venue:f('venue'),date:f('date'),time:f('time')}),...(g&&loc?{custLat:loc.lat,custLng:loc.lng,distKm:Math.round(loc.d*10)/10}:{}),notes:f('notes'),
-    guests:c.g,itemCount:c.n,items:c.r,subtotal:c.t,delivery:enq?0:dchg(c).amt,total:r2(c.t+(enq?0:dchg(c).amt)),status:enq?'Enquiry':'New',ts:SERVER_TS})
-  .then(()=>{lastPhone=phone;$('dtrk').classList.toggle('hide',enq);
+    guests:c.g,itemCount:c.n,items:c.r,subtotal:c.t,delivery:enq?0:dchg(c).amt,total:r2(c.t+(enq?0:dchg(c).amt)),status:enq?'Enquiry':'New',ts:SERVER_TS,...(enq?{}:{code})};
+  const up={['orders/'+key]:od};
+  if(!enq)up['tracking/'+code]={ph:phone.slice(-10),status:'New',orderType:od.orderType,date:od.date||null,time:od.time||null,total:od.total,ts:SERVER_TS,items:(od.items||[]).map(i=>({name:i.name,qty:i.qty||null,unit:i.unit||null}))};
+  db.ref().update(up)
+  .then(()=>{try{window.NOTIFY_URL&&fetch(NOTIFY_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({id:key}),keepalive:true}).catch(()=>{})}catch(e){}lastPhone=phone;lastCode=code;try{localStorage.setItem('dbLast',JSON.stringify({p:phone,c:code}))}catch(e){}$('dtrk').classList.toggle('hide',enq);
     $('dT').textContent=enq?'Enquiry sent':'Order placed';
-    $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:(omode==='daily'?'Thank you! Your parcel order has been placed. The price is final, so no confirmation call is needed.':'Thank you. We will call you shortly to confirm the final quantity and price.');
+    $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:(omode==='daily'?'Thank you! Your parcel order has been placed. The price is final, so no confirmation call is needed. Tracking code: '+code+' (save it, you need it to track).':'Thank you. We will call you shortly to confirm the final quantity and price. Tracking code: '+code+' (save it, you need it to track).');
     $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
   .catch(()=>{m.className='msg err';m.textContent=(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false});
 }
-let lastPhone='';
+let lastPhone='',lastCode='';
+function mkCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',a=new Uint32Array(8);crypto.getRandomValues(a);return 'DB-'+[...a].map(x=>A[x%32]).join('')}
 $('place').onclick=()=>submit(mode==='enquiry'?'Enquiry':'Order');
 
 /* ---------- track order by phone ---------- */
 const STEPS=['New','Confirmed','Cooking','Out for delivery','Delivered'];
 const SL={New:'Order received',Enquiry:'Enquiry received',Confirmed:'Confirmed',Cooking:'Being cooked','Out for delivery':'Out for delivery',Delivered:'Delivered',Cancelled:'Cancelled'};
 function openTrack(ph){trackOpen=true;history.pushState({k:'trk'},'');$('trkS').classList.add('open');document.body.style.overflow='hidden';$('trkS').scrollTop=0;
-  if(ph){$('tph').value=ph;checkTrack()}else $('tph').focus()}
+  if(ph){$('tph').value=ph;$('tco').value=lastCode;checkTrack()}else{try{const s=JSON.parse(localStorage.getItem('dbLast')||'null');if(s){$('tph').value=s.p;$('tco').value=s.c}}catch(e){}$('tph').focus()}}
 function closeTrackUI(){trackOpen=false;$('trkS').classList.remove('open');document.body.style.overflow=cartOpen?'hidden':''}
 function closeTrack(){history.state&&history.state.k==='trk'?history.back():closeTrackUI()}
 function tCard(o){const s=o.status||'New',idx=STEPS.indexOf(s),
@@ -562,10 +567,10 @@ async function checkTrack(){
   if(p.length<10){r.innerHTML='<p class="msg err">Please enter a valid 10-digit phone number.</p>';return}
   $('tgo').disabled=true;r.innerHTML='<p class="sub">Checking…</p>';
   try{
-    const q=v=>db.ref('orders').orderByChild('phone').equalTo(v).once('value'),list=[];
-    (await Promise.all([q(p),q('91'+p)])).forEach(sn=>{const v=sn.val()||{};for(const k in v)list.push(v[k])});
-    const orders=list.filter(o=>o&&o.type!=='Enquiry'&&o.status!=='Enquiry').sort((a,b)=>(b.ts||0)-(a.ts||0));
-    r.innerHTML=orders.length?orders.map(tCard).join(''):'<div class="empty"><b>🔍</b>No orders found for this number.</div>'
+    const c=$('tco').value.trim().toUpperCase().replace(/[^A-Z0-9-]/g,'');
+    if(c.length<6){r.innerHTML='<p class="msg err">Please enter the tracking code.</p>';$('tgo').disabled=false;return}
+    const v=(await db.ref('tracking/'+c).once('value')).val(),orders=v&&v.ph===p?[v]:[];
+    r.innerHTML=orders.length?orders.map(tCard).join(''):'<div class="empty"><b>🔍</b>No order found. Check the phone number and tracking code.</div>'
   }catch(e){r.innerHTML='<p class="msg err">Could not check the status. Check your connection and try again.</p>'}
   $('tgo').disabled=false}
 $('tbtn').onclick=()=>openTrack();$('tback').onclick=closeTrack;$('tgo').onclick=checkTrack;
