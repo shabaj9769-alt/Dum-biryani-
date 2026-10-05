@@ -48,6 +48,8 @@ button{font:inherit}body.hasbar{padding-bottom:120px}
 .dots button.on:after{width:16px;margin-left:-8px;background:var(--sf);opacity:1}
 
 h2{font-size:1.35rem;margin:16px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:.88rem}
+.dis{text-align:left;max-width:460px;margin:0 auto 16px;border:1px solid var(--err,#ff8a7a);background:var(--panel,#2a1612);border-radius:10px;padding:12px 14px;font-size:.85rem;line-height:1.5}.dis b{display:block;margin-bottom:6px;color:var(--err,#ff8a7a);font-size:.9rem}.dis ul{margin:0;padding-left:18px}.dis li{margin:4px 0}
+
 .btn{background:var(--sf);color:var(--bt);border:0;padding:11px 22px;border-radius:10px;font-weight:700;cursor:pointer}
 .btn.grn{background:linear-gradient(135deg,var(--gr2),var(--gr));color:#fff}.btn:disabled{opacity:.45;cursor:not-allowed}
 :focus-visible{outline:2px solid var(--sf);outline-offset:2px}
@@ -279,7 +281,7 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 <div class="msg" id="msg" role="status"></div>
 <a class="sup blk" data-tel href="tel:+918779612829">📞 Need help? Call support: <span data-phtxt>8779612829</span></a></div>
 <div class="sfoot"><div class="wrap"><div><small>Estimated total</small><b id="fT">₹0</b></div><button class="btn grn" id="place">Place order</button></div></div></div>
-<div class="wrap hide" id="done"><div class="done-box"><div class="ok">✅</div><h2 id="dT">Order placed</h2><p class="sub" id="dP">Thank you. We will call you shortly to confirm the final quantity and price.</p><a class="sup blk" data-tel href="tel:+918779612829">📞 Support: <span data-phtxt>8779612829</span></a><button class="btn grn" id="dtrk" style="margin-bottom:10px">📦 My Orders</button><br><button class="btn" style="background:none;color:var(--mut)" onclick="location.reload()">Start a new order</button></div></div>
+<div class="wrap hide" id="done"><div class="done-box"><div class="ok">✅</div><h2 id="dT">Order placed</h2><p class="sub" id="dP">Thank you. We will call you shortly to confirm the final quantity and price.</p><div class="dis hide" id="dDis"><b>⚠️ Important – please read</b><ul><li>You will receive an order confirmation call. If the call is not answered, the order will be considered cancelled.</li><li>Once your order is ready and has left for delivery, it cannot be cancelled.</li><li>Refusing to accept or pay for an order that is ready or out for delivery may result in legal action.</li></ul></div><a class="sup blk" data-tel href="tel:+918779612829">📞 Support: <span data-phtxt>8779612829</span></a><button class="btn grn" id="dtrk" style="margin-bottom:10px">📦 My Orders</button><br><button class="btn" style="background:none;color:var(--mut)" onclick="location.reload()">Start a new order</button></div></div>
 </div>
 
 <div class="sheet" id="trkS" style="z-index:21" role="dialog" aria-modal="true" aria-label="My Orders">
@@ -544,8 +546,8 @@ function submit(kind){
   if(!enq)up['tracking/'+code]={ph:phone.slice(-10),em:oem,status:'New',orderType:od.orderType,date:od.date||null,time:od.time||null,total:od.total,ts:SERVER_TS,items:(od.items||[]).map(i=>({name:i.name,qty:i.qty||null,unit:i.unit||null}))};
   db.ref().update(up)
   .then(()=>{try{window.NOTIFY_URL&&fetch(NOTIFY_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({id:key}),keepalive:true}).catch(()=>{})}catch(e){}lastPhone=phone;lastCode=code;lastEmail=oem;$('dtrk').classList.toggle('hide',enq);
-    $('dT').textContent=enq?'Enquiry sent':'Order placed';
-    $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:(omode==='daily'?'Thank you! Your parcel order has been placed. The price is final, so no confirmation call is needed. To see all your orders, open My Orders and log in with your email.':'Thank you. We will call you shortly to confirm the final quantity and price. To see all your orders, open My Orders and log in with your email.');
+    $('dT').textContent=enq?'Enquiry sent':'Order placed';$('dDis').classList.toggle('hide',enq);
+    $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:(omode==='daily'?'Thank you! Your parcel order has been placed. The price is final. To see all your orders, open My Orders and log in with your email.':'Thank you. We will call you shortly to confirm the final quantity and price. To see all your orders, open My Orders and log in with your email.');
     $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
   .catch(()=>{m.className='msg err';m.textContent=(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false});
 }
