@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Store operations</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1c0e0b;--panel:#2a1612;--line:#5a3a2c;--cu:#c9854f;--sf:#f0b44c;--tx:#f5ead8;--mut:#b9a58f;--ok:#8fcf9b;--err:#ff8a7a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 'Hanken Grotesk',sans-serif}
+h1,h2,h3{font-family:Fraunces,serif;margin:0}
+.wrap{max-width:1100px;margin:auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px}
+nav button,.btn{background:var(--panel);color:var(--tx);border:1px solid var(--line);padding:9px 16px;border-radius:4px;font:inherit;cursor:pointer}
+nav button.on,.btn.p{background:var(--sf);color:#2a1200;border-color:var(--sf);font-weight:700}
+.btn.d{color:var(--err)}:focus-visible{outline:2px solid var(--sf);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+.stat{border:1px solid var(--line);background:var(--panel);padding:14px;border-radius:4px}
+.stat b{display:block;font:800 1.7rem Fraunces,serif;color:var(--sf)}.stat span{color:var(--mut)}
+.o{border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:16px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:10px}
+.o.New{border-left:4px solid var(--sf)}.o.Enquiry{border-left:4px solid #8ab4ff}.o small,.mut{color:var(--mut)}
+@media(max-width:700px){.o{grid-template-columns:1fr}}
+select,input,textarea{background:#170b08;color:var(--tx);border:1px solid var(--line);border-radius:4px;padding:9px;font:inherit;width:100%}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;border:1px solid var(--cu);padding:16px;border-radius:4px;background:var(--panel);margin:16px 0}
+form .full{grid-column:1/-1}
+.m{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:10px 0;flex-wrap:wrap}
+.m .info{display:flex;gap:12px;align-items:center;min-width:0;flex:1 1 280px}
+.th{flex:none;width:60px;height:60px;border-radius:6px;border:1px solid var(--line);background:#170b08 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:.7rem;overflow:hidden}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.pv{display:flex;gap:10px;align-items:center}.pv .th{width:48px;height:48px}.pv input{flex:1}
+.tag{display:inline-block;font-size:.72rem;border:1px solid var(--cu);color:var(--sf);border-radius:99px;padding:0 8px;margin-left:6px;vertical-align:middle}
+.chk{display:flex;align-items:center;gap:10px;color:var(--tx);cursor:pointer}.chk input{width:20px;height:20px;accent-color:#f0b44c;flex:none}
+.hint{font-size:.8rem;color:var(--mut);margin-top:3px}
+.gate{max-width:340px;margin:18vh auto;text-align:center}.gate input{margin:14px 0}
+.rp{grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:8px}
+.rp textarea{min-height:110px}
+.btn.wa{background:#1f9d57;border-color:#1f9d57;color:#fff;font-weight:700}
+.fold{border:1px solid var(--line);border-radius:6px;background:rgba(0,0,0,.12);margin-bottom:12px;overflow:hidden}
+.fh{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);color:var(--tx);border:0;padding:14px 16px;font:700 1.05rem Fraunces,serif;cursor:pointer;text-align:left}
+.fh .fr{display:flex;align-items:center;gap:8px;font:500 .85rem 'Hanken Grotesk',sans-serif;color:var(--mut)}
+.fh .bdg{background:var(--sf);color:#2a1200;border-radius:99px;padding:1px 9px;font-weight:700;font-size:.75rem}
+.fh .chev{color:var(--sf);font-size:1rem}
+.fb{padding:12px}.fb .o:last-child{margin-bottom:0}
+.dt{margin:4px 0;font-size:.9rem}.dt div{margin:1px 0}
+.qn{background:rgba(138,180,255,.1);border:1px solid rgba(138,180,255,.45);border-radius:6px;padding:8px 10px;margin:8px 0}.qn small{color:#8ab4ff;display:block;font-weight:700}
+form.ef{margin:6px 0 14px;border-color:var(--sf)}
+.hide{display:none!important}.err{color:var(--err)}
+input[type=color]{height:44px;padding:3px;cursor:pointer}
+.tsw{display:flex;flex-wrap:wrap;gap:10px}
+.ts{display:flex;align-items:center;gap:8px;background:var(--panel);color:var(--tx);border:2px solid var(--line);border-radius:8px;padding:7px 12px 7px 8px;font:inherit;cursor:pointer}
+.ts.on{border-color:var(--sf);font-weight:700}
+.ts .cc{width:26px;height:26px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center}
+.ts .cc i{width:9px;height:9px;border-radius:50%}
+.tpv{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg);color:var(--tx);max-width:420px;padding-bottom:12px}
+.tpv .h{padding:14px;background:radial-gradient(ellipse at 85% 0,var(--g1) 0,transparent 60%),radial-gradient(ellipse at 0 100%,var(--g2) 0,transparent 55%);border-bottom:1px solid var(--line)}
+.tpv .h b{font:800 1.3rem Fraunces,serif;display:block}.tpv .h small{color:var(--mut)}
+.tpv .s{margin:10px 12px;background:var(--inp);border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--mut);font-size:.85rem}
+.tpv .g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 12px}
+.tpv .d{border:1px solid var(--line);background:var(--panel);border-radius:10px;overflow:hidden}
+.tpv .d .p{height:44px;background:linear-gradient(135deg,var(--ph1),var(--ph2))}
+.tpv .d div.t{padding:7px 9px;font-size:.85rem}.tpv .d b{display:block}.tpv .d span{color:var(--sf);font-weight:700}
+.tpv .d em{display:block;margin-top:6px;text-align:center;font-style:normal;font-weight:800;font-size:.75rem;padding:5px;border-radius:8px;border:1.5px solid var(--gr2,#2fbf71);color:var(--gt)}
+.tpv .bt{display:block;margin:12px 12px 0;text-align:center;background:var(--sf);color:var(--bt);font-weight:700;border-radius:10px;padding:10px}
+#osw,#msw{display:flex;gap:8px;margin:16px 0 0}#osw button,#msw button{flex:1;background:var(--panel);color:var(--tx);border:1px solid var(--line);padding:12px;border-radius:4px;font:700 1rem Fraunces,serif;cursor:pointer}#osw button.on,#msw button.on{background:var(--sf);color:#2a1200;border-color:var(--sf)}#osw .bdg{background:#d92d20;color:#fff;border-radius:99px;padding:1px 9px;font-size:.75rem;margin-left:6px}#osw button.on .bdg{background:#2a1200;color:var(--sf)}
+</style></head><body>
+<div class="wrap" id="app">
+<header><h1 id="ah">Store operations</h1>
+<nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button id="t3">Categories</button> <button id="t4">Banners</button> <button id="t5">Settings</button></nav></header>
+
+<div id="v1"><div id="osw"></div><div class="stats">
+<div class="stat"><b id="sN">0</b><span>New requests</span></div>
+<div class="stat"><b id="sE">0</b><span>Enquiries</span></div>
+<div class="stat"><b id="sC">0</b><span>Confirmed</span></div>
+<div class="stat"><b id="sD">0</b><span>Cooking now</span></div>
+<div class="stat"><b id="sR">₹0</b><span>Confirmed and delivered value</span></div></div>
+<select id="flt" aria-label="Filter orders" style="max-width:220px;margin-bottom:14px"><option value="">All statuses</option></select>
+<div id="orders"><p class="mut">Loading orders…</p></div></div>
+
+<div id="v2" class="hide"><div id="msw"><button type="button" data-m="daily">🥡 Daily Parcel Menu</button><button type="button" data-m="booking">📅 Booking Menu</button></div>
+<p class="mut" style="margin:8px 0 0">Daily aur Booking ka menu, category aur price bilkul alag hai. Daily me category nahi hoti, dish seedha dikhti hai.</p>
+<form id="mf"><h3 class="full" id="mt">Add dish</h3>
+<input type="hidden" id="mid">
+<div><label class="mut" for="mn">Name</label><input id="mn" required></div>
+<div id="mcw"><label class="mut" for="mc">Category (sirf Booking menu ke liye)</label><select id="mc" required></select><input id="mcn" class="hide" placeholder="Naye category ka naam" style="margin-top:6px"></div>
+<div><label class="mut" for="mp">Price (₹)</label><input id="mp" type="number" min="0" step="any" required></div>
+<div><label class="mut" for="mu">Unit (kg, pcs, plate…)</label><input id="mu" placeholder="kg"></div>
+<div id="msvw"><label class="mut" for="ms">Kitne log khayenge per kg/unit?</label><input id="ms" type="number" min="0.1" step="any" value="5" required><div class="hint">e.g. 1 kg = 5 persons</div></div>
+<div class="full"><label class="mut" for="mi">Dish Photo URL</label><div class="pv"><div class="th" id="mpv">No photo</div><input id="mi" type="url" inputmode="url" placeholder="https://…/dish.jpg"></div></div>
+<div class="full"><label class="mut" for="md">Description</label><textarea id="md" rows="2"></textarea></div>
+<div class="full"><button class="btn p" type="submit">Save dish</button> <button class="btn" type="button" id="mx">Clear</button></div></form>
+<div id="mlist"><p class="mut">Loading menu…</p></div>
+<button class="btn hide" id="seed">Add starter menu</button></div>
+
+<div id="v3" class="hide"><form id="cf"><h3 class="full" id="ct">Add category photo</h3>
+<input type="hidden" id="cid"><input type="hidden" id="cold">
+<div><label class="mut" for="cn">Category name</label><input id="cn" required placeholder="Biryani"></div>
+<div><label class="mut" for="ci">Category Photo / Icon URL</label><div class="pv"><div class="th" id="cpv">No photo</div><input id="ci" type="url" inputmode="url" placeholder="https://…/icon.jpg"></div></div>
+<div class="full"><button class="btn p" type="submit">Save category</button> <button class="btn" type="button" id="cx">Clear</button></div></form>
+<div id="clist"><p class="mut">Loading categories…</p></div></div>
+
+<div id="v5" class="hide"><form id="sf"><h3 class="full">Store settings</h3>
+<div><label class="mut" for="sn">Store name</label><input id="sn" placeholder="Store name"><div class="hint">Customer app ke upar bade naam me yahi dikhega. Jo yahan likhoge wahi dikhega, khali chhodoge to naam nahi dikhega.</div></div>
+<div><label class="mut" for="sp">Support phone number</label><input id="sp" type="tel" inputmode="tel" placeholder="8779612829"><div class="hint">Customer app ka call icon isi number par call lagayega.</div></div>
+<div><label class="mut" for="sfs">FSSAI number</label><input id="sfs" inputmode="numeric" maxlength="14" placeholder="14 digit FSSAI number"><div class="hint">Customer app ke header me "FSSAI Lic. No" ke saath dikhega. Khali chhodoge to nahi dikhega.</div></div>
+<div class="full"><label class="mut" for="sx">Description (naam ke neeche)</label><textarea id="sx" rows="3" placeholder="Jo likhoge wahi customer app me dikhega"></textarea><div class="hint">Khali chhodoge to kuch nahi dikhega.</div></div>
+<h3 class="full">Order sections</h3>
+<div class="full"><label class="chk"><input type="checkbox" id="sdo" checked><span>Daily Parcel chalu rakho (manual switch)</span></label></div>
+<div class="full"><label class="chk"><input type="checkbox" id="sbo" checked><span>Order Booking chalu rakho</span></label></div>
+<div><label class="mut" for="sdc">Daily Order delivery charge (₹)</label><input id="sdc" type="number" min="0" step="any" placeholder="30"><div class="hint">0 ya khali = delivery free.</div></div>
+<div><label class="mut" for="sdf">Daily Order: itne ₹ ke upar free delivery</label><input id="sdf" type="number" min="0" step="any" placeholder="500"><div class="hint">Khali = kabhi free nahi.</div></div>
+<div><label class="mut" for="sbc">Order Booking delivery charge (₹)</label><input id="sbc" type="number" min="0" step="any" placeholder="200"></div>
+<div><label class="mut" for="sbf">Order Booking: itne ₹ ke upar free delivery</label><input id="sbf" type="number" min="0" step="any" placeholder="5000"></div>
+<div><label class="mut" for="sot">Shop open time</label><input id="sot" type="time"></div>
+<div><label class="mut" for="sct">Shop close time</label><input id="sct" type="time"><div class="hint">Dono khali = hamesha khula. Ye India time (IST) me chalta hai, customer ke phone ki clock se nahi. Is time ke bahar sirf Daily Parcel band hoga, Order Booking chalta rahega.</div></div>
+<div><label class="mut" for="sbd">Booking kitne din pehle karni hogi</label><input id="sbd" type="number" min="0" step="1" value="1"><div class="hint">1 = kal ya uske baad ki date. 0 = aaj ki date bhi chalegi.</div></div>
+<h3 class="full">Delivery area (location)</h3>
+<div><label class="mut" for="sla">Shop latitude</label><input id="sla" inputmode="decimal" placeholder="19.076090"></div>
+<div><label class="mut" for="sln">Shop longitude</label><input id="sln" inputmode="decimal" placeholder="72.877426"></div>
+<div class="full"><button type="button" class="btn" id="sgeo">📍 Meri current location use karo</button></div>
+<div><label class="mut" for="sdk">Daily Order delivery radius (km)</label><input id="sdk" type="number" min="0" step="any" placeholder="5"><div class="hint">Khali ya 0 = koi limit nahi.</div></div>
+<div><label class="mut" for="sbk">Order Booking delivery radius (km)</label><input id="sbk" type="number" min="0" step="any" placeholder="15"><div class="hint">Khali ya 0 = koi limit nahi.</div></div>
+<div class="full"><button class="btn p" type="submit">Save settings</button> <span id="smsg" class="mut"></span></div></form>
+
+<form id="tf"><h3 class="full">Customer app background theme</h3>
+<div class="full"><label class="mut">Ready-made themes (tap karke chunein)</label><div class="tsw" id="tsw"></div></div>
+<div><label class="mut" for="tbg">Background colour (apni pasand ka)</label><input id="tbg" type="color" value="#1c0e0b"><div class="hint">Cards, search bar aur header ke shade apne aap isi se ban jayenge. Halka colour chunoge to text apne aap dark ho jayega.</div></div>
+<div><label class="mut" for="tac">Button / price colour</label><input id="tac" type="color" value="#f0b44c"></div>
+<div class="full"><label class="mut">Customer app aisa dikhega</label>
+<div class="tpv" id="tpv"><div class="h"><b id="tpn">Your store name</b><small>Tap a category, then pick your dishes.</small></div><div class="s">🔍 Search dishes or categories…</div>
+<div class="g"><div class="d"><div class="p"></div><div class="t"><b>Dum Biryani</b><span>₹950 per kg</span><em>ADD</em></div></div><div class="d"><div class="p"></div><div class="t"><b>Zafrani Pulao</b><span>₹780 per kg</span><em>ADD</em></div></div></div>
+<span class="bt">Place order</span></div></div>
+<div class="full"><button class="btn p" type="submit">Save theme</button> <button class="btn" type="button" id="trs">Default theme</button> <span id="tmsg" class="mut"></span><div class="hint">Save karte hi customer app me naya theme dikh jayega (refresh ki zarurat nahi).</div></div></form></div>
+
+<div id="v4" class="hide"><form id="bf"><h3 class="full" id="bt">Add banner</h3>
+<input type="hidden" id="bid">
+<div class="full"><label class="mut" for="bi">Banner Photo URL</label><div class="pv"><div class="th" id="bpv">No photo</div><input id="bi" type="url" inputmode="url" required placeholder="https://…/banner.jpg"></div><div class="hint">Best size: 1280 × 720 px (16:9), 200 KB se kam. Customer app me ye chhota (max 560px wide) dikhega. Customer app me jitne banner yahan add karoge utne hi slide honge.</div></div>
+<div><label class="mut" for="bn">Banner name (customer app me isi naam se dikhega)</label><input id="bn" placeholder="Chicken Dum Biryani"></div>
+<div><label class="mut" for="bl">Tap karne par kya khule</label><select id="bl"></select></div>
+<div><label class="mut" for="bo">Order (chhota number pehle dikhega)</label><input id="bo" type="number" step="1" value="1"></div>
+<div class="full"><label class="chk"><input type="checkbox" id="ba" checked><span>Show this banner</span></label></div>
+<div class="full"><button class="btn p" type="submit">Save banner</button> <button class="btn" type="button" id="bx">Clear</button></div></form>
+<div id="blist"><p class="mut">Loading banners…</p></div></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script>/* data.js — poore app ka data yahin se aata aur jaata hai (index.html + admin.html dono).
+   Abhi MODE = 'firebase'. Vercel par shift karne ke baad:
+     1) neeche MODE ko 'api' kar do
+     2) dono HTML se do firebase <script src="...gstatic..."> tags hata do
+   Baki app ka code badalne ki zaroorat nahi. API ka contract API.md me hai. */
+(function () {
+  var MODE = 'firebase';            // 'firebase' | 'api'
+  var API = '/api', POLL_MS = 5000; // sirf 'api' mode ke liye
+  var FB = {
+    apiKey: "AIzaSyAZKvp9yhCq9i-7-wXiy-qkx3llHw_-6l8",
+    authDomain: "biryani-category.firebaseapp.com",
+    databaseURL: "https://biryani-category-default-rtdb.firebaseio.com",
+    projectId: "biryani-category",
+    storageBucket: "biryani-category.firebasestorage.app",
+    messagingSenderId: "86398170612",
+    appId: "1:86398170612:web:2029aeed3ca7cad88af5a1",
+    measurementId: "G-XJ6RXX1GX3"
+  };
+  window.DATA_MODE = MODE;
+  window.NOTIFY_URL = '/api/notify';  // Vercel function. Website kisi aur host par ho to poora URL likho: https://<project>.vercel.app/api/notify
+
+  if (MODE === 'firebase') {
+    firebase.initializeApp(FB);
+    window.db = firebase.database();
+    window.SERVER_TS = firebase.database.ServerValue.TIMESTAMP;
+    window.DATA_AUTH = {
+      required: !!firebase.auth,   // sirf admin page par firebase-auth script hai
+      check: function () { return new Promise(function (r) { var u = firebase.auth().onAuthStateChanged(function (x) { u(); r(!!x); }); }); },
+      login: function (pw, email) { return firebase.auth().signInWithEmailAndPassword(String(email || '').trim(), pw); },
+      logout: function () { return firebase.auth().signOut(); }
+    };
+    return;
+  }
+
+  /* ---------- API mode: Firebase jaisa hi chhota ref() interface, REST par ---------- */
+  window.SERVER_TS = { '.sv': 'timestamp' };           // server isse asli time se badal dega
+  var clean = function (p) { return String(p || '').replace(/^\/+|\/+$/g, ''); };
+  function req(method, path, body, qs) {
+    var o = { method: method, credentials: 'same-origin', headers: {} };
+    if (body !== undefined) { o.headers['Content-Type'] = 'application/json'; o.body = JSON.stringify(body); }
+    return fetch(API + path + (qs ? '?' + qs : ''), o).then(function (r) {
+      if (r.status === 204) return null;
+      if (!r.ok) { var e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+      return r.json();
+    });
+  }
+  var snap = function (v) { return { val: function () { return v === undefined ? null : v; }, exists: function () { return v != null; } }; };
+  function Ref(p) { this.p = clean(p); }
+  Ref.prototype = {
+    once: function () {
+      if (this.p === '.info/serverTimeOffset') {         // server ki asli clock - phone ki clock ka farak
+        var t0 = Date.now();
+        return req('GET', '/time').then(function (j) { return snap(Math.round((Number(j.now) - (t0 + Date.now()) / 2) / 1000) * 1000); });
+      }
+      return req('GET', '/data/' + this.p).then(snap);
+    },
+    on: function (ev, cb, err) {                         // polling; sirf badlav hone par cb chalta hai
+      var self = this, last;
+      var tick = function () {
+        if (document.hidden && last !== undefined) return;
+        self.once().then(function (s) { var j = JSON.stringify(s.val()); if (j !== last) { last = j; cb(s); } })
+          .catch(function (e) { if (err) err(e); });
+      };
+      tick(); setInterval(tick, this.p === '.info/serverTimeOffset' ? 300000 : POLL_MS); return cb;
+    },
+    set: function (v) { return req('PUT', '/data/' + this.p, v); },
+    update: function (o) { return req('PATCH', '/data/' + this.p, o); },   // ref() par multi-path update bhi chalta hai
+    remove: function () { return req('DELETE', '/data/' + this.p); },
+    push: function (v) { return req('POST', '/data/' + this.p, v).then(function (j) { return { key: j && j.key }; }); },
+    orderByChild: function (k) {
+      var p = this.p;
+      return { equalTo: function (v) {
+        return { once: function () { return req('GET', '/data/' + p, undefined, 'orderBy=' + encodeURIComponent(k) + '&equalTo=' + encodeURIComponent(v)).then(snap); } };
+      } };
+    }
+  };
+  window.db = { ref: function (p) { return new Ref(p); } };
+  window.DATA_AUTH = {
+    required: true,
+    check: function () { return req('GET', '/me').then(function () { return true; }, function () { return false; }); },
+    login: function (pw) { return req('POST', '/login', { password: pw }); },
+    logout: function () { return req('POST', '/logout', {}); }
+  };
+})();
+</script>
+<script>
+const $=id=>document.getElementById(id);
+const STATUS=['New','Enquiry','Confirmed','Cooking','Out for delivery','Delivered','Cancelled'];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const okUrl=u=>/^https?:\/\/\S+$/i.test(u||'');
+const thumb=u=>okUrl(u)?`<div class="th"><img src="${esc(u)}" alt="" loading="lazy" onerror="this.parentNode.textContent='Bad URL'"></div>`:'<div class="th">No photo</div>';
+const serves=m=>{const s=Number(m.servesPerUnit);if(s>0)return s;const p=Number(m.perGuest);return p>0?Math.round(100/p)/100:1};
+let seenO=null;
+let AC=null;
+function ac(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}return AC}
+['touchstart','click','keydown'].forEach(ev=>document.addEventListener(ev,ac,{passive:true}));
+function ringBell(){const c=ac();if(!c)return;
+  [0,1.5,3].forEach(t0=>{const t=c.currentTime+t0;
+    [[1,.5],[2.76,.25],[5.4,.12],[8.93,.06]].forEach(([m,v])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=660*m;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+1.4);
+      o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+1.5)})})}
+function banner(o,n){let b=document.getElementById('nb');
+  if(!b){b=document.createElement('div');b.id='nb';b.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:120;background:#f0b44c;color:#2a1200;font-weight:700;padding:14px;border-radius:8px;text-align:center;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.5)';b.onclick=()=>b.remove();document.body.appendChild(b)}
+  b.textContent='\uD83D\uDD14 '+(o&&o.status==='Enquiry'?'New enquiry':'New order')+(n>1?' (+'+(n-1)+')':'')+(o&&o.name?' \u00b7 '+o.name:'')+' \u00b7 \u20b9'+((o&&o.total)||0)+'  (tap to close)'}
+function newAlert(o,n){ringBell();banner(o,n);
+  try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}
+  try{const L=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;L&&L.schedule({notifications:[{id:Date.now()%2147483647,title:(o&&o.status==='Enquiry'?'New enquiry':'New order')+(n>1?' (+'+(n-1)+')':''),body:(o&&o.name?o.name+' · ':'')+'₹'+((o&&o.total)||0)}]})}catch(e){}}
+try{const L=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;L&&L.requestPermissions()}catch(e){}
+let orders={},menu={},cats={},banners={},drafts={},settings={},mtype='daily';
+const shop=()=>String(settings.name||'').trim();
+$('flt').innerHTML+=STATUS.map(s=>`<option>${s}</option>`).join('');
+
+const tab=n=>[1,2,3,4,5].forEach(i=>{$('v'+i).classList.toggle('hide',i!==n);$('t'+i).classList.toggle('on',i===n)});
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);$('t3').onclick=()=>tab(3);$('t4').onclick=()=>tab(4);$('t5').onclick=()=>tab(5);
+
+/* admin login (sirf API mode me chalta hai; Firebase mode me gate nahi dikhta) */
+function rl(){if(window.ReactNativeWebView)window.ReactNativeWebView.postMessage('reload');else location.reload()}
+(function(){let on=false;try{on=localStorage.getItem('adminLock')==='1'}catch(e){}
+  const b=document.createElement('button');b.id='lockb';b.textContent=on?'🔒 Lock ON':'🔓 Lock OFF';
+  b.onclick=()=>{const q=on?'Lock band karna hai? Phir login nahi puchega.':'Lock ON karna hai? Pehle Firebase me admin email/password user banao, nahi to login nahi hoga.';
+    if(!confirm(q))return;try{on?localStorage.removeItem('adminLock'):localStorage.setItem('adminLock','1')}catch(e){}rl()};
+  })();
+function gate(go){
+  if(!window.DATA_AUTH||!DATA_AUTH.required){go();return}
+  const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:99;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px';
+  o.innerHTML='<form id="lgf" style="max-width:340px;width:100%;margin:0"><h3 class="full">Admin login</h3><div class="full"><label class="mut" for="lge">Email</label><input id="lge" type="email" autocomplete="username" required><label class="mut" for="lgp" style="margin-top:8px">Password</label><input id="lgp" type="password" autocomplete="current-password" required></div><div class="full"><button class="btn p" type="submit">Login</button> <span id="lgm" class="err"></span></div></form>';
+  document.body.appendChild(o);
+  const ok=()=>{o.remove();const b=document.createElement('button');b.textContent='Logout';b.onclick=()=>DATA_AUTH.logout().finally(()=>rl());document.querySelector('nav').appendChild(b);go()};
+  DATA_AUTH.check().then(v=>{if(v)ok()});
+  $('lgf').onsubmit=async e=>{e.preventDefault();$('lgm').textContent='';try{await DATA_AUTH.login($('lgp').value,$('lge').value);ok()}catch(x){$('lgm').textContent='Login nahi hua ('+((x&&x.code)||'error')+')'}}}
+async function regPush(){let n=0;const inApp=!!window.ReactNativeWebView;
+  const st=t=>{let e=document.getElementById('pst');if(!e){e=document.createElement('small');e.id='pst';e.className='mut';e.style.cssText='display:block;width:100%';document.querySelector('header').appendChild(e)}e.textContent=t};
+  st(inApp?'Push: token ka intezaar...':'Push: sirf app me chalta hai');
+  const t=setInterval(()=>{const k=window.__PUSH_TOKEN;
+    if(k){clearInterval(t);db.ref('adminTokens/'+k.replace(/[.#$\[\]\/]/g,'_')).set({t:k,ts:SERVER_TS}).then(()=>st('Push: ready \u2713')).catch(e=>st('Push: token save FAIL ('+((e&&e.code)||'error')+') - database rules me adminTokens check karo'))}
+    else if(++n>90){clearInterval(t);if(inApp)st('Push: token nahi mila - phone me notification permission allow karo')}},1000)}
+gate(()=>{listen();regPush()});
+function listen(){
+  db.ref('orders').on('value',s=>{orders=s.val()||{};if(seenO){const n=Object.keys(orders).filter(k=>!seenO.has(k));if(n.length)newAlert(orders[n[0]],n.length)}seenO=new Set(Object.keys(orders));renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
+  db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu();renderCats();fillLink()});
+  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sfs').value=settings.fssai||'';$('sx').value=settings.text||'';$('sdo').checked=settings.dailyOn!==false;$('sbo').checked=settings.bookingOn!==false;$('sbd').value=settings.bookMinDays??1;$('sot').value=settings.shopOpen||'';$('sdc').value=settings.dailyCharge??'';$('sdf').value=settings.dailyFree??'';$('sbc').value=settings.bookCharge??'';$('sbf').value=settings.bookFree??'';$('sct').value=settings.shopClose||'';$('sla').value=settings.shopLat??'';$('sln').value=settings.shopLng??'';$('sdk').value=settings.dailyKm??'';$('sbk').value=settings.bookKm??''}
+    adminName();loadTheme()});
+  db.ref('banners').on('value',s=>{banners=s.val()||{};renderBanners()},()=>$('blist').innerHTML='<p class="err">Could not load banners. Check database rules for the "banners" node.</p>');
+  db.ref('categories').on('value',s=>{cats=s.val()||{};renderCats();renderMenu();fillLink()},()=>$('clist').innerHTML='<p class="err">Could not load categories. Check database rules for the "categories" node.</p>');
+}
+$('flt').onchange=()=>renderOrders();
+
+/* ---------- orders (Enquiries / Placed orders folders) ---------- */
+const openO={};let omode='daily';
+$('osw').onclick=e=>{const b=e.target.closest('button[data-o]');if(b){omode=b.dataset.o;renderOrders()}};
+const fD=d=>{if(!d)return '';const x=new Date(d+'T00:00:00');return isNaN(x)?d:x.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})};
+const fT=t=>{if(!t)return '';t=String(t).trim();const ap=t.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);if(ap)return (+ap[1])+':'+ap[2]+' '+ap[3].toUpperCase();const [h,m]=t.split(':').map(Number);return isNaN(h)?t:((h%12)||12)+':'+String(m||0).padStart(2,'0')+' '+(h<12?'AM':'PM')};
+const fTs=ts=>ts?new Date(ts).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'';
+const qL=(q,u)=>!u?String(q):/^\d/.test(String(u).trim())?`${q} × ${u}`:`${q} ${u}`;
+function orderCard(id,o){const enq=isEnq(o);
+  return `<div class="o ${esc(o.status)}"><div>
+    <h3>${esc(o.name)}</h3>
+    <div class="dt">${o.date?`<div>📅 <b>${o.orderType==='Daily'?'Parcel date':'Booking'}:</b> ${esc(fD(o.date))}${o.time?' · '+esc(fT(o.time)):''}</div>`:''}<div>🕒 <b>${enq?'Enquiry sent':'Order placed'}:</b> ${esc(fTs(o.ts)||'—')}</div></div>
+    <small><span class="tag" style="margin:0 6px 0 0">${o.orderType==='Daily'?'Parcel':'Booking'}</span>${o.distKm!=null?`<a style="color:var(--sf)" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${esc(o.custLat)},${esc(o.custLng)}">📍 ${esc(o.distKm)} km</a> · `:''}${enq?'<span class="tag" style="margin:0 6px 0 0;color:#8ab4ff;border-color:#8ab4ff">Enquiry</span>':''}${o.orderType==='Daily'?'':`~${esc(o.guests)} guests · `}${o.venue?esc(o.venue)+' · ':''}<a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
+    <div style="margin-top:4px">${(o.items||[]).map(i=>esc(i.name)+(i.qty?' — '+esc(qL(i.qty,i.unit)):'')+(i.serves&&o.orderType!=='Daily'?' ('+esc(i.serves)+' log)':'')).join('<br>')}</div>
+    ${enq?`<div class="qn"><small>❓ Customer ka sawaal</small>${o.notes?esc(o.notes):'<span class="mut">(Customer ne kuch nahi likha)</span>'}</div>`:(o.notes?`<small>Notes: ${esc(o.notes)}</small>`:'')}
+    ${o.code?`<small class="mut">Code: ${esc(o.code)}</small>`:''}<div>${o.orderType==='Daily'?'<small class="mut">Final total: </small>':''}<b>${inr(o.total)}</b>${o.delivery?` <small class="mut">(delivery ₹${esc(o.delivery)} included)</small>`:''}</div></div>
+    <div><select data-id="${esc(id)}" aria-label="Order status">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
+    <button class="btn d" data-del="${esc(id)}" style="margin-top:8px;width:100%">Delete</button></div>${replyBox(id,o)}</div>`}
+function renderOrders(){
+  const all=Object.entries(orders).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0)),tk=o=>o.orderType==='Daily'?'daily':'booking',nw=k=>all.filter(([,o])=>tk(o)===k&&(o.status==='New'||(isEnq(o)&&!o.reply))).length;
+  $('osw').innerHTML=[['daily','🍽️ Daily Orders'],['booking','📅 Order Booking']].map(([k,t])=>`<button type="button" data-o="${k}" class="${omode===k?'on':''}">${t}${nw(k)?`<span class="bdg">${nw(k)}</span>`:''}</button>`).join('');
+  const list=all.filter(([,o])=>tk(o)===omode);
+  const c=s=>list.filter(([,o])=>o.status===s);
+  $('sN').textContent=c('New').length;$('sE').textContent=c('Enquiry').length;$('sC').textContent=c('Confirmed').length;
+  $('sD').textContent=c('Cooking').length;
+  $('sR').textContent=inr(list.filter(([,o])=>['Confirmed','Cooking','Out for delivery','Delivered'].includes(o.status)).reduce((a,[,o])=>a+(o.total||0),0));
+  const f=$('flt').value,shown=list.filter(([,o])=>!f||o.status===f);
+  const enqL=shown.filter(([,o])=>isEnq(o)),ordL=shown.filter(([,o])=>!isEnq(o));
+  const fold=(k,ic,title,l,nw,empty)=>{const open=!!openO[k];
+    return `<div class="fold"><button type="button" class="fh" data-fold="${k}" aria-expanded="${open}"><span>${ic} ${title}</span><span class="fr">${nw?`<span class="bdg">${nw} new</span>`:''}<span>${l.length}</span><span class="chev">${open?'▾':'▸'}</span></span></button>
+    <div class="fb ${open?'':'hide'}">${l.length?l.map(([id,o])=>orderCard(id,o)).join(''):`<p class="mut" style="margin:0">${empty}</p>`}</div></div>`};
+  $('orders').innerHTML=(omode==='daily'?'':fold('enq','💬','Enquiries',enqL,enqL.filter(([,o])=>!o.reply).length,'No enquiries here.'))
+    +fold('ord','📦','Placed orders',ordL,ordL.filter(([,o])=>o.status==='New').length,'No orders here.');
+}
+$('orders').addEventListener('click',e=>{const h=e.target.closest('[data-fold]');if(!h)return;openO[h.dataset.fold]=!openO[h.dataset.fold];renderOrders()});
+
+/* ---------- enquiry reply (WhatsApp / Email) ---------- */
+const isEnq=o=>o.type==='Enquiry'||o.status==='Enquiry'||!!o.replyVia;
+const chOf=o=>o.replyVia==='Email'?'Email':'WhatsApp';
+const waNum=p=>{const d=String(p||'').replace(/\D/g,'');return d.length===10?'91'+d:d};
+function draftOf(id,o){if(drafts[id]!==undefined)return drafts[id];
+  return `Hello ${o.name||''},\n\nThank you for your enquiry with ${shop()||'us'}.\n\n${o.notes?'Your question: '+o.notes+'\n\n':''}Your items: ${(o.items||[]).map(i=>i.name+(i.qty?' — '+qL(i.qty,i.unit):'')).join(', ')}\nEstimated total: ${inr(o.total)}\n\n`}
+function replyBox(id,o){if(!isEnq(o))return '';const ch=chOf(o),to=ch==='Email'?o.email:'+'+waNum(o.phone);
+  if(ch==='Email'&&!o.email)return `<div class="rp"><small class="err">Customer ne email nahi diya. Phone se contact karein: <a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small></div>`;
+  return `<div class="rp"><small class="mut">Customer reply chahta hai: <b style="color:var(--sf)">${ch==='Email'?'✉️ Email':'💬 WhatsApp'}</b> · ${esc(to)}${o.reply?` · <span style="color:var(--ok)">Replied ✓ (${esc(o.repliedVia||ch)})</span>`:''}</small>
+  <textarea data-rp="${esc(id)}" aria-label="Reply message">${esc(draftOf(id,o))}</textarea>
+  <div><button class="btn wa" data-send="${esc(id)}">${ch==='Email'?'✉️ Reply by Email':'💬 Reply on WhatsApp'}</button></div></div>`}
+$('orders').addEventListener('input',e=>{const id=e.target.dataset.rp;if(id)drafts[id]=e.target.value});
+$('orders').addEventListener('click',e=>{const b=e.target.closest('button[data-send]');if(!b)return;
+  const id=b.dataset.send,o=orders[id];if(!o)return;const ch=chOf(o),msg=drafts[id]!==undefined?drafts[id]:draftOf(id,o);
+  if(!msg.trim()){alert('Pehle reply likhein.');return}
+  const url=ch==='Email'?'mailto:'+encodeURIComponent(o.email||'')+'?subject='+encodeURIComponent('Your enquiry'+(shop()?' · '+shop():''))+'&body='+encodeURIComponent(msg)
+    :'https://wa.me/'+waNum(o.phone)+'?text='+encodeURIComponent(msg);
+  db.ref('orders/'+id).update({reply:msg,repliedVia:ch,repliedAt:SERVER_TS});
+  ch==='Email'?(location.href=url):window.open(url,'_blank')});
+$('orders').addEventListener('change',e=>{const id=e.target.dataset.id;if(!id)return;const u={['orders/'+id+'/status']:e.target.value},o=orders[id];if(o&&o.code)u['tracking/'+o.code+'/status']=e.target.value;db.ref().update(u)});
+$('orders').addEventListener('click',e=>{const id=e.target.dataset.del;if(id&&confirm('Delete this order permanently?')){const o=orders[id],u={['orders/'+id]:null};if(o&&o.code)u['tracking/'+o.code]=null;db.ref().update(u)}});
+
+/* ---------- menu (category folders, inline edit) ---------- */
+const openF={};let editId='';
+const ckey=n=>String(n||'Biryani').toLowerCase();
+function editForm(id,m){
+  const isD=m.orderType==='daily',names=catRows().map(c=>c.name),cur=m.category||'Biryani';if(!names.some(n=>ckey(n)===ckey(cur)))names.push(cur);
+  return `<form class="ef" data-ef="${esc(id)}"><h3 class="full">Edit: ${esc(m.name)}</h3>
+  <div><label class="mut">Name</label><input name="n" required value="${esc(m.name)}" aria-label="Name"></div>
+  <div class="${isD?'hide':''}"><label class="mut">Category</label><select name="c" aria-label="Category">${names.map(n=>`<option value="${esc(n)}" ${ckey(n)===ckey(cur)?'selected':''}>${esc(n)}</option>`).join('')}<option value="__new">+ Naya category…</option></select><input name="cn" class="hide" placeholder="Naye category ka naam" style="margin-top:6px" aria-label="New category name"></div>
+  <div><label class="mut">Price (₹)</label><input name="p" type="number" min="0" step="any" required value="${esc(m.price)}" aria-label="Price"></div>
+  <div><label class="mut">Unit (kg, pcs, plate…)</label><input name="u" value="${esc(m.unit||'')}" aria-label="Unit"></div>
+  <div class="${isD?'hide':''}"><label class="mut">Kitne log khayenge per unit?</label><input name="s" type="number" min="0.1" step="any" required value="${esc(serves(m))}" aria-label="Persons per unit"></div>
+  <div class="full"><label class="mut">Dish Photo URL</label><div class="pv">${thumb(m.image)}<input name="i" type="url" inputmode="url" value="${esc(m.image||'')}" placeholder="https://…/dish.jpg" aria-label="Photo URL"></div></div>
+  <div class="full"><label class="mut">Description</label><textarea name="d" rows="2" aria-label="Description">${esc(m.desc||'')}</textarea></div>
+  <div class="full"><button class="btn p" type="submit">Save changes</button> <button class="btn" type="button" data-ecancel="1">Cancel</button></div></form>`}
+function dishRow(id,m){const ed=editId===id;
+  return `<div class="m"><div class="info">${thumb(m.image)}<div style="min-width:0"><b>${esc(m.name)}</b>${m.available===false?'<span class="tag" style="color:var(--err);border-color:var(--err)">Sold out</span>':'<span class="tag" style="color:#2fbf71;border-color:#2fbf71">● Available</span>'}
+  <br><small class="mut">${inr(m.price)}${m.unit?' per '+esc(m.unit):''}${m.orderType==='daily'?'':` · 1 ${esc(m.unit||'unit')} = ${esc(serves(m))} persons`}</small>${m.desc?`<br><small class="mut">${esc(m.desc)}</small>`:''}</div></div>
+  <div><button class="btn ${m.available===false?'p':''}" data-av="${esc(id)}">${m.available===false?'✅ Wapas available karo':'🚫 Sold out karo'}</button> <button class="btn ${ed?'p':''}" data-ed="${esc(id)}">${ed?'Close':'Edit'}</button> <button class="btn d" data-rm="${esc(id)}">Delete</button></div></div>${ed?editForm(id,m):''}`}
+function renderMenu(){
+  const l=Object.entries(menu);
+  $('seed').classList.toggle('hide',l.length>0||mtype==='daily');
+  const a=document.activeElement;
+  if(editId&&a&&a.closest&&a.closest('form.ef')&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)){fillCatSelect();return}
+  if(mtype==='daily'){const dl=l.filter(([,m])=>m.orderType==='daily');
+    $('mlist').innerHTML=dl.length?dl.map(([id,m])=>dishRow(id,m)).join(''):'<p class="mut">Parcel menu abhi khali hai. Upar se dish add karo, wo seedha Daily Order me dikhegi.</p>';fillCatSelect();return}
+  const rows=catRows();
+  $('mlist').innerHTML=rows.length?rows.map(c=>{const k=ckey(c.name),items=l.filter(([,m])=>m.orderType!=='daily'&&ckey(m.category)===k),open=!!openF[k];
+    return `<div class="fold"><button type="button" class="fh" data-cf="${esc(k)}" aria-expanded="${open}"><span>📁 ${esc(c.name)}</span><span class="fr"><span>${items.length} dish${items.length===1?'':'es'}</span><span class="chev">${open?'▾':'▸'}</span></span></button>
+    <div class="fb ${open?'':'hide'}">${items.length?items.map(([id,m])=>dishRow(id,m)).join(''):'<p class="mut" style="margin:0">Is category me abhi koi dish nahi hai.</p>'}
+    <button class="btn p" type="button" data-cadd2="${esc(c.name)}" style="margin-top:10px">+ Add dish in ${esc(c.name)}</button></div></div>`}).join(''):'<p class="mut">No dishes yet. Add one above or load the starter menu.</p>';
+  fillCatSelect();
+}
+$('mlist').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset;
+  if(t.cf!==undefined){openF[t.cf]=!openF[t.cf];renderMenu();return}
+  if(t.av)db.ref('menu/'+t.av+'/available').set(menu[t.av].available===false);
+  if(t.rm&&confirm('Delete this dish?')){if(editId===t.rm)editId='';db.ref('menu/'+t.rm).remove()}
+  if(t.ed){editId=editId===t.ed?'':t.ed;renderMenu();if(editId)setTimeout(()=>{const f=document.querySelector('form.ef');f&&f.scrollIntoView({block:'nearest',behavior:'smooth'})},50)}
+  if(t.ecancel){editId='';renderMenu()}
+  if(t.cadd2!==undefined){clear();setCat(t.cadd2);scrollTo(0,0);$('mn').focus()}});
+$('mlist').addEventListener('change',e=>{const t=e.target;
+  if(t.name==='c'&&t.form&&t.form.classList.contains('ef')){const cn=t.form.elements.cn,nw=t.value==='__new';cn.classList.toggle('hide',!nw);cn.required=nw;if(nw)cn.focus()}});
+$('mlist').addEventListener('input',e=>{const t=e.target;
+  if(t.name==='i'&&t.form&&t.form.classList.contains('ef')){const box=t.form.querySelector('.pv .th'),u=t.value.trim();
+    if(box)box.innerHTML=okUrl(u)?`<img src="${esc(u)}" alt="" onerror="this.parentNode.textContent='Bad URL'">`:'No photo'}});
+$('mlist').addEventListener('submit',e=>{const f=e.target;if(!f.classList.contains('ef'))return;e.preventDefault();
+  const id=f.dataset.ef,isD=(menu[id]||{}).orderType==='daily',g=n=>f.elements[n],catName=isD?'x':(g('c').value==='__new'?g('cn').value.trim():g('c').value),img=g('i').value.trim(),sv=isD?1:Number(g('s').value);
+  if(!catName){alert('Category chunein ya naya naam likhein.');return}
+  if(img&&!okUrl(img)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
+  if(!(sv>0)){alert('"Kitne log khayenge per unit" 0 se zyada hona chahiye.');return}
+  if(!isD)openF[ckey(catName)]=true;
+  db.ref('menu/'+id).update({name:g('n').value.trim(),category:isD?null:catName,price:Number(g('p').value),unit:g('u').value.trim(),servesPerUnit:sv,image:img||null,desc:g('d').value.trim()})
+  .then(()=>{editId='';renderMenu()}).catch(()=>alert('Save failed. Check database rules.'))});
+
+function fillCatSelect(keep){
+  const cur=keep!==undefined?keep:$('mc').value,names=catRows().map(c=>c.name);
+  if(cur&&cur!=='__new'&&!names.includes(cur))names.push(cur);
+  $('mc').innerHTML=names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')+'<option value="__new">+ Naya category…</option>';
+  $('mc').value=cur&&(names.includes(cur)||cur==='__new')?cur:(names[0]||'__new');
+  catNew()}
+function catNew(){const n=$('mc').value==='__new'&&mtype==='booking';$('mcn').classList.toggle('hide',!n);$('mcn').required=n}
+function setCat(n){fillCatSelect(n);$('mcn').value=''}
+const getCat=()=>$('mc').value==='__new'?$('mcn').value.trim():$('mc').value;
+$('mc').onchange=()=>{catNew();if($('mc').value==='__new')$('mcn').focus()};
+function prev(inp,box){const u=$(inp).value.trim();$(box).innerHTML=okUrl(u)?`<img src="${esc(u)}" alt="" onerror="this.parentNode.textContent='Bad URL'">`:'No photo'}
+$('mi').oninput=()=>prev('mi','mpv');
+$('ci').oninput=()=>prev('ci','cpv');
+
+const clear=()=>{const keep=getCat();$('mf').reset();$('mid').value='';setCat(keep||undefined);$('mt').textContent=mtype==='daily'?'Add Parcel dish':'Add Booking dish';prev('mi','mpv')};$('mx').onclick=clear;
+function applyMType(){const d=mtype==='daily';
+  document.querySelectorAll('#msw button').forEach(b=>b.classList.toggle('on',b.dataset.m===mtype));
+  $('mcw').classList.toggle('hide',d);$('msvw').classList.toggle('hide',d);
+  $('mt').textContent=d?'Add Parcel dish':'Add Booking dish';catNew();renderMenu()}
+$('msw').onclick=e=>{const b=e.target.closest('button[data-m]');if(b){mtype=b.dataset.m;editId='';applyMType()}};
+$('mf').onsubmit=e=>{e.preventDefault();
+  const dly=mtype==='daily',img=$('mi').value.trim(),sv=dly?1:Number($('ms').value),catName=dly?'x':getCat();
+  if(!catName){alert('Category chunein ya naya naam likhein.');return}
+  if(img&&!okUrl(img)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
+  if(!(sv>0)){alert('"Kitne log khayenge per unit" 0 se zyada hona chahiye.');return}
+  const d={name:$('mn').value.trim(),category:dly?null:catName,price:Number($('mp').value),unit:$('mu').value.trim(),
+    servesPerUnit:sv,orderType:dly?'daily':'booking',image:img||null,desc:$('md').value.trim()},id=$('mid').value;
+  if(!dly)openF[ckey(catName)]=true;
+  (id?db.ref('menu/'+id).update(d):db.ref('menu').push({...d,available:true})).then(clear).catch(()=>alert('Save failed. Check database rules.'))};
+
+applyMType();
+$('seed').onclick=()=>[
+  {name:'Dum Gosht Pateli Biryani',category:'Biryani',price:950,servesPerUnit:5,desc:'Aged basmati and tender mutton, sealed with dough and slow-cooked.'},
+  {name:'Murgh Zafrani Biryani',category:'Biryani',price:780,servesPerUnit:5,desc:'Saffron-marinated chicken layered with fried onions and mint.'},
+  {name:'Subz Awadhi Biryani',category:'Biryani',price:650,servesPerUnit:5,desc:'Seasonal vegetables, kewra and whole spices.'},
+  {name:'Mirchi ka Salan and Burhani Raita',category:'Sides',price:120,servesPerUnit:6,desc:'Served alongside the biryani.'}
+].forEach(d=>db.ref('menu').push({unit:'kg',available:true,...d}));
+
+/* ---------- categories ---------- */
+function catRows(){
+  const m=new Map();
+  Object.entries(cats).forEach(([id,c])=>{if(c&&c.name)m.set(c.name.toLowerCase(),{id,name:c.name,image:c.image||'',n:0})});
+  Object.values(menu).filter(d=>d.orderType!=='daily').forEach(d=>{const n=d.category||'Biryani',k=n.toLowerCase();
+    if(!m.has(k))m.set(k,{id:'',name:n,image:'',n:0});m.get(k).n++});
+  return [...m.values()];
+}
+function renderCats(){
+  fillCatSelect();
+  const l=catRows();
+  $('clist').innerHTML=l.length?l.map(c=>`<div class="m"><div class="info">${thumb(c.image)}<div><b>${esc(c.name)}</b><br><small class="mut">${c.n} dish${c.n===1?'':'es'}${c.image?'':' · photo not set'}</small></div></div>
+  <div><button class="btn p" data-cadd="${esc(c.name)}">+ Add dish</button> <button class="btn" data-ce="${esc(c.name)}">${c.image?'Edit':'Add photo'}</button>${c.id?` <button class="btn d" data-cd="${esc(c.id)}">Delete</button>`:''}</div></div>`).join(''):'<p class="mut">No categories yet. Add a dish or create a category above.</p>';
+}
+$('clist').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset;
+  if(t.ce!==undefined){const c=catRows().find(x=>x.name===t.ce);if(!c)return;
+    $('cid').value=c.id;$('cold').value=c.name;$('cn').value=c.name;$('ci').value=c.image;prev('ci','cpv');$('ct').textContent='Edit category';scrollTo(0,0)}
+  if(t.cadd!==undefined){clear();setCat(t.cadd);tab(2);scrollTo(0,0);$('mn').focus()}
+  if(t.cd&&confirm('Delete this category photo/record? Dishes will stay as they are.'))db.ref('categories/'+t.cd).remove()});
+const cclear=()=>{$('cf').reset();$('cid').value='';$('cold').value='';$('ct').textContent='Add category photo';prev('ci','cpv')};$('cx').onclick=cclear;
+$('cf').onsubmit=e=>{e.preventDefault();
+  const name=$('cn').value.trim(),image=$('ci').value.trim(),old=$('cold').value,id=$('cid').value;
+  if(!name)return;
+  if(image&&!okUrl(image)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
+  if(catRows().some(c=>c.name.toLowerCase()===name.toLowerCase()&&c.name.toLowerCase()!==old.toLowerCase())){alert('Is naam ki category pehle se hai.');return}
+  const key=id||db.ref('categories').push().key,u={};
+  u['categories/'+key]={name,image:image||null};
+  if(old&&old!==name)Object.entries(menu).forEach(([did,d])=>{if((d.category||'Biryani')===old)u['menu/'+did+'/category']=name});
+  db.ref().update(u).then(cclear).catch(()=>alert('Save failed. Check database rules.'))};
+
+/* ---------- banners ---------- */
+const bRows=()=>Object.entries(banners).filter(([,b])=>b).sort((a,b)=>(Number(a[1].order)||0)-(Number(b[1].order)||0));
+function fillLink(keep){
+  const cur=keep!==undefined?keep:$('bl').value;
+  $('bl').innerHTML='<option value="">Kuch nahi (sirf photo)</option>'
+   +'<optgroup label="Category kholo">'+catRows().map(c=>`<option value="cat:${esc(c.name)}">${esc(c.name)}</option>`).join('')+'</optgroup>'
+   +'<optgroup label="Dish kholo">'+Object.entries(menu).map(([id,m])=>`<option value="dish:${esc(id)}">${esc(m.name)}</option>`).join('')+'</optgroup>';
+  $('bl').value=cur||'';if($('bl').value!==(cur||''))$('bl').value=''}
+const nextOrder=()=>bRows().reduce((a,[,b])=>Math.max(a,Number(b.order)||0),0)+1;
+function linkOf(b){return b.dishId?(menu[b.dishId]?'Opens dish: '+menu[b.dishId].name:'Linked dish removed'):b.category?'Opens category: '+b.category:'No link'}
+function renderBanners(){
+  const l=bRows();
+  if(!$('bid').value)$('bo').value=nextOrder();
+  $('blist').innerHTML=l.length?l.map(([id,b])=>`<div class="m"><div class="info">${thumb(b.image)}<div style="min-width:0"><b>${esc(b.title||'(no name)')}</b>${b.active===false?'<span class="tag" style="color:var(--err);border-color:var(--err)">Hidden</span>':'<span class="tag">Live</span>'}\n  <br><small class="mut">Order ${esc(b.order??0)} · ${esc(linkOf(b))}</small></div></div>\n  <div><button class="btn" data-bv="${esc(id)}">${b.active===false?'Show':'Hide'}</button> <button class="btn" data-be="${esc(id)}">Edit</button> <button class="btn d" data-bd="${esc(id)}">Delete</button></div></div>`).join(''):'<p class="mut">No banners yet. Upar photo URL daal kar pehla banner add karein.</p>';
+}
+$('blist').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset;
+  if(t.bv)db.ref('banners/'+t.bv+'/active').set(banners[t.bv].active===false);
+  if(t.bd&&confirm('Delete this banner?'))db.ref('banners/'+t.bd).remove();
+  if(t.be){const x=banners[t.be];$('bid').value=t.be;$('bi').value=x.image||'';$('bn').value=x.title||'';$('bo').value=x.order??1;$('ba').checked=x.active!==false;
+    fillLink(x.dishId?'dish:'+x.dishId:x.category?'cat:'+x.category:'');prev('bi','bpv');$('bt').textContent='Edit banner';scrollTo(0,0)}});
+$('bi').oninput=()=>prev('bi','bpv');
+const bclear=()=>{$('bf').reset();$('bid').value='';$('bt').textContent='Add banner';fillLink('');prev('bi','bpv');$('bo').value=nextOrder()};$('bx').onclick=bclear;
+$('bf').onsubmit=e=>{e.preventDefault();
+  const image=$('bi').value.trim(),link=$('bl').value,id=$('bid').value;
+  if(!okUrl(image)){alert('Photo URL http:// ya https:// se shuru hona chahiye.');return}
+  const d={image,title:$('bn').value.trim()||null,order:Number($('bo').value)||0,active:$('ba').checked,
+    dishId:link.startsWith('dish:')?link.slice(5):null,category:link.startsWith('cat:')?link.slice(4):null};
+  (id?db.ref('banners/'+id).set(d):db.ref('banners').push(d)).then(bclear).catch(()=>alert('Save failed. Check database rules.'))};
+fillLink('');
+const nv=id=>{const v=$(id).value.trim();return v===''?null:Number(v)};
+$('sgeo').onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>{$('sla').value=p.coords.latitude.toFixed(6);$('sln').value=p.coords.longitude.toFixed(6)},()=>alert('Location allow karein ya latitude/longitude khud likhein.'),{enableHighAccuracy:true,timeout:15000}):alert('Is browser me location support nahi hai.');
+$('sf').onsubmit=e=>{e.preventDefault();
+  const la=nv('sla'),lo=nv('sln'),dk=nv('sdk'),bk=nv('sbk');
+  if(['sdc','sdf','sbc','sbf'].some(i=>nv(i)!==null&&(isNaN(nv(i))||nv(i)<0))){alert('Delivery charge aur free-delivery amount 0 ya usse zyada hone chahiye.');return}
+  if(!$('sot').value!==!$('sct').value){alert('Shop open aur close time dono bharein (ya dono khali chhodein).');return}
+  if((la===null)!==(lo===null)){alert('Latitude aur longitude dono bharein.');return}
+  if(la!==null&&(isNaN(la)||isNaN(lo)||Math.abs(la)>90||Math.abs(lo)>180)){alert('Latitude (-90 se 90) aur longitude (-180 se 180) sahi likhein.');return}
+  if([dk,bk].some(v=>v!==null&&(isNaN(v)||v<0))){alert('Radius (km) 0 ya usse zyada number hona chahiye.');return}
+  if(((dk||0)>0||(bk||0)>0)&&la===null){alert('Radius lagane ke liye shop ki latitude/longitude zaroori hai.');return}
+  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,fssai:$('sfs').value.trim()||null,text:$('sx').value.trim()||null,dailyOn:$('sdo').checked,bookingOn:$('sbo').checked,bookMinDays:Math.max(0,Math.floor(Number($('sbd').value)||0)),dailyCharge:nv('sdc'),dailyFree:nv('sdf'),bookCharge:nv('sbc'),bookFree:nv('sbf'),shopOpen:$('sot').value||null,shopClose:$('sct').value||null,shopLat:la,shopLng:lo,dailyKm:dk,bookKm:bk})
+  .then(()=>{$('smsg').textContent='Saved ✓';setTimeout(()=>$('smsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
+/* ---------- customer app theme ---------- */
+function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
+function cMix(a,b,t){const A=cHex(a),B=cHex(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+function cLum(c){const[r,g,b]=cHex(c).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b}
+function themeVars(bg,ac){
+  if(!/^#[0-9a-f]{6}$/i.test(bg))bg='#1c0e0b';if(!/^#[0-9a-f]{6}$/i.test(ac))ac='#f0b44c';
+  const d=cLum(bg)<.205,W='#ffffff',K='#000000',tx=d?'#f5ead8':'#2a1a12',panel=d?cMix(bg,W,.06):cMix(bg,K,.04);
+  return{'--bg':bg,'--panel':panel,'--line':d?cMix(bg,W,.2):cMix(bg,K,.16),'--cu':cMix(ac,bg,.25),'--sf':ac,'--tx':tx,'--mut':cMix(tx,bg,d?.38:.4),
+    '--err':d?'#ff8a7a':'#c0392b','--ok':d?'#8fcf9b':'#1c7a3f','--inp':d?cMix(bg,K,.35):cMix(bg,W,.7),'--foot':d?cMix(bg,K,.4):cMix(bg,K,.08),
+    '--g1':cMix(bg,ac,d?.2:.16),'--g2':cMix(bg,ac,d?.08:.06),'--sbg':'rgba('+cHex(bg).join(',')+',.94)','--bt':cLum(ac)>.3?'#2a1200':'#ffffff',
+    '--ph1':cMix(bg,d?W:K,d?.1:.06),'--ph2':panel,'--don':cMix(panel,'#1f9d57',.1),'--stp':cMix(bg,d?W:K,d?.18:.12),'--xbg':d?cMix(bg,'#ff0000',.18):'#f7d4cf',
+    '--pl':cMix(bg,ac,d?.14:.12),'--pl2':cMix(bg,ac,.35),'--pl3':d?cMix(ac,W,.55):cMix(ac,K,.25),'--gt':d?'#7fe3ae':'#14733f','--gt2':d?'#9bd9b6':'#2a7a50'}}
+const TH={royal:{n:'Royal brown',bg:'#1c0e0b',ac:'#f0b44c'},midnight:{n:'Midnight blue',bg:'#0d1626',ac:'#f0b44c'},forest:{n:'Forest green',bg:'#0e1f17',ac:'#f0c24c'},
+  plum:{n:'Deep plum',bg:'#22112e',ac:'#f0b44c'},maroon:{n:'Maroon',bg:'#2b0c14',ac:'#f5c16c'},charcoal:{n:'Charcoal black',bg:'#111111',ac:'#f0b44c'},cream:{n:'Light cream',bg:'#fbf3e6',ac:'#b4561b'}};
+let th={preset:'royal',bg:'#1c0e0b',ac:'#f0b44c'},thDirty=false;
+function drawTh(sync){
+  $('tsw').innerHTML=Object.entries(TH).map(([k,t])=>`<button type="button" class="ts ${th.preset===k?'on':''}" data-k="${k}" aria-pressed="${th.preset===k}"><span class="cc" style="background:${t.bg};border-color:${t.ac}"><i style="background:${t.ac}"></i></span>${t.n}</button>`).join('')
+    +`<button type="button" class="ts ${th.preset==='custom'?'on':''}" data-k="custom" aria-pressed="${th.preset==='custom'}"><span class="cc" style="background:${esc(th.bg)};border-color:${esc(th.ac)}"><i style="background:${esc(th.ac)}"></i></span>Custom</button>`;
+  if(sync){$('tbg').value=th.bg;$('tac').value=th.ac}
+  const v=themeVars(th.bg,th.ac),p=$('tpv');for(const k in v)p.style.setProperty(k,v[k]);
+  $('tpn').textContent=shop()||'Your store name'}
+function loadTheme(){const t=settings.theme;
+  if(!thDirty&&!$('tf').contains(document.activeElement)){
+    th=t&&t.bg?{preset:t.preset||'custom',bg:t.bg,ac:t.ac||'#f0b44c'}:{preset:'royal',bg:TH.royal.bg,ac:TH.royal.ac};drawTh(true)}
+  else drawTh(false)}
+function adminName(){const n=shop();$('ah').textContent=n?n+' operations':'Store operations';document.title=n?n+' · Operations':'Store operations'}
+$('tsw').onclick=e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=b.dataset.k;
+  if(k!=='custom')th={preset:k,bg:TH[k].bg,ac:TH[k].ac};else th.preset='custom';thDirty=true;drawTh(true)};
+$('tbg').oninput=()=>{th.preset='custom';th.bg=$('tbg').value;thDirty=true;drawTh(false)};
+$('tac').oninput=()=>{th.preset='custom';th.ac=$('tac').value;thDirty=true;drawTh(false)};
+$('trs').onclick=()=>{th={preset:'royal',bg:TH.royal.bg,ac:TH.royal.ac};thDirty=true;drawTh(true)};
+$('tf').onsubmit=e=>{e.preventDefault();
+  db.ref('settings/theme').set({preset:th.preset,bg:th.bg,ac:th.ac})
+  .then(()=>{thDirty=false;$('tmsg').textContent='Saved ✓';setTimeout(()=>$('tmsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
+drawTh(true);
+</script></body></html>
