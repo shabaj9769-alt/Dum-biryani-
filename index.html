@@ -438,11 +438,16 @@ function showLoc(){const g=geoOn(),n=$('locn');if(!g)return;
   loc.d=hav(loc.lat,loc.lng,g.la,g.lo);const ok=loc.d<=g.km;
   n.className=ok?'note':'msg err';
   n.textContent=ok?`✅ You are ${loc.d.toFixed(1)} km away. Delivery is available.`:`❌ You are ${loc.d.toFixed(1)} km away. We deliver only within ${g.km} km.`}
+function gotLoc(p){loc={lat:p.coords.latitude,lng:p.coords.longitude};showLoc()}
+function locFail(e){const n=$('locn'),c=e&&e.code;n.className='msg err';
+  n.textContent=c===1?'Location permission is blocked. Allow location for this site in your browser settings, then tap again.':c===2?'Your phone location (GPS) is off or not available. Turn on Location in your phone settings, then tap again.':c===3?'Location took too long. Check that Location is on and your internet is working, then tap again.':'Could not get your location. Turn on Location and allow it for this site, then tap again.'}
 $('locb').onclick=()=>{const n=$('locn');n.className='note';n.textContent='Getting your location…';
-  if(!navigator.geolocation){n.className='msg err';n.textContent='Location is not supported in this browser.';return}
-  navigator.geolocation.getCurrentPosition(p=>{loc={lat:p.coords.latitude,lng:p.coords.longitude};showLoc()},
-    e=>{n.className='msg err';n.textContent=e&&e.code===1?'Location permission is blocked. Allow it in your browser settings and tap again.':'Could not get your location. Please try again.'},
-    {enableHighAccuracy:true,timeout:15000,maximumAge:60000})};
+  if(!navigator.geolocation){n.className='msg err';n.textContent='This browser does not support location. Please open the website in Chrome or Safari.';return}
+  /* try fast network/Wi-Fi location first, then GPS if that fails */
+  navigator.geolocation.getCurrentPosition(gotLoc,e=>{
+    if(e&&e.code===1){locFail(e);return}
+    navigator.geolocation.getCurrentPosition(gotLoc,locFail,{enableHighAccuracy:true,timeout:15000,maximumAge:0})},
+    {enableHighAccuracy:false,timeout:8000,maximumAge:300000})};
 $('omode').onclick=e=>{const b=e.target.closest('button[data-o]');if(b&&b.dataset.o!==omode)setOmode(b.dataset.o)};
 
 /* ---------- helpers ---------- */
@@ -594,7 +599,7 @@ function submit(kind){
   if(closed||!secOpen(omode)){m.className='msg err';m.textContent=omode==='daily'?'The shop is closed, so Daily Parcel is unavailable. Order Booking is open.':'Order Booking is closed right now.';return}
   const g=!enq&&geoOn();
   if(g){if(!loc){m.className='msg err';m.textContent='Please tap "📍 Use my current location" to check your location first.';return}
-    loc.d=hav(loc.lat,loc.lng,g.la,g.lo);if(loc.d>g.km){m.className='msg err';m.textContent=`You are ${loc.d.toFixed(1)} km away. We deliver only within ${g.km} km.`;return}}
+    {loc.d=hav(loc.lat,loc.lng,g.la,g.lo);if(loc.d>g.km){m.className='msg err';m.textContent=`You are ${loc.d.toFixed(1)} km away. We deliver only within ${g.km} km.`;return}}}
   if(!enq&&!$('tcx').checked){m.className='msg err';m.textContent='Please tick the box to agree to the Terms, Cash on Delivery & Privacy Policy.';$('tcx').focus();return}
   const rv=rvVal(),email=f('email'),oem=f('oem').toLowerCase();
   if(enq){if(!f('name')||phone.length<10){m.className='msg err';m.textContent='Please enter your name and a 10-digit phone number to send an enquiry.';return}
@@ -606,18 +611,15 @@ function submit(kind){
     if(tm!=null&&!inHours(tm)){bad(`The shop is open from ${f12(st.shopOpen)} to ${f12(st.shopClose)}. Please choose a time within these hours.`);return}
     if(f('date')===t0&&tm!=null&&tm<nowMin()){bad('That time has already passed. Please choose a later time.');return}}
   $('place').disabled=true;m.className='msg';m.textContent=enq?'Sending enquiry…':'Placing order…';
-  const code=enq?'':mkCode(),key=db.ref('orders').push().key,od={type:kind,...(enq?{replyVia:rv}:{}),...(enq&&rv==='Email'&&email?{email}:{}),name:f('name'),phone,
-    orderType:omode==='daily'?'Daily':'Booking',...(enq?{}:{venue:f('venue'),date:f('date'),time:f('time')}),...(g&&loc?{custLat:loc.lat,custLng:loc.lng,distKm:Math.round(loc.d*10)/10}:{}),notes:f('notes'),
-    guests:c.g,itemCount:c.n,items:c.r,subtotal:c.t,delivery:enq?0:dchg(c).amt,total:r2(c.t+(enq?0:dchg(c).amt)),status:enq?'Enquiry':'New',ts:SERVER_TS,...(enq?{}:{code})};
-  if(!enq){od.email=oem;od.terms='2026-10-06'}
-  const up={['orders/'+key]:od};
-  if(!enq)up['tracking/'+code]={ph:phone.slice(-10),em:oem,status:'New',orderType:od.orderType,date:od.date||null,time:od.time||null,total:od.total,ts:SERVER_TS,items:(od.items||[]).map(i=>({name:i.name,qty:i.qty||null,unit:i.unit||null}))};
-  db.ref().update(up)
-  .then(()=>{try{window.NOTIFY_URL&&fetch(NOTIFY_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({id:key}),keepalive:true}).catch(()=>{})}catch(e){}lastPhone=phone;lastCode=code;lastEmail=oem;$('dtrk').classList.toggle('hide',enq);
+  /* Server (Vercel /api/order) price, total, doori, shop time khud check karke order banata hai */
+  const pay={type:kind,replyVia:rv,email,name:f('name'),phone,orderType:omode==='daily'?'Daily':'Booking',venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),oem,terms:'2026-10-06',items:c.r.map(i=>({id:i.id,qty:i.qty})),...(g&&loc?{custLat:loc.lat,custLng:loc.lng}:{})};
+  fetch(window.ORDER_URL||'/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pay)})
+  .then(r=>r.json().then(j=>({st:r.status,j}),()=>({st:r.status,j:{}})))
+  .then(x=>{if(!x.j.ok){const e=new Error(x.j.error||'');e.srv=x.st>=400&&x.st<500;throw e}const key=x.j.key,code=x.j.code||'';try{window.NOTIFY_URL&&fetch(NOTIFY_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({id:key}),keepalive:true}).catch(()=>{})}catch(e){}lastPhone=phone;lastCode=code;lastEmail=oem;$('dtrk').classList.toggle('hide',enq);
     $('dT').textContent=enq?'Enquiry sent':'Order placed';$('dDis').classList.toggle('hide',enq);
     $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:(omode==='daily'?'Thank you! Your parcel order has been placed. The price is final. To see all your orders, open My Orders and log in with your email.':'Thank you. We will call you shortly to confirm the final quantity and price. To see all your orders, open My Orders and log in with your email.');
     $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
-  .catch(()=>{m.className='msg err';m.textContent=(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false});
+  .catch(e=>{m.className='msg err';m.textContent=e&&e.srv&&e.message?e.message:(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false});
 }
 let lastPhone='',lastCode='',lastEmail='';
 function mkCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',a=new Uint32Array(8);crypto.getRandomValues(a);return 'DB-'+[...a].map(x=>A[x%32]).join('')}
