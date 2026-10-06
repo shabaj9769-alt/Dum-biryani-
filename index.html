@@ -684,7 +684,7 @@ async function sendLink(){
   try{await a.sendSignInLinkToEmail(em,{url:location.origin+location.pathname,handleCodeInApp:true});
     try{localStorage.setItem('dbEm',em)}catch(e){}
     r.innerHTML=`<div class="card"><b>📧 Check your email</b><p class="note" style="margin:6px 0 0">We sent a login link to ${esc(em)}. Open it on this phone/browser to see your orders. Also check Spam.</p></div>`}
-  catch(e){r.innerHTML='<p class="msg err">Could not send the link. Please try again in a while.</p>'}
+  catch(e){r.innerHTML='<p class="msg err">Could not send the link. Please try again in a while.'+(e&&e.code?' ('+e.code+')':'')+'</p>'}
   $('tgo').disabled=false}
 (function(){const a=AU();if(!a)return;
   if(a.isSignInWithEmailLink(location.href)){let em='';try{em=localStorage.getItem('dbEm')||''}catch(e){}
