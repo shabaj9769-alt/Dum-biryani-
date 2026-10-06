@@ -652,7 +652,7 @@ const CANCELOK=['New','Confirmed'],COOKING=['Cooking','Out for delivery'];
 function cxPart(o,s){const tel='tel:'+(window.SUP_TEL||'+918779612829');
   if(CANCELOK.includes(s))return `<button type="button" class="btn cx" data-cx="${esc(o.code)}">Cancel order</button><small>You can cancel until cooking starts.</small>`;
   if(COOKING.includes(s))return `<button type="button" class="btn cx" disabled>Cancel order</button><small class="cxn">Cooking has started, so this order can't be cancelled here. To cancel, please <a href="${tel}">call us</a>.</small>`;
-  if(s==='Cancelled'||s==='Delivered')return `<button type="button" class="btn cx rm" data-rm="${esc(o.code)}">Remove from my list</button>`;
+  if(s==='Cancelled'||s==='Delivered')return (s==='Cancelled'&&o.cr?`<small class="cxn">${esc(o.cr)}</small>`:'')+`<button type="button" class="btn cx rm" data-rm="${esc(o.code)}">Remove from my list</button>`;
   return ''}
 $('tres').addEventListener('click',async e=>{const rb=e.target.closest('button[data-rm]');if(rb){
   if(!confirm('Remove this order from your list? Our shop keeps its own record of the order.'))return;
