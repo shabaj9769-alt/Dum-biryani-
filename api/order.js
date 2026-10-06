@@ -4,6 +4,7 @@
 // Env var chahiye: FIREBASE_SERVICE_ACCOUNT (wahi jo /api/notify me hai). Koi npm package nahi.
 
 const crypto = require('crypto');
+const { derive, hash } = require('./_code');
 
 const DB_URL = 'https://biryani-category-default-rtdb.firebaseio.com';
 const TZ = 'Asia/Kolkata';
@@ -91,7 +92,6 @@ async function build(b, st, menu, now) {
   if (!name || phone.length < 10) bad('Please enter your name and a 10-digit phone number.');
   const orderType = b.orderType === 'Booking' ? 'Booking' : 'Daily';
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  const oem = str(b.oem, 120).toLowerCase();
   const rv = b.replyVia === 'Email' ? 'Email' : 'WhatsApp';
   const email = str(b.email, 120);
   if (enq && rv === 'Email' && !emailRe.test(email)) bad('Please enter a valid email address so we can reply.');
@@ -122,7 +122,6 @@ async function build(b, st, menu, now) {
   if (!enq) {
     const venue = str(b.venue, 300), date = str(b.date, 10), time = str(b.time, 12);
     if (!venue || !/^\d{4}-\d{2}-\d{2}$/.test(date)) bad('Add your name, a 10-digit phone number, date and venue address.');
-    if (!emailRe.test(oem)) bad('Please enter a valid email. You will use it to see your orders in My Orders.');
     if (b.terms !== '2026-10-06') bad('Please agree to the Terms, Cash on Delivery & Privacy Policy.');
     const daily = orderType === 'Daily';
     const o = tmin(st.shopOpen), c = tmin(st.shopClose);
@@ -154,10 +153,10 @@ async function build(b, st, menu, now) {
     const ch = Number(daily ? st.dailyCharge : st.bookCharge) || 0, fr = Number(daily ? st.dailyFree : st.bookFree) || 0;
     delivery = ch > 0 && !(fr > 0 && sub >= fr) ? ch : 0;
     Object.assign(od, { venue, date, time });
-    od.email = oem; od.terms = b.terms;
+    od.terms = b.terms;
   }
   Object.assign(od, { guests: Math.round(guests), itemCount: items.length, items, subtotal: sub, delivery, total: r2(sub + delivery), status: enq ? 'Enquiry' : 'New', ts: now.ts });
-  return { od, enq, oem };
+  return { od, enq };
 }
 
 module.exports = async (req, res) => {
@@ -188,8 +187,8 @@ module.exports = async (req, res) => {
     const key = pushId(), up = { ['orders/' + key]: od };
     let code = '';
     if (!enq) {
-      code = mkCode(); od.code = code;
-      up['tracking/' + code] = { k: key, ph: od.phone.slice(-10), em: od.email, status: 'New', orderType: od.orderType, date: od.date || null, time: od.time || null, total: od.total, ts: now.ts, items: od.items.map((i) => ({ name: i.name, qty: i.qty || null, unit: i.unit || null })) };
+      code = derive(key, sa); od.tk = hash(code); // code database me save nahi hota, sirf hash
+      up['tracking/' + od.tk] = { k: key, status: 'New', orderType: od.orderType, date: od.date || null, time: od.time || null, total: od.total, ts: now.ts, items: od.items.map((i) => ({ name: i.name, qty: i.qty || null, unit: i.unit || null })) };
     }
     const w = await fetch(DB_URL + '/.json?access_token=' + at, { method: 'PATCH', body: JSON.stringify(up) });
     if (!w.ok) throw new Error('db write failed ' + w.status);

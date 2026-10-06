@@ -1,12 +1,12 @@
 // Vercel serverless function: /api/cancel
 // Customer apna order sirf tab cancel kar sakta hai jab status 'New' ya 'Confirmed' ho (cooking shuru hone se pehle).
-// Customer ka Firebase login token verify hota hai aur order usi email ka hona chahiye.
-// Env var chahiye: FIREBASE_SERVICE_ACCOUNT (wahi jo /api/notify me hai). Optional: FIREBASE_API_KEY.
+// Login nahi hai: order ka secret code (DB-XXXXXXXX, random, 32^8 possibilities) hi customer ki pehchaan hai.
+// Env var chahiye: FIREBASE_SERVICE_ACCOUNT (wahi jo /api/notify me hai).
 
 const crypto = require('crypto');
+const { derive, hash } = require('./_code');
 
 const DB_URL = 'https://biryani-category-default-rtdb.firebaseio.com';
-const API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyAZKvp9yhCq9i-7-wXiy-qkx3llHw_-6l8'; // public web key (data.js me bhi hai)
 const CAN_CANCEL = ['New', 'Confirmed'];
 
 let cached = { token: null, exp: 0 };
@@ -84,39 +84,22 @@ module.exports = async (req, res) => {
     let b = req.body || {};
     if (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = {}; } }
     const code = String(b.code || '');
-    const idToken = String(b.idToken || '');
-    if (!/^DB-[A-Z2-9]{8}$/.test(code) || idToken.length < 20) return say(400, 'Invalid request.');
+    if (!/^DB-[A-Z2-9]{8}$/.test(code)) return say(400, 'Invalid request.');
 
     const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'x';
-    if (!limit('ip:' + ip, 15, 10 * 60 * 1000)) return say(429, 'Too many attempts. Please wait a few minutes or call us.');
+    if (!limit('ip:' + ip, 15, 10 * 60 * 1000) || !limit('code:' + code, 6, 10 * 60 * 1000)) return say(429, 'Too many attempts. Please wait a few minutes or call us.');
 
-    // 1) customer ka login token verify (Google se)
-    const lk = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=' + API_KEY, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }),
-    });
-    const lj = await lk.json().catch(() => ({}));
-    const u = lj && lj.users && lj.users[0];
-    if (!lk.ok || !u || !u.email || u.emailVerified !== true) return say(401, 'Please log in again with your email and try once more.');
-    const email = String(u.email).toLowerCase();
-
-    // 2) order isi email ka hona chahiye
+    // 1) code se order dhoondo (tracking/<code> me order ki key `k` saved hai)
     const at = await getAccessToken(sa);
-    const t = await dbGet('tracking/' + code, at);
-    if (!t || String(t.em || '').toLowerCase() !== email) return say(404, 'We could not find this order for your email.');
-
-    // customer apni list se purana (Cancelled/Delivered) order hata sakta hai. Shop ka record admin me safe rehta hai.
-    if (b.action === 'hide') {
-      if (!['Cancelled', 'Delivered'].includes(t.status)) return say(409, 'Only cancelled or delivered orders can be removed from your list.');
-      const h = await fetch(DB_URL + '/tracking/' + code + '/hidden.json?access_token=' + at, { method: 'PUT', body: 'true' });
-      if (!h.ok) throw new Error('hide failed ' + h.status);
-      return res.status(200).json({ ok: true });
-    }
+    let tp = hash(code), t = await dbGet('tracking/' + tp, at);
+    if (!t) { tp = code; t = await dbGet('tracking/' + tp, at); } // purane orders (jinka tracking/<code> seedha saved tha)
+    if (!t) return say(404, 'We could not find this order. Please check your code or call us.');
 
     let key = t.k, o = key ? await dbGet('orders/' + key, at) : null;
     if (!o) [key, o] = await findOrderByCode(code, t.ts, at); // purane orders (jinme key save nahi thi)
-    if (!o || o.code !== code) return say(404, 'We could not find this order. Please call us to cancel.');
+    if (!o || !(o.code === code || (key && derive(key, sa) === code))) return say(404, 'We could not find this order. Please call us to cancel.');
 
-    // 3) rule: sirf cooking shuru hone se pehle
+    // 2) rule: sirf cooking shuru hone se pehle
     const s = o.status || 'New';
     if (s === 'Cancelled') return res.status(200).json({ ok: true, already: true });
     if (!CAN_CANCEL.includes(s)) return say(409, s === 'Delivered' ? 'This order has already been delivered.' : 'Cooking has started, so this order can no longer be cancelled here. Please call us to cancel.', { status: s });
@@ -124,7 +107,7 @@ module.exports = async (req, res) => {
     const ts = Date.now();
     const w = await fetch(DB_URL + '/.json?access_token=' + at, {
       method: 'PATCH',
-      body: JSON.stringify({ ['orders/' + key + '/status']: 'Cancelled', ['orders/' + key + '/cancelledBy']: 'customer', ['orders/' + key + '/cancelledAt']: ts, ['tracking/' + code + '/status']: 'Cancelled' }),
+      body: JSON.stringify({ ['orders/' + key + '/status']: 'Cancelled', ['orders/' + key + '/cancelledBy']: 'customer', ['orders/' + key + '/cancelledAt']: ts, ['tracking/' + tp + '/status']: 'Cancelled' }),
     });
     if (!w.ok) throw new Error('db write failed ' + w.status);
     await pushAdmins(sa, at, 'Order cancelled by customer', String(o.name || '').slice(0, 40) + ' \u2022 ' + code + (o.total ? ' \u2022 \u20B9' + o.total : ''));
