@@ -686,7 +686,7 @@ function pdfBill(b){
   if(b.cphone){T(L,y,'Phone: '+b.cphone,10);y-=13}
   for(const l of wrapTxt(b.caddr,10,250)){T(L,y,l,10);y-=13}
   let y2=top;const kv=(k,v)=>{T(R-190,y2,k,9,0);T(R,y2,v,9,1,'r');y2-=14};
-  kv('Bill no.',b.no);kv('Bill date',b.billDate);kv('Order placed',b.placed);if(b.event)kv(b.eventLbl,b.event);kv('Payment','Cash on Delivery');
+  kv('Bill date',b.billDate);kv('Order placed',b.placed);if(b.event)kv(b.eventLbl,b.event);kv('Payment','Cash on Delivery');
   y=Math.min(y,y2)-10;
   const head=()=>{RC(L,y-6,W,20,0.92);T(L+6,y,'#',9,1);T(L+26,y,'Item',9,1);T(365,y,'Qty',9,1,'r');T(455,y,'Rate (Rs.)',9,1,'r');T(R-6,y,'Amount (Rs.)',9,1,'r');y-=22};
   head();
@@ -706,13 +706,13 @@ async function downloadBill(code){
   const S=st||{},money=n=>Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}),
   fdt=t=>new Date(t).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}),
   dt=new Date(o.dAt||o.ts||Date.now()),p2=n=>String(n).padStart(2,'0'),
-  no='BILL-'+dt.getFullYear()+p2(dt.getMonth()+1)+p2(dt.getDate())+'-'+(await hashCode(code)).slice(0,6).toUpperCase();
+  fname='Bill-'+dt.getFullYear()+p2(dt.getMonth()+1)+p2(dt.getDate())+'-'+p2(dt.getHours())+p2(dt.getMinutes());
   const pdf=pdfBill({shop:S.name||'Dum Biryani',addr:S.address||'',phone:S.phone||'',fssai:String(S.fssai||'').trim(),
-    name:o.name||'Customer',cphone:o.phone||'',caddr:o.venue||'',no,billDate:fdt(dt),placed:o.ts?fdt(o.ts):'',
+    name:o.name||'Customer',cphone:o.phone||'',caddr:o.venue||'',billDate:fdt(dt),placed:o.ts?fdt(o.ts):'',
     eventLbl:o.orderType==='Daily'?'Needed on':'Event on',event:o.date?fmD(o.date)+(o.time?' at '+fmT(o.time):''):'',
     items:(o.items||[]).map(i=>({name:i.name||'',q:qLabel(i.qty||1,i.unit),rate:money(i.price),amt:money(i.cost!=null?i.cost:(i.price||0)*(i.qty||1))})),
     sub:money(o.subtotal!=null?o.subtotal:o.total),del:o.delivery>0?money(o.delivery):'Free',total:'Rs. '+money(o.total)});
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pdf],{type:'application/pdf'}));a.download=no+'.pdf';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pdf],{type:'application/pdf'}));a.download=fname+'.pdf';
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000)}
 const CANCELOK=['New','Confirmed'],COOKING=['Cooking','Out for delivery'];
 function cxPart(o,s){const tel='tel:'+(window.SUP_TEL||'+918779612829');
