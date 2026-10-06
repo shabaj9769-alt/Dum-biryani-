@@ -87,6 +87,7 @@ header{gap:8px;padding-bottom:10px}nav{display:flex;flex-wrap:wrap;gap:6px}nav b
 <div class="stat"><b id="sD">0</b><span>Cooking now</span></div>
 <div class="stat"><b id="sR">₹0</b><span>Confirmed and delivered value</span></div></div>
 <div style="display:flex;gap:8px;margin-bottom:14px"><select id="flt" aria-label="Filter orders" style="flex:1"><option value="">All statuses</option></select><select id="dflt" aria-label="Date filter" style="flex:1"><option value="">All dates</option><option value="t">Today (stats &amp; history)</option></select></div>
+<div style="margin-bottom:14px"><input id="cs" type="search" inputmode="search" placeholder="🔎 Customer ka code dhundo (phone number ya naam)" autocomplete="off" aria-label="Find customer order code" style="width:100%"><div id="csr"></div></div>
 <div id="orders"><p class="mut">Loading orders…</p></div></div>
 
 <div id="v2" class="hide"><div id="msw"><button type="button" data-m="daily">🥡 Daily Parcel Menu</button><button type="button" data-m="booking">📅 Booking Menu</button></div>
@@ -178,6 +179,7 @@ header{gap:8px;padding-bottom:10px}nav{display:flex;flex-wrap:wrap;gap:6px}nav b
   };
   window.DATA_MODE = MODE;
   var API_BASE = 'https://dumbiryani-ten.vercel.app';  /* admin app ke liye apna Vercel link, jaise 'https://dum-biryani.vercel.app' */
+  window.CODE_URL = API_BASE + '/api/code';      // admin: customer ka code dekhne ke liye
   window.NOTIFY_URL = API_BASE + '/api/notify';  // Vercel function. Website kisi aur host par ho to poora URL likho: https://<project>.vercel.app/api/notify
 
   if (MODE === 'firebase') {
@@ -335,9 +337,9 @@ function setStatus(id,st){const o=orders[id];if(!o)return;
   if(st==='Cancelled'&&o.status!=='Cancelled'&&!confirm('Is order ko cancel karna hai?')){renderOrders();return}
   if(st==='Delivered'&&o.status!=='Delivered'&&!confirm('Order Delivered mark karna hai?')){renderOrders();return}
   const u={['orders/'+id+'/status']:st};
-  if(st==='Cancelled'&&o.status!=='Cancelled'){u['orders/'+id+'/cancelledBy']='shop';u['orders/'+id+'/cancelReason']='Cancelled by shop';u['orders/'+id+'/cancelledAt']=SERVER_TS;if(o.code)u['tracking/'+o.code+'/cr']='Your order was cancelled by the shop.'}
-  else if(st!=='Cancelled'&&o.status==='Cancelled'){u['orders/'+id+'/cancelledBy']=null;u['orders/'+id+'/cancelReason']=null;u['orders/'+id+'/cancelledAt']=null;if(o.code)u['tracking/'+o.code+'/cr']=null}
-  if(o.code)u['tracking/'+o.code+'/status']=st;
+  if(st==='Cancelled'&&o.status!=='Cancelled'){u['orders/'+id+'/cancelledBy']='shop';u['orders/'+id+'/cancelReason']='Cancelled by shop';u['orders/'+id+'/cancelledAt']=SERVER_TS;if(tp(o))u['tracking/'+tp(o)+'/cr']='Your order was cancelled by the shop.'}
+  else if(st!=='Cancelled'&&o.status==='Cancelled'){u['orders/'+id+'/cancelledBy']=null;u['orders/'+id+'/cancelReason']=null;u['orders/'+id+'/cancelledAt']=null;if(tp(o))u['tracking/'+tp(o)+'/cr']=null}
+  if(tp(o))u['tracking/'+tp(o)+'/status']=st;
   db.ref().update(u)}
 function goOrder(id){const o=orders[id];if(!o)return;tab(1);omode=o.orderType==='Daily'?'daily':'booking';openO[isEnq(o)?'enq':'ord']=true;$('flt').value='';$('dflt').value='';renderOrders();
   setTimeout(()=>{const el=document.querySelector('[data-oid="'+id+'"]');if(el){el.scrollIntoView({block:'center',behavior:'smooth'});el.classList.add('hl');setTimeout(()=>el.classList.remove('hl'),3000)}},80)}
@@ -361,8 +363,29 @@ function renderOrders(){
     +fold('ord','📦','Active orders',ordL,ordL.filter(([,o])=>o.status==='New').length,'No active orders.')
     +fold('dlv','✅','Delivered orders',dlvL,0,'No delivered orders.')
     +fold('can','🚫','Cancelled orders',canL,0,'No cancelled orders.');
-  tickAgo();
+  tickAgo();renderCS();
 }
+const tp=o=>o.tk||o.code,codeCache={};
+/* ---------- customer ka code dhundo (customer code bhool jaye to) ---------- */
+function renderCS(){const q=$('cs').value.trim().toLowerCase(),qd=q.replace(/\D/g,''),el=$('csr');
+  if(q.length<3){el.innerHTML='';return}
+  const wa=p=>{const d=String(p||'').replace(/\D/g,'');return d.length===10?'91'+d:d};
+  const res=Object.entries(orders).filter(([,o])=>tp(o)&&((qd.length>=3&&String(o.phone||'').replace(/\D/g,'').includes(qd))||String(o.name||'').toLowerCase().includes(q))).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0)).slice(0,10);
+  el.innerHTML=res.length?res.map(([id,o])=>{const c=o.code||codeCache[id];
+    return `<div class="o" style="margin:8px 0 0"><div><h3>${esc(o.name)}</h3><small>${esc(o.phone)} · ${esc(o.status)} · ${esc(fTs(o.ts))}</small>
+    ${c?`<div style="font:800 1.3rem ui-monospace,Menlo,monospace;letter-spacing:2px;margin-top:6px;color:var(--sf)">${esc(c)}</div>`:`<small class="mut" style="display:block;margin-top:6px">Code security ke liye chhupa hai. "Code dikhao" dabao.</small>`}<small class="err" id="cse-${esc(id)}" style="display:block"></small></div>
+    <div>${c?`<button type="button" class="btn p" data-cpy="${esc(c)}" style="width:100%">Copy code</button>`:`<button type="button" class="btn p" data-gc="${esc(id)}" style="width:100%">🔑 Code dikhao</button>`}
+    <a class="btn" style="display:block;text-align:center;margin-top:8px" href="tel:${esc(o.phone)}">📞 Call customer</a>
+    ${c?`<a class="btn" style="display:block;text-align:center;margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/${esc(wa(o.phone))}?text=${encodeURIComponent('Your order code: '+c)}">💬 Send code on WhatsApp</a>`:''}</div></div>`}).join(''):'<p class="mut" style="margin:8px 0 0">Is phone number / naam ka koi order nahi mila.</p>'}
+async function getCode(id,btn){const e=document.getElementById('cse-'+id);btn.disabled=true;if(e)e.textContent='';
+  try{const u=firebase.auth&&firebase.auth().currentUser;if(!u)throw new Error('Pehle admin login karo.');
+    const r=await fetch(window.CODE_URL||'/api/code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:id,idToken:await u.getIdToken()})});
+    const j=await r.json().catch(()=>({}));if(!j.ok)throw new Error(j.error||'Code nahi mila.');codeCache[id]=j.code;renderCS()}
+  catch(x){btn.disabled=false;if(e)e.textContent=x.message||'Code nahi mila.'}}
+$('cs').addEventListener('input',renderCS);
+$('csr').addEventListener('click',e=>{const g=e.target.closest('[data-gc]');if(g){getCode(g.dataset.gc,g);return}const b=e.target.closest('[data-cpy]');if(!b)return;const t=b.dataset.cpy,o=b.textContent,ok=()=>{b.textContent='Copied ✓';setTimeout(()=>b.textContent=o,1500)};
+  const fb=()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(x){}a.remove()};
+  try{navigator.clipboard.writeText(t).then(ok,fb)}catch(x){fb()}});
 $('orders').addEventListener('click',e=>{const h=e.target.closest('[data-fold]');if(!h)return;openO[h.dataset.fold]=h.getAttribute('aria-expanded')!=='true';renderOrders()});
 
 /* ---------- enquiry reply (WhatsApp / Email) ---------- */
@@ -386,7 +409,7 @@ $('orders').addEventListener('click',e=>{const b=e.target.closest('button[data-s
   ch==='Email'?(location.href=url):window.open(url,'_blank')});
 $('orders').addEventListener('change',e=>{const id=e.target.dataset.id;if(!id)return;setStatus(id,e.target.value)});
 $('orders').addEventListener('click',e=>{const b=e.target.closest('button[data-next]');if(!b)return;const o=orders[b.dataset.next];if(o&&NEXT[o.status])setStatus(b.dataset.next,NEXT[o.status][0])});
-$('orders').addEventListener('click',e=>{const na=e.target.dataset.noans;if(na){const o=orders[na];if(o&&confirm('Customer ne phone nahi uthaya. Order cancel kar dein?')){const u={['orders/'+na+'/status']:'Cancelled',['orders/'+na+'/cancelledBy']:'shop',['orders/'+na+'/cancelReason']:'Customer did not answer the confirmation call',['orders/'+na+'/cancelledAt']:SERVER_TS};if(o.code){u['tracking/'+o.code+'/status']='Cancelled';u['tracking/'+o.code+'/cr']='We could not reach you on the phone, so the order was cancelled.'}db.ref().update(u)}return}const id=e.target.dataset.del;if(id&&confirm('Delete this order permanently?')){const o=orders[id],u={['orders/'+id]:null};if(o&&o.code)u['tracking/'+o.code]=null;db.ref().update(u)}});
+$('orders').addEventListener('click',e=>{const na=e.target.dataset.noans;if(na){const o=orders[na];if(o&&confirm('Customer ne phone nahi uthaya. Order cancel kar dein?')){const u={['orders/'+na+'/status']:'Cancelled',['orders/'+na+'/cancelledBy']:'shop',['orders/'+na+'/cancelReason']:'Customer did not answer the confirmation call',['orders/'+na+'/cancelledAt']:SERVER_TS};if(tp(o)){u['tracking/'+tp(o)+'/status']='Cancelled';u['tracking/'+tp(o)+'/cr']='We could not reach you on the phone, so the order was cancelled.'}db.ref().update(u)}return}const id=e.target.dataset.del;if(id&&confirm('Delete this order permanently?')){const o=orders[id],u={['orders/'+id]:null};if(o&&tp(o))u['tracking/'+tp(o)]=null;db.ref().update(u)}});
 
 /* ---------- menu (category folders, inline edit) ---------- */
 const openF={};let editId='';

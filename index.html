@@ -307,7 +307,6 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 <div id="tmw"><label for="tH">Serve time</label><div class="tsel"><select id="tH" aria-label="Hour"><option selected>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select><span>:</span><select id="tM" aria-label="Minute"><option selected>00</option><option>05</option><option>10</option><option>15</option><option>20</option><option>25</option><option>30</option><option>35</option><option>40</option><option>45</option><option>50</option><option>55</option></select><select id="tP" aria-label="AM or PM"><option>AM</option><option selected>PM</option></select></div><input id="time" type="hidden" value="1:00 PM"></div></div><script>(function(){var h=document.getElementById("tH"),m=document.getElementById("tM"),p=document.getElementById("tP"),t=document.getElementById("time");function u(){t.value=h.value+":"+m.value+" "+p.value}[h,m,p].forEach(function(e){e.addEventListener("change",u)});u()})()</script>
 <div id="vnw"><label for="venue">Venue / full address</label><textarea id="venue" rows="2" autocomplete="street-address"></textarea></div>
 <div id="locw" class="hide"><button type="button" class="btn" id="locb" style="width:100%">📍 Use my current location</button><p class="note" id="locn" style="margin:6px 0 0"></p></div>
-<div id="pnw"><label for="oem">Email (to see all your orders in My Orders)</label><input id="oem" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com"><p class="note" style="margin:4px 0 8px">Use a correct email. You will log in with this email to see all your orders.</p></div>
 <label for="notes" id="nL">Notes (allergies, spice level)</label><textarea id="notes" rows="2"></textarea></div>
 <div class="card hide" id="rcard"><h3>Enquiry reply</h3><p class="note" style="margin:0 0 8px">Where should we send the reply to your enquiry?</p>
 <div class="rv" role="radiogroup" aria-label="Reply method"><label class="rc"><input type="radio" name="rv" value="WhatsApp" checked><span>💬 WhatsApp</span></label><label class="rc"><input type="radio" name="rv" value="Email"><span>✉️ Email</span></label></div>
@@ -317,7 +316,7 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 <div class="msg" id="msg" role="status"></div>
 <a class="sup blk" data-tel href="tel:+918779612829">📞 Need help? Call support: <span data-phtxt>8779612829</span></a></div>
 <div class="sfoot"><div class="wrap"><div><small>Estimated total</small><b id="fT">₹0</b></div><button class="btn grn" id="place">Place order</button></div></div></div>
-<div class="wrap hide" id="done"><div class="done-box"><div class="ok">✅</div><h2 id="dT">Order placed</h2><p class="sub" id="dP">Thank you. We will call you shortly to confirm the final quantity and price.</p><div class="dis hide" id="dDis"><b>⚠️ Important – please read</b><ul><li>You will receive an order confirmation call. If the call is not answered, the order will be considered cancelled.</li><li>Once your order is ready and has left for delivery, it cannot be cancelled.</li><li>Refusing to accept or pay for a confirmed order that is already cooked may result in us recovering our actual loss, as per our Terms.</li></ul></div><a class="sup blk" data-tel href="tel:+918779612829">📞 Support: <span data-phtxt>8779612829</span></a><button class="btn grn" id="dtrk" style="margin-bottom:10px">📦 My Orders</button><br><button class="btn" style="background:none;color:var(--mut)" onclick="location.reload()">Start a new order</button></div></div>
+<div class="wrap hide" id="done"><div class="done-box"><div class="ok">✅</div><h2 id="dT">Order placed</h2><p class="sub" id="dP">Thank you. We will call you shortly to confirm the final quantity and price.</p><div class="dis hide" id="dDis"><b>⚠️ Important – please read</b><ul><li>You will receive an order confirmation call. If the call is not answered, the order will be considered cancelled.</li><li>Once your order is ready and has left for delivery, it cannot be cancelled.</li><li>Refusing to accept or pay for a confirmed order that is already cooked may result in us recovering our actual loss, as per our Terms.</li></ul></div><div class="card hide" id="dcw" style="text-align:center"><small class="note" style="margin:0">Your order code</small><div id="dcode" style="font:800 1.6rem ui-monospace,Menlo,monospace;letter-spacing:2px;margin:6px 0"></div><button type="button" class="pillb" id="dcc">Copy code</button><p class="note">Saved on this phone automatically. Keep it safe: you need it to see or cancel this order from another phone or browser.</p></div><a class="sup blk" data-tel href="tel:+918779612829">📞 Support: <span data-phtxt>8779612829</span></a><button class="btn grn" id="dtrk" style="margin-bottom:10px">📦 My Orders</button><br><button class="btn" style="background:none;color:var(--mut)" onclick="location.reload()">Start a new order</button></div></div>
 </div>
 
 <div class="sheet" id="tcS" style="z-index:22" role="dialog" aria-modal="true" aria-label="Terms and Privacy Policy">
@@ -354,15 +353,13 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 
 <div class="sheet" id="trkS" style="z-index:21" role="dialog" aria-modal="true" aria-label="My Orders">
 <div class="sh"><div class="wrap"><h2>My Orders</h2><button type="button" class="pillb" id="tback">‹ Back</button></div></div>
-<div class="wrap sbody"><div class="card" id="tlogin"><h3>Log in with your email</h3><p class="note" style="margin:0 0 4px">Enter the email you used while ordering. We will send you a login link.</p>
-<label for="tem">Email</label><input id="tem" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com">
-<button class="btn grn" id="tgo" style="width:100%;margin-top:12px">Send login link</button></div>
-<div class="card hide" id="tout"><div class="cr" style="border:0;padding:0"><span>Logged in as <b id="tas"></b></span><button type="button" class="pillb" id="tlo">Log out</button></div></div>
+<div class="wrap sbody"><div class="card"><h3>Have an order code?</h3><p class="note" style="margin:0 0 8px">Orders you place on this phone appear here automatically. On another phone or browser, enter your code to see your order.</p>
+<div style="display:flex;gap:8px"><input id="tcode" placeholder="DB-AB12CD34" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="14"><button type="button" class="btn grn" id="tadd">Add</button></div><div id="tmsg" aria-live="polite"></div>
+<a class="sup blk" data-tel href="tel:+918779612829" style="margin:12px 0 0">📞 Forgot your code? Call us: <span data-phtxt>8779612829</span></a><p class="note">Tell us your phone number and we will find your code.</p></div>
 <div id="tres" aria-live="polite"></div></div></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="data.js"></script>
 <script>
 const $=id=>document.getElementById(id);
@@ -590,7 +587,7 @@ document.querySelectorAll('input[name=rv]').forEach(r=>r.onchange=()=>{const e=r
   $('rnote').textContent=e?'We will reply to this email address.':'We will reply on WhatsApp using the phone number above.'});
 function setMode(m){mode=m;const e=m==='enquiry';
   document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
-  ['dtw','tmw','vnw','pnw'].forEach(i=>$(i).classList.toggle('hide',e));$('rcard').classList.toggle('hide',!e);
+  ['dtw','tmw','vnw'].forEach(i=>$(i).classList.toggle('hide',e));$('rcard').classList.toggle('hide',!e);
   $('odT').textContent=e?'Enquiry details':'Order details';$('nL').textContent=e?'Your question / requirements':'Notes (allergies, spice level)';
   $('place').textContent=e?'Send enquiry':'Place order';$('msg').textContent='';$('msg').className='msg';syncUI();if(cartOpen)renderCart()}
 document.querySelector('.seg').onclick=e=>{const b=e.target.closest('button[data-m]');if(b)setMode(b.dataset.m)};
@@ -602,40 +599,43 @@ function submit(kind){
   if(g){if(!loc){m.className='msg err';m.textContent='Please tap "📍 Use my current location" to check your location first.';return}
     {loc.d=hav(loc.lat,loc.lng,g.la,g.lo);if(loc.d>g.km){m.className='msg err';m.textContent=`You are ${loc.d.toFixed(1)} km away. We deliver only within ${g.km} km.`;return}}}
   if(!enq&&!$('tcx').checked){m.className='msg err';m.textContent='Please tick the box to agree to the Terms, Cash on Delivery & Privacy Policy.';$('tcx').focus();return}
-  const rv=rvVal(),email=f('email'),oem=f('oem').toLowerCase();
+  const rv=rvVal(),email=f('email');
   if(enq){if(!f('name')||phone.length<10){m.className='msg err';m.textContent='Please enter your name and a 10-digit phone number to send an enquiry.';return}
     if(rv==='Email'&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){m.className='msg err';m.textContent='Please enter a valid email address so we can reply.';$('email').focus();return}}
   else if(!f('name')||phone.length<10||!f('venue')||!f('date')){m.className='msg err';m.textContent='Add your name, a 10-digit phone number, date and venue address.';return}
-  if(!enq&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(oem)){m.className='msg err';m.textContent='Please enter a valid email. You will use it to see your orders in My Orders.';$('oem').focus();return}
   if(!enq&&omode==='daily'){const tm=tmin(f('time')),t0=shopNow().ymd,bad=s=>{m.className='msg err';m.textContent=s};
     if(f('date')<t0){bad('Please choose today or tomorrow.');return}
     if(tm!=null&&!inHours(tm)){bad(`The shop is open from ${f12(st.shopOpen)} to ${f12(st.shopClose)}. Please choose a time within these hours.`);return}
     if(f('date')===t0&&tm!=null&&tm<nowMin()){bad('That time has already passed. Please choose a later time.');return}}
   $('place').disabled=true;m.className='msg';m.textContent=enq?'Sending enquiry…':'Placing order…';
   /* Server (Vercel /api/order) price, total, doori, shop time khud check karke order banata hai */
-  const pay={type:kind,replyVia:rv,email,name:f('name'),phone,orderType:omode==='daily'?'Daily':'Booking',venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),oem,terms:'2026-10-06',items:c.r.map(i=>({id:i.id,qty:i.qty})),...(g&&loc?{custLat:loc.lat,custLng:loc.lng}:{})};
+  const pay={type:kind,replyVia:rv,email,name:f('name'),phone,orderType:omode==='daily'?'Daily':'Booking',venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),terms:'2026-10-06',items:c.r.map(i=>({id:i.id,qty:i.qty})),...(g&&loc?{custLat:loc.lat,custLng:loc.lng}:{})};
   fetch(window.ORDER_URL||'/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pay)})
   .then(r=>r.json().then(j=>({st:r.status,j}),()=>({st:r.status,j:{error:r.status===404||r.status===405?'Online ordering is not connected yet. Please call us to place your order.':''}})))
-  .then(x=>{if(!x.j.ok){const e=new Error(x.j.error||'');e.srv=x.st>=400&&x.st<500;throw e}const key=x.j.key,code=x.j.code||'';try{window.NOTIFY_URL&&fetch(NOTIFY_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({id:key}),keepalive:true}).catch(()=>{})}catch(e){}lastPhone=phone;lastCode=code;lastEmail=oem;$('dtrk').classList.toggle('hide',enq);
+  .then(x=>{if(!x.j.ok){const e=new Error(x.j.error||'');e.srv=x.st>=400&&x.st<500;throw e}const key=x.j.key,code=x.j.code||'';try{window.NOTIFY_URL&&fetch(NOTIFY_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({id:key}),keepalive:true}).catch(()=>{})}catch(e){}lastPhone=phone;lastCode=code;if(code)saveCode(code);$('dcw').classList.toggle('hide',!code);$('dcode').textContent=code;$('dtrk').classList.toggle('hide',enq);
     $('dT').textContent=enq?'Enquiry sent':'Order placed';$('dDis').classList.toggle('hide',enq);
-    $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:(omode==='daily'?'Thank you! Your parcel order has been placed. The price is final. To see all your orders, open My Orders and log in with your email.':'Thank you. We will call you shortly to confirm the final quantity and price. To see all your orders, open My Orders and log in with your email.');
+    $('dP').textContent=enq?`Thank you. We will reply to you on ${rv==='Email'?'email':'WhatsApp'} shortly with details and pricing.`:(omode==='daily'?'Thank you! Your parcel order has been placed. The price is final. Your order code is saved on this phone.':'Thank you. We will call you shortly to confirm the final quantity and price. Your order code is saved on this phone.');
     $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
   .catch(e=>{m.className='msg err';m.textContent=e&&e.srv&&e.message?e.message:(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false});
 }
-let lastPhone='',lastCode='',lastEmail='';
+let lastPhone='',lastCode='';
 function mkCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',a=new Uint32Array(8);crypto.getRandomValues(a);return 'DB-'+[...a].map(x=>A[x%32]).join('')}
 $('place').onclick=()=>submit(mode==='enquiry'?'Enquiry':'Order');
 
 /* ---------- track order by phone ---------- */
 const STEPS=['New','Confirmed','Cooking','Out for delivery','Delivered'];
 const SL={New:'Order received',Enquiry:'Enquiry received',Confirmed:'Confirmed',Cooking:'Being cooked','Out for delivery':'Out for delivery',Delivered:'Delivered',Cancelled:'Cancelled'};
-const AU=()=>window.firebase&&firebase.auth?firebase.auth():null;
-function openTrack(em){trackOpen=true;history.pushState({k:'trk'},'');$('trkS').classList.add('open');document.body.style.overflow='hidden';$('trkS').scrollTop=0;
-  let sv='';try{sv=localStorage.getItem('dbEm')||''}catch(e){}
-  $('tem').value=em||sv;$('tres').innerHTML='';showTrack()}
-function showTrack(){const a=AU(),u=a&&a.currentUser;
-  $('tlogin').classList.toggle('hide',!!u);$('tout').classList.toggle('hide',!u);
-  if(u){$('tas').textContent=u.email||'';loadOrders(u)}else $('tres').innerHTML=''}
+const CK='dbCodes',CRE=/^DB-[A-Z2-9]{8}$/;
+const getCodes=()=>{try{const a=JSON.parse(localStorage.getItem(CK)||'[]');return Array.isArray(a)?a.filter(c=>CRE.test(c)):[]}catch(e){return[]}};
+const setCodes=a=>{try{localStorage.setItem(CK,JSON.stringify(a.slice(0,50)))}catch(e){}};
+function saveCode(c){if(!CRE.test(c))return;const a=getCodes().filter(x=>x!==c);a.unshift(c);setCodes(a)}
+/* Firebase me code seedha nahi rakha jata, sirf uska SHA-256 hash (tracking/<hash>). Browser bhi code ko hash karke padhta hai. */
+async function hashCode(c){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('dbc:'+c));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function readTrack(c){let v=(await db.ref('tracking/'+await hashCode(c)).once('value')).val();if(!v)v=(await db.ref('tracking/'+c).once('value')).val();return v}
+function copyTxt(t,b){const o=b.textContent,ok=()=>{b.textContent='Copied ✓';setTimeout(()=>b.textContent=o,1500)};
+  const fb=()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){}a.remove()};
+  try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}}
+function openTrack(){trackOpen=true;history.pushState({k:'trk'},'');$('trkS').classList.add('open');document.body.style.overflow='hidden';$('trkS').scrollTop=0;$('tmsg').innerHTML='';loadOrders()}
 function closeTrackUI(){trackOpen=false;$('trkS').classList.remove('open');document.body.style.overflow=cartOpen?'hidden':''}
 function closeTrack(){history.state&&history.state.k==='trk'?history.back():closeTrackUI()}
 const fmT=t=>{t=String(t||'').trim();if(!t)return '';const ap=t.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);if(ap)return (+ap[1])+':'+ap[2]+' '+ap[3].toUpperCase();const[h,m]=t.split(':').map(Number);return isNaN(h)?t:((h%12)||12)+':'+String(m||0).padStart(2,'0')+' '+(h<12?'AM':'PM')};
@@ -647,6 +647,7 @@ function tCard(o){const s=o.status||'New',idx=STEPS.indexOf(s),
   <small>${(o.items||[]).map(i=>esc(i.name)+(i.qty?' ('+esc(qLabel(i.qty,i.unit))+')':'')).join(', ')}</small>
   ${o.ts?`<small>🕒 Ordered: <b>${esc(new Date(o.ts).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true}))}</b></small>`:''}
   ${o.date?`<small>📅 ${o.orderType==='Daily'?'Needed':'Event'}: <b>${esc(fmD(o.date))}${o.time?' at '+esc(fmT(o.time)):''}</b></small>`:''}
+  ${o.code?`<small>🔑 Code: <b>${esc(o.code)}</b></small>`:''}
   <div class="tt">${inr(o.total||0)}</div>${cxPart(o,s)}</div>`}
 const CANCELOK=['New','Confirmed'],COOKING=['Cooking','Out for delivery'];
 function cxPart(o,s){const tel='tel:'+(window.SUP_TEL||'+918779612829');
@@ -655,47 +656,41 @@ function cxPart(o,s){const tel='tel:'+(window.SUP_TEL||'+918779612829');
   if(s==='Cancelled'||s==='Delivered')return (s==='Cancelled'&&o.cr?`<small class="cxn">${esc(o.cr)}</small>`:'')+`<button type="button" class="btn cx rm" data-rm="${esc(o.code)}">Remove from my list</button>`;
   return ''}
 $('tres').addEventListener('click',async e=>{const rb=e.target.closest('button[data-rm]');if(rb){
-  if(!confirm('Remove this order from your list? Our shop keeps its own record of the order.'))return;
-  rb.disabled=true;rb.textContent='Removing…';const a=AU(),u=a&&a.currentUser;
-  try{const idToken=await u.getIdToken(true);const r=await fetch(window.CANCEL_URL||'/api/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'hide',code:rb.dataset.rm,idToken})});const j=await r.json().catch(()=>({}));
-    if(j.ok)loadOrders(u);else{rb.disabled=false;rb.textContent=j.error||'Could not remove. Try again.'}}catch(x){rb.disabled=false;rb.textContent='Could not remove. Try again.'}return}
+  if(!confirm('Remove this order from the list on this phone? Our shop keeps its own record of the order.'))return;
+  setCodes(getCodes().filter(c=>c!==rb.dataset.rm));loadOrders();return}
   const b=e.target.closest('button[data-cx]');if(!b)return;
   if(!confirm('Cancel this order? This cannot be undone.'))return;
-  const a=AU(),u=a&&a.currentUser,card=b.closest('.tc');b.disabled=true;let n=card.querySelector('.cxm');if(!n){n=document.createElement('small');n.className='cxm';card.appendChild(n)}
+  const card=b.closest('.tc');b.disabled=true;let n=card.querySelector('.cxm');if(!n){n=document.createElement('small');n.className='cxm';card.appendChild(n)}
   n.style.color='';n.textContent='Cancelling…';
-  try{const idToken=await u.getIdToken(true);
-    const r=await fetch(window.CANCEL_URL||'/api/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:b.dataset.cx,idToken})});
+  try{const r=await fetch(window.CANCEL_URL||'/api/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:b.dataset.cx})});
     const j=await r.json().catch(()=>({error:r.status===404||r.status===405?'Online cancel is not connected yet. Please call us to cancel.':''}));
-    if(j.ok){loadOrders(u);return}
-    n.style.color='var(--err)';n.textContent=j.error||'Could not cancel. Please call us.';if(j.status)setTimeout(()=>loadOrders(u),2500);else b.disabled=false}
+    if(j.ok){loadOrders();return}
+    n.style.color='var(--err)';n.textContent=j.error||'Could not cancel. Please call us.';if(j.status)setTimeout(loadOrders,2500);else b.disabled=false}
   catch(x){n.style.color='var(--err)';n.textContent='Could not cancel. Check your connection or call us.';b.disabled=false}});
-async function loadOrders(u){
-  const r=$('tres');r.innerHTML='<p class="sub">Loading your orders…</p>';
+async function loadOrders(){
+  const r=$('tres'),codes=getCodes();
+  if(!codes.length){r.innerHTML='<div class="empty"><b>📦</b>No orders on this phone yet. Place an order, or add your order code above.</div>';return}
+  r.innerHTML='<p class="sub">Loading your orders…</p>';
   try{
-    const v=(await db.ref('tracking').orderByChild('em').equalTo(String(u.email).toLowerCase()).once('value')).val()||{};
-    const orders=Object.keys(v).map(k=>({...v[k],code:k})).filter(x=>!x.hidden).sort((x,y)=>(y.ts||0)-(x.ts||0));
-    r.innerHTML=orders.length?`<p class="sub">${orders.length} order${orders.length>1?'s':''} found</p>`+orders.map(tCard).join(''):'<div class="empty"><b>🔍</b>No orders found for this email. Log in with the same email you used while ordering.</div>'
+    const vals=await Promise.all(codes.map(c=>readTrack(c).catch(()=>undefined)));
+    const orders=[],keep=[];let fail=false;
+    vals.forEach((v,i)=>{if(v===undefined){fail=true;keep.push(codes[i])}else if(v){keep.push(codes[i]);orders.push({...v,code:codes[i]})}});
+    if(!fail&&keep.length!==codes.length)setCodes(keep);
+    orders.sort((x,y)=>(y.ts||0)-(x.ts||0));
+    r.innerHTML=(orders.length?`<p class="sub">${orders.length} order${orders.length>1?'s':''} found</p>`+orders.map(tCard).join(''):'<div class="empty"><b>🔍</b>Could not find these orders. Please try again, or call us.</div>')+(fail?'<p class="msg err">Some orders could not be loaded. Check your connection and try again.</p>':'')
   }catch(e){r.innerHTML='<p class="msg err">Could not load your orders. Check your connection and try again.</p>'}}
-async function sendLink(){
-  const em=$('tem').value.trim().toLowerCase(),r=$('tres'),a=AU();
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){r.innerHTML='<p class="msg err">Please enter a valid email.</p>';return}
-  if(!a){r.innerHTML='<p class="msg err">Login is not available right now.</p>';return}
-  $('tgo').disabled=true;r.innerHTML='<p class="sub">Sending…</p>';
-  try{await a.sendSignInLinkToEmail(em,{url:location.origin+location.pathname,handleCodeInApp:true});
-    try{localStorage.setItem('dbEm',em)}catch(e){}
-    r.innerHTML=`<div class="card"><b>📧 Check your email</b><p class="note" style="margin:6px 0 0">We sent a login link to ${esc(em)}. Open it on this phone/browser to see your orders. Also check Spam.</p></div>`}
-  catch(e){r.innerHTML='<p class="msg err">Could not send the link. Please try again in a while.'+(e&&e.code?' ('+e.code+')':'')+'</p>'}
-  $('tgo').disabled=false}
-(function(){const a=AU();if(!a)return;
-  if(a.isSignInWithEmailLink(location.href)){let em='';try{em=localStorage.getItem('dbEm')||''}catch(e){}
-    if(!em)em=(prompt('Please enter your email to confirm')||'').trim().toLowerCase();
-    const done=()=>{history.replaceState(null,'',location.pathname);openTrack()};
-    if(em)a.signInWithEmailLink(em,location.href).then(done).catch(()=>{alert('This login link is invalid or has expired. Please request a new one.');done()})}
-  a.onAuthStateChanged(()=>{if(trackOpen)showTrack()})})();
+async function addCode(){
+  const m=$('tmsg');let v=$('tcode').value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(v.length===10&&v.startsWith('DB'))v=v.slice(2);const c='DB-'+v;
+  if(!CRE.test(c)){m.innerHTML='<p class="msg err">Please enter a valid code, like DB-AB12CD34.</p>';return}
+  $('tadd').disabled=true;m.innerHTML='<p class="sub">Checking…</p>';
+  try{const tv=await readTrack(c);
+    if(!tv)m.innerHTML='<p class="msg err">Code not found. Please check it again, or call us.</p>';
+    else{saveCode(c);$('tcode').value='';m.innerHTML='';loadOrders()}}
+  catch(e){m.innerHTML='<p class="msg err">Could not check the code. Please try again.</p>'}
+  $('tadd').disabled=false}
 $('tclink').onclick=e=>{e.preventDefault();$('tcS').classList.add('open');$('tcS').scrollTop=0};$('tcback').onclick=$('tcok').onclick=()=>$('tcS').classList.remove('open');
-$('tbtn').onclick=()=>openTrack();$('nbOrd').onclick=()=>openTrack();$('nbCart').onclick=()=>{if(calc().n)openCart();else{const m=$('msg');scrollTo({top:0,behavior:'smooth'})}};$('nbShop').onclick=()=>{if(cat){cat='';render()}scrollTo({top:0,behavior:'smooth'})};$('tback').onclick=closeTrack;$('tgo').onclick=sendLink;
-$('tem').onkeydown=e=>{if(e.key==='Enter')sendLink()};
-$('tlo').onclick=()=>{const a=AU();a&&a.signOut().then(()=>{$('tres').innerHTML='';showTrack()})};
-$('dtrk').onclick=()=>openTrack(lastEmail);
+$('tbtn').onclick=()=>openTrack();$('nbOrd').onclick=()=>openTrack();$('nbCart').onclick=()=>{if(calc().n)openCart();else{const m=$('msg');scrollTo({top:0,behavior:'smooth'})}};$('nbShop').onclick=()=>{if(cat){cat='';render()}scrollTo({top:0,behavior:'smooth'})};$('tback').onclick=closeTrack;$('tadd').onclick=addCode;$('dcc').onclick=e=>copyTxt(lastCode,e.currentTarget);
+$('dtrk').onclick=()=>openTrack();
+$('tcode').onkeydown=e=>{if(e.key==='Enter')addCode()};
 render();
 </script></body></html>

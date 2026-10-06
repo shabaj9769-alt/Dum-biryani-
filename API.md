@@ -32,5 +32,5 @@ Value `{".sv":"timestamp"}` aaye to server asli time daal de. `null` = field del
 2. `data.js` me `MODE='api'`, dono HTML se firebase `<script>` tags hatao, test karo.
 3. Sab theek chale to hi Firebase rules `read:false, write:false` karo.
 
-## My Orders (email login)
-Order par `tracking/<code>` me `em` (lowercase email) bhi jata hai. Customer email-link se login karta hai aur `tracking` ko `orderByChild('em').equalTo(<apna verified email>)` se padhta hai. API mode me: server verified email se hi filter kare, kisi aur email ka data kabhi nahi.
+## My Orders (order code, bina login)
+Order par `tracking/<code>` banta hai (code = `DB-` + 8 random akshar). Customer ke phone me code `localStorage('dbCodes')` me apne aap save hota hai; doosre phone par wo code daal kar order dekh sakta hai. API mode me: `GET /api/data/tracking/<code>` sirf us ek code ka record de; `tracking` ki poori list kabhi nahi. `POST /api/cancel {code}` se cancel (cooking se pehle). Email/login nahi.
