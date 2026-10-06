@@ -116,6 +116,7 @@ header{gap:8px;padding-bottom:10px}nav{display:flex;flex-wrap:wrap;gap:6px}nav b
 <div><label class="mut" for="sn">Store name</label><input id="sn" placeholder="Store name"><div class="hint">Customer app ke upar bade naam me yahi dikhega. Jo yahan likhoge wahi dikhega, khali chhodoge to naam nahi dikhega.</div></div>
 <div><label class="mut" for="sp">Support phone number</label><input id="sp" type="tel" inputmode="tel" placeholder="8779612829"><div class="hint">Customer app ka call icon isi number par call lagayega.</div></div>
 <div><label class="mut" for="sfs">FSSAI number</label><input id="sfs" inputmode="numeric" maxlength="14" placeholder="14 digit FSSAI number"><div class="hint">Customer app ke header me "FSSAI Lic. No" ke saath dikhega. Khali chhodoge to nahi dikhega.</div></div>
+<div class="full"><label class="mut" for="sad">Dukan ka address (bill par)</label><textarea id="sad" rows="2" placeholder="Shop no, area, city, pincode"></textarea><div class="hint">Customer ke bill par dukan ke naam ke neeche yahi address aayega. Khali chhodoge to bill par address nahi aayega.</div></div>
 <div class="full"><label class="mut" for="sx">Description (naam ke neeche)</label><textarea id="sx" rows="3" placeholder="Jo likhoge wahi customer app me dikhega"></textarea><div class="hint">Khali chhodoge to kuch nahi dikhega.</div></div>
 <h3 class="full">Order sections</h3>
 <div class="full"><label class="chk"><input type="checkbox" id="sdo" checked><span>Daily Parcel chalu rakho (manual switch)</span></label></div>
@@ -303,7 +304,7 @@ gate(()=>{listen();regPush()});
 function listen(){
   db.ref('orders').on('value',s=>{orders=s.val()||{};if(seenO){const n=Object.keys(orders).filter(k=>!seenO.has(k));if(n.length)newAlert(orders[n[0]],n.length,n[0])}seenO=new Set(Object.keys(orders));renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
   db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu();renderCats();fillLink()});
-  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sfs').value=settings.fssai||'';$('sx').value=settings.text||'';$('sdo').checked=settings.dailyOn!==false;$('sbo').checked=settings.bookingOn!==false;$('sbd').value=settings.bookMinDays??1;$('sot').value=settings.shopOpen||'';$('sdc').value=settings.dailyCharge??'';$('sdf').value=settings.dailyFree??'';$('sbc').value=settings.bookCharge??'';$('sbf').value=settings.bookFree??'';$('sct').value=settings.shopClose||'';$('sla').value=settings.shopLat??'';$('sln').value=settings.shopLng??'';$('sdk').value=settings.dailyKm??'';$('sbk').value=settings.bookKm??''}
+  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sfs').value=settings.fssai||'';$('sad').value=settings.address||'';$('sx').value=settings.text||'';$('sdo').checked=settings.dailyOn!==false;$('sbo').checked=settings.bookingOn!==false;$('sbd').value=settings.bookMinDays??1;$('sot').value=settings.shopOpen||'';$('sdc').value=settings.dailyCharge??'';$('sdf').value=settings.dailyFree??'';$('sbc').value=settings.bookCharge??'';$('sbf').value=settings.bookFree??'';$('sct').value=settings.shopClose||'';$('sla').value=settings.shopLat??'';$('sln').value=settings.shopLng??'';$('sdk').value=settings.dailyKm??'';$('sbk').value=settings.bookKm??''}
     adminName();loadTheme()});
   db.ref('banners').on('value',s=>{banners=s.val()||{};renderBanners()},()=>$('blist').innerHTML='<p class="err">Could not load banners. Check database rules for the "banners" node.</p>');
   db.ref('categories').on('value',s=>{cats=s.val()||{};renderCats();renderMenu();fillLink()},()=>$('clist').innerHTML='<p class="err">Could not load categories. Check database rules for the "categories" node.</p>');
@@ -339,6 +340,8 @@ function setStatus(id,st){const o=orders[id];if(!o)return;
   const u={['orders/'+id+'/status']:st};
   if(st==='Cancelled'&&o.status!=='Cancelled'){u['orders/'+id+'/cancelledBy']='shop';u['orders/'+id+'/cancelReason']='Cancelled by shop';u['orders/'+id+'/cancelledAt']=SERVER_TS;if(tp(o))u['tracking/'+tp(o)+'/cr']='Your order was cancelled by the shop.'}
   else if(st!=='Cancelled'&&o.status==='Cancelled'){u['orders/'+id+'/cancelledBy']=null;u['orders/'+id+'/cancelReason']=null;u['orders/'+id+'/cancelledAt']=null;if(tp(o))u['tracking/'+tp(o)+'/cr']=null}
+  if(st==='Delivered'&&o.status!=='Delivered'){u['orders/'+id+'/deliveredAt']=SERVER_TS;if(tp(o))u['tracking/'+tp(o)+'/dAt']=SERVER_TS}
+  else if(st!=='Delivered'&&o.status==='Delivered'){u['orders/'+id+'/deliveredAt']=null;if(tp(o))u['tracking/'+tp(o)+'/dAt']=null}
   if(tp(o))u['tracking/'+tp(o)+'/status']=st;
   db.ref().update(u)}
 function goOrder(id){const o=orders[id];if(!o)return;tab(1);omode=o.orderType==='Daily'?'daily':'booking';openO[isEnq(o)?'enq':'ord']=true;$('flt').value='';$('dflt').value='';renderOrders();
@@ -571,7 +574,7 @@ $('sf').onsubmit=e=>{e.preventDefault();
   if(la!==null&&(isNaN(la)||isNaN(lo)||Math.abs(la)>90||Math.abs(lo)>180)){alert('Latitude (-90 se 90) aur longitude (-180 se 180) sahi likhein.');return}
   if([dk,bk].some(v=>v!==null&&(isNaN(v)||v<0))){alert('Radius (km) 0 ya usse zyada number hona chahiye.');return}
   if(((dk||0)>0||(bk||0)>0)&&la===null){alert('Radius lagane ke liye shop ki latitude/longitude zaroori hai.');return}
-  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,fssai:$('sfs').value.trim()||null,text:$('sx').value.trim()||null,dailyOn:$('sdo').checked,bookingOn:$('sbo').checked,bookMinDays:Math.max(0,Math.floor(Number($('sbd').value)||0)),dailyCharge:nv('sdc'),dailyFree:nv('sdf'),bookCharge:nv('sbc'),bookFree:nv('sbf'),shopOpen:$('sot').value||null,shopClose:$('sct').value||null,shopLat:la,shopLng:lo,dailyKm:dk,bookKm:bk})
+  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,fssai:$('sfs').value.trim()||null,address:$('sad').value.trim()||null,text:$('sx').value.trim()||null,dailyOn:$('sdo').checked,bookingOn:$('sbo').checked,bookMinDays:Math.max(0,Math.floor(Number($('sbd').value)||0)),dailyCharge:nv('sdc'),dailyFree:nv('sdf'),bookCharge:nv('sbc'),bookFree:nv('sbf'),shopOpen:$('sot').value||null,shopClose:$('sct').value||null,shopLat:la,shopLng:lo,dailyKm:dk,bookKm:bk})
   .then(()=>{$('smsg').textContent='Saved ✓';setTimeout(()=>$('smsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
 /* ---------- customer app theme ---------- */
 function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
