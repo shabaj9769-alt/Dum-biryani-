@@ -170,7 +170,8 @@ body{padding-bottom:calc(24px + var(--sab,0px))}
     measurementId: "G-XJ6RXX1GX3"
   };
   window.DATA_MODE = MODE;
-  window.NOTIFY_URL = '/api/notify';  // Vercel function. Website kisi aur host par ho to poora URL likho: https://<project>.vercel.app/api/notify
+  var API_BASE = 'https://dumbiryani-ten.vercel.app';  /* admin app ke liye apna Vercel link, jaise 'https://dum-biryani.vercel.app' */
+  window.NOTIFY_URL = API_BASE + '/api/notify';  // Vercel function. Website kisi aur host par ho to poora URL likho: https://<project>.vercel.app/api/notify
 
   if (MODE === 'firebase') {
     firebase.initializeApp(FB);
