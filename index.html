@@ -238,6 +238,7 @@ h1,h2,h3{font-family:'Hanken Grotesk',sans-serif;font-weight:800;letter-spacing:
 .omode{background:var(--stp);border:0;box-shadow:none}
 .omode button{font:700 .95rem 'Hanken Grotesk',sans-serif}
 .omode button.on{background:linear-gradient(135deg,var(--sf),var(--cu));color:var(--bt);box-shadow:0 4px 12px rgba(91,33,182,.3)}
+.cx{margin-top:10px;width:100%;background:transparent;color:var(--err);border:1.5px solid var(--err)}.cx:disabled{opacity:.45}.cxn{margin-top:6px;color:var(--err)!important}.cxn a{color:var(--sf);font-weight:700}
 /* ===== Bottom navigation ===== */
 .bnav{position:fixed;left:0;right:0;bottom:0;z-index:8;display:flex;justify-content:space-around;background:var(--panel);border-radius:24px 24px 0 0;box-shadow:0 -6px 22px rgba(60,20,120,.14);padding:6px 6px calc(8px + env(safe-area-inset-bottom))}
 .bnav>*{flex:1;max-width:120px;position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 4px;border:0;background:none;color:var(--mut);font:700 .72rem 'Hanken Grotesk',sans-serif;text-decoration:none;cursor:pointer}
@@ -264,7 +265,7 @@ function themeVars(bg,ac){
     '--pl':cMix(bg,ac,d?.14:.12),'--pl2':cMix(bg,ac,.35),'--pl3':d?cMix(ac,W,.55):cMix(ac,K,.25),'--gt':d?'#7fe3ae':'#14733f','--gt2':d?'#9bd9b6':'#2a7a50'}}
 function applyTheme(t){
   const el=document.documentElement,keys=Object.keys(themeVars('#1c0e0b','#f0b44c')),tc=document.getElementById('tc');
-  const def=!t||!t.bg||(String(t.bg).toLowerCase()==='#1c0e0b'&&String(t.ac||'#f0b44c').toLowerCase()==='#f0b44c');
+  const def=!t||!t.bg;
   if(def){keys.forEach(k=>el.style.removeProperty(k));tc&&tc.setAttribute('content','#3b0f7a')}
   else{const v=themeVars(t.bg,t.ac||'#f0b44c');for(const k in v)el.style.setProperty(k,v[k]);tc&&tc.setAttribute('content',v['--bg'])}}
 try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme(c);const n=localStorage.getItem('rd_name');if(n)document.title=n}catch(e){}
@@ -330,7 +331,7 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 <h3>3. When your order is confirmed</h3>
 <p>Placing an order on the website is a request. It becomes a confirmed order when we confirm it with you by call or message. If we cannot reach you for the confirmation call, the order is treated as cancelled.</p>
 <h3>4. Cancellation and changes</h3>
-<p>Our food is freshly cooked for you and spoils quickly. You can cancel or change an order before we confirm it, and after confirmation as long as cooking has not started; call us as early as possible. Once cooking has started, or the order is out for delivery, it cannot be cancelled or changed.</p>
+<p>Our food is freshly cooked for you and spoils quickly. You can cancel an order yourself from <b>My Orders</b> before we confirm it, and after confirmation as long as cooking has not started. Once cooking has started, or the order is out for delivery, the Cancel button stops working and the order cannot be cancelled or changed; please call us if you have a problem.</p>
 <h3>5. Delivery, refusal and unreachable customers</h3>
 <p>Our rider will wait up to 10 minutes at your address. If the order was confirmed and cooked as agreed, and you cannot be reached or you refuse to accept or pay for it, we may recover our reasonable actual loss (food, ingredients and delivery cost), up to the order value, including by sending a legal notice.</p>
 <p>This does not apply if the food is wrong, spoiled, unsafe or not what you ordered. In that case tell the rider or call support immediately, with a photo if possible, and we will resolve it fairly.</p>
@@ -382,7 +383,7 @@ function applySt(){
   $('hn').textContent=name;$('ht').textContent=txt;const fz=String(st.fssai||'').trim();$('fsn').textContent=fz;$('fs').classList.toggle('hide',!fz);$('ht').classList.toggle('hide',!txt);document.title=name||'Menu';
   try{name?localStorage.setItem('rd_name',name):localStorage.removeItem('rd_name')}catch(e){}
   applyTheme(st.theme);try{st.theme?localStorage.setItem('rd_theme',JSON.stringify(st.theme)):localStorage.removeItem('rd_theme')}catch(e){}
-  const tel=raw.startsWith('+')?'+'+d:(d.length===10?'+91'+d:'+'+d);
+  const tel=raw.startsWith('+')?'+'+d:(d.length===10?'+91'+d:'+'+d);window.SUP_TEL=tel;
   document.querySelectorAll('[data-tel]').forEach(a=>{a.href='tel:'+tel;a.title='Support: '+raw});
   document.querySelectorAll('[data-phtxt]').forEach(x=>x.textContent=raw);applyModes()}
 try{const n=localStorage.getItem('rd_name');if(n)$('hn').textContent=n}catch(e){}
@@ -643,7 +644,22 @@ function tCard(o){const s=o.status||'New',idx=STEPS.indexOf(s),
   return `<div class="card tc"><div class="tcr"><b>${o.orderType==='Daily'?'Daily parcel':o.orderType==='Booking'?'Booking':'Order'}${when?' · '+when:''}</b><span class="chip ${s==='Cancelled'?'bad':''}">${esc(SL[s]||s)}</span></div>${bar}
   <small>${(o.items||[]).map(i=>esc(i.name)+(i.qty?' ('+esc(qLabel(i.qty,i.unit))+')':'')).join(', ')}</small>
   ${o.date&&o.orderType!=='Daily'?`<small>Event: ${esc(o.date)}${o.time?' at '+esc(o.time):''}</small>`:''}
-  <div class="tt">${inr(o.total||0)}</div></div>`}
+  <div class="tt">${inr(o.total||0)}</div>${cxPart(o,s)}</div>`}
+const CANCELOK=['New','Confirmed'],COOKING=['Cooking','Out for delivery'];
+function cxPart(o,s){const tel='tel:'+(window.SUP_TEL||'+918779612829');
+  if(CANCELOK.includes(s))return `<button type="button" class="btn cx" data-cx="${esc(o.code)}">Cancel order</button><small>You can cancel until cooking starts.</small>`;
+  if(COOKING.includes(s))return `<button type="button" class="btn cx" disabled>Cancel order</button><small class="cxn">Cooking has started, so this order can't be cancelled here. To cancel, please <a href="${tel}">call us</a>.</small>`;
+  return ''}
+$('tres').addEventListener('click',async e=>{const b=e.target.closest('button[data-cx]');if(!b)return;
+  if(!confirm('Cancel this order? This cannot be undone.'))return;
+  const a=AU(),u=a&&a.currentUser,card=b.closest('.tc');b.disabled=true;let n=card.querySelector('.cxm');if(!n){n=document.createElement('small');n.className='cxm';card.appendChild(n)}
+  n.style.color='';n.textContent='Cancelling…';
+  try{const idToken=await u.getIdToken(true);
+    const r=await fetch(window.CANCEL_URL||'/api/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:b.dataset.cx,idToken})});
+    const j=await r.json().catch(()=>({}));
+    if(j.ok){loadOrders(u);return}
+    n.style.color='var(--err)';n.textContent=j.error||'Could not cancel. Please call us.';if(j.status)setTimeout(()=>loadOrders(u),2500)}
+  catch(x){n.style.color='var(--err)';n.textContent='Could not cancel. Check your connection or call us.';b.disabled=false}});
 async function loadOrders(u){
   const r=$('tres');r.innerHTML='<p class="sub">Loading your orders…</p>';
   try{
