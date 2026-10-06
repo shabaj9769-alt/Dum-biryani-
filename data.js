@@ -17,6 +17,7 @@
     measurementId: "G-XJ6RXX1GX3"
   };
   window.DATA_MODE = MODE;
+  window.ORDER_URL = '/api/order';    // order yahin se server-check ho kar banta hai. Website kisi aur host par ho to poora URL likho.
   window.NOTIFY_URL = '/api/notify';  // Vercel function. Website kisi aur host par ho to poora URL likho: https://<project>.vercel.app/api/notify
 
   if (MODE === 'firebase') {
