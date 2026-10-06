@@ -34,6 +34,17 @@ async function getAccessToken(sa) {
 }
 const dbGet = async (path, at, q) => (await fetch(DB_URL + '/' + path + '.json?access_token=' + at + (q || ''))).json();
 
+// Firebase push-key ke shuru ke 8 akshar time batate hain. Isse bina index ke purane order dhoondh lete hain.
+const PC = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+function keyAt(ms) { let t = ms, id = ''; for (let i = 0; i < 8; i++) { id = PC[t % 64] + id; t = Math.floor(t / 64); } return id; }
+async function findOrderByCode(code, ts, at) {
+  const t = Number(ts); if (!t) return [null, null];
+  const q = '&orderBy=%22%24key%22&startAt=%22' + encodeURIComponent(keyAt(t - 15 * 60 * 1000)) + '%22&endAt=%22' + encodeURIComponent(keyAt(t + 15 * 60 * 1000)) + '~%22';
+  const r = await dbGet('orders', at, q);
+  const k = r && Object.keys(r).find((x) => r[x] && r[x].code === code);
+  return k ? [k, r[k]] : [null, null];
+}
+
 const hits = new Map();
 function limit(key, max, ms) {
   const now = Date.now(), a = (hits.get(key) || []).filter((t) => now - t < ms);
@@ -93,11 +104,16 @@ module.exports = async (req, res) => {
     const t = await dbGet('tracking/' + code, at);
     if (!t || String(t.em || '').toLowerCase() !== email) return say(404, 'We could not find this order for your email.');
 
-    let key = t.k, o = key ? await dbGet('orders/' + key, at) : null;
-    if (!o) { // purane orders (jinme key save nahi thi)
-      const q = await dbGet('orders', at, '&orderBy=%22code%22&equalTo=%22' + code + '%22');
-      key = q && Object.keys(q)[0]; o = key ? q[key] : null;
+    // customer apni list se purana (Cancelled/Delivered) order hata sakta hai. Shop ka record admin me safe rehta hai.
+    if (b.action === 'hide') {
+      if (!['Cancelled', 'Delivered'].includes(t.status)) return say(409, 'Only cancelled or delivered orders can be removed from your list.');
+      const h = await fetch(DB_URL + '/tracking/' + code + '/hidden.json?access_token=' + at, { method: 'PUT', body: 'true' });
+      if (!h.ok) throw new Error('hide failed ' + h.status);
+      return res.status(200).json({ ok: true });
     }
+
+    let key = t.k, o = key ? await dbGet('orders/' + key, at) : null;
+    if (!o) [key, o] = await findOrderByCode(code, t.ts, at); // purane orders (jinme key save nahi thi)
     if (!o || o.code !== code) return say(404, 'We could not find this order. Please call us to cancel.');
 
     // 3) rule: sirf cooking shuru hone se pehle
