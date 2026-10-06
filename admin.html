@@ -19,12 +19,12 @@ nav button.on,.btn.p{background:var(--sf);color:#2a1200;border-color:var(--sf);f
 .o{border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:16px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:10px}
 .o.New{border-left:4px solid var(--sf)}.o.Enquiry{border-left:4px solid #8ab4ff}.o small,.mut{color:var(--mut)}
 @media(max-width:700px){.o{grid-template-columns:1fr}}
-select,input,textarea{background:#170b08;color:var(--tx);border:1px solid var(--line);border-radius:4px;padding:9px;font:inherit;width:100%}
+select,input,textarea{background:var(--inp);color:var(--tx);border:1px solid var(--line);border-radius:4px;padding:9px;font:inherit;width:100%}
 form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;border:1px solid var(--cu);padding:16px;border-radius:4px;background:var(--panel);margin:16px 0}
 form .full{grid-column:1/-1}
 .m{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:10px 0;flex-wrap:wrap}
 .m .info{display:flex;gap:12px;align-items:center;min-width:0;flex:1 1 280px}
-.th{flex:none;width:60px;height:60px;border-radius:6px;border:1px solid var(--line);background:#170b08 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:.7rem;overflow:hidden}
+.th{flex:none;width:60px;height:60px;border-radius:6px;border:1px solid var(--line);background:var(--inp) center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:.7rem;overflow:hidden}
 .th img{width:100%;height:100%;object-fit:cover;display:block}
 .pv{display:flex;gap:10px;align-items:center}.pv .th{width:48px;height:48px}.pv input{flex:1}
 .tag{display:inline-block;font-size:.72rem;border:1px solid var(--cu);color:var(--sf);border-radius:99px;padding:0 8px;margin-left:6px;vertical-align:middle}
@@ -61,10 +61,17 @@ input[type=color]{height:44px;padding:3px;cursor:pointer}
 .tpv .d em{display:block;margin-top:6px;text-align:center;font-style:normal;font-weight:800;font-size:.75rem;padding:5px;border-radius:8px;border:1.5px solid var(--gr2,#2fbf71);color:var(--gt)}
 .tpv .bt{display:block;margin:12px 12px 0;text-align:center;background:var(--sf);color:var(--bt);font-weight:700;border-radius:10px;padding:10px}
 #osw,#msw{display:flex;gap:8px;margin:16px 0 0}#osw button,#msw button{flex:1;background:var(--panel);color:var(--tx);border:1px solid var(--line);padding:12px;border-radius:4px;font:700 1rem Fraunces,serif;cursor:pointer}#osw button.on,#msw button.on{background:var(--sf);color:#2a1200;border-color:var(--sf)}#osw .bdg{background:#d92d20;color:#fff;border-radius:99px;padding:1px 9px;font-size:.75rem;margin-left:6px}#osw button.on .bdg{background:#2a1200;color:var(--sf)}
-</style></head><body>
+:root{--inp:#170b08;--bt:#2a1200}
+html.lt{--bg:#f5f2fb;--panel:#fff;--line:#e5ddf3;--cu:#7c3aed;--sf:#5b21b6;--tx:#1e1530;--mut:#6b6280;--ok:#1c7a3f;--err:#d92d20;--inp:#fff;--bt:#fff}
+nav button.on,.btn.p{color:var(--bt)}
+html.lt .o,html.lt .stat,html.lt form{box-shadow:0 2px 10px rgba(60,20,120,.07)}
+html.lt body{background:var(--bg)}
+#thm{padding:9px 12px}
+body{padding-bottom:calc(24px + var(--sab,0px))}
+</style><script>try{if(localStorage.getItem('ad_theme')!=='dark')document.documentElement.classList.add('lt')}catch(e){document.documentElement.classList.add('lt')}</script></head><body>
 <div class="wrap" id="app">
 <header><h1 id="ah">Store operations</h1>
-<nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button id="t3">Categories</button> <button id="t4">Banners</button> <button id="t5">Settings</button></nav></header>
+<nav><button id="t1" class="on">Orders</button> <button id="t2">Menu</button> <button id="t3">Categories</button> <button id="t4">Banners</button> <button id="t5">Settings</button></nav><button class="btn" id="thm" type="button" aria-label="Switch light or dark look">🌗 Look</button></header>
 
 <div id="v1"><div id="osw"></div><div class="stats">
 <div class="stat"><b id="sN">0</b><span>New requests</span></div>
@@ -306,7 +313,7 @@ function orderCard(id,o){const enq=isEnq(o);
     <small><span class="tag" style="margin:0 6px 0 0">${o.orderType==='Daily'?'Parcel':'Booking'}</span>${o.distKm!=null?`<a style="color:var(--sf)" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${esc(o.custLat)},${esc(o.custLng)}">📍 ${esc(o.distKm)} km</a> · `:''}${enq?'<span class="tag" style="margin:0 6px 0 0;color:#8ab4ff;border-color:#8ab4ff">Enquiry</span>':''}${o.orderType==='Daily'?'':`~${esc(o.guests)} guests · `}${o.venue?esc(o.venue)+' · ':''}<a style="color:var(--sf)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></small>
     <div style="margin-top:4px">${(o.items||[]).map(i=>esc(i.name)+(i.qty?' — '+esc(qL(i.qty,i.unit)):'')+(i.serves&&o.orderType!=='Daily'?' ('+esc(i.serves)+' log)':'')).join('<br>')}</div>
     ${enq?`<div class="qn"><small>❓ Customer ka sawaal</small>${o.notes?esc(o.notes):'<span class="mut">(Customer ne kuch nahi likha)</span>'}</div>`:(o.notes?`<small>Notes: ${esc(o.notes)}</small>`:'')}
-    ${o.code?`<small class="mut">Code: ${esc(o.code)}</small>`:''}<div>${o.orderType==='Daily'?'<small class="mut">Final total: </small>':''}<b>${inr(o.total)}</b>${o.delivery?` <small class="mut">(delivery ₹${esc(o.delivery)} included)</small>`:''}</div></div>
+    ${o.code?`<small class="mut">Code: ${esc(o.code)}</small>`:''}${o.cancelledBy==='customer'?`<small style="color:var(--err);display:block">❌ Cancelled by customer${o.cancelledAt?' · '+esc(fTs(o.cancelledAt)):''}</small>`:''}<div>${o.orderType==='Daily'?'<small class="mut">Final total: </small>':''}<b>${inr(o.total)}</b>${o.delivery?` <small class="mut">(delivery ₹${esc(o.delivery)} included)</small>`:''}</div></div>
     <div><select data-id="${esc(id)}" aria-label="Order status">${STATUS.map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
     <button class="btn d" data-del="${esc(id)}" style="margin-top:8px;width:100%">Delete</button></div>${replyBox(id,o)}</div>`}
 function renderOrders(){
@@ -524,8 +531,9 @@ function themeVars(bg,ac){
     '--ph1':cMix(bg,d?W:K,d?.1:.06),'--ph2':panel,'--don':cMix(panel,'#1f9d57',.1),'--stp':cMix(bg,d?W:K,d?.18:.12),'--xbg':d?cMix(bg,'#ff0000',.18):'#f7d4cf',
     '--pl':cMix(bg,ac,d?.14:.12),'--pl2':cMix(bg,ac,.35),'--pl3':d?cMix(ac,W,.55):cMix(ac,K,.25),'--gt':d?'#7fe3ae':'#14733f','--gt2':d?'#9bd9b6':'#2a7a50'}}
 const TH={royal:{n:'Royal brown',bg:'#1c0e0b',ac:'#f0b44c'},midnight:{n:'Midnight blue',bg:'#0d1626',ac:'#f0b44c'},forest:{n:'Forest green',bg:'#0e1f17',ac:'#f0c24c'},
-  plum:{n:'Deep plum',bg:'#22112e',ac:'#f0b44c'},maroon:{n:'Maroon',bg:'#2b0c14',ac:'#f5c16c'},charcoal:{n:'Charcoal black',bg:'#111111',ac:'#f0b44c'},cream:{n:'Light cream',bg:'#fbf3e6',ac:'#b4561b'}};
-let th={preset:'royal',bg:'#1c0e0b',ac:'#f0b44c'},thDirty=false;
+  plum:{n:'Deep plum',bg:'#22112e',ac:'#f0b44c'},maroon:{n:'Maroon',bg:'#2b0c14',ac:'#f5c16c'},charcoal:{n:'Charcoal black',bg:'#111111',ac:'#f0b44c'},cream:{n:'Light cream',bg:'#fbf3e6',ac:'#b4561b'},
+  purple:{n:'Purple light (new)',bg:'#f5f2fb',ac:'#5b21b6'},mint:{n:'Mint green',bg:'#f0f9f3',ac:'#15803d'},rose:{n:'Rose',bg:'#fff1f2',ac:'#be123c'},sky:{n:'Sky blue',bg:'#eff6ff',ac:'#1d4ed8'},saffron:{n:'Saffron white',bg:'#fffaf0',ac:'#c2410c'},ink:{n:'Ink dark',bg:'#0b1020',ac:'#8b5cf6'}};
+let th={preset:'purple',bg:'#f5f2fb',ac:'#5b21b6'},thDirty=false;
 function drawTh(sync){
   $('tsw').innerHTML=Object.entries(TH).map(([k,t])=>`<button type="button" class="ts ${th.preset===k?'on':''}" data-k="${k}" aria-pressed="${th.preset===k}"><span class="cc" style="background:${t.bg};border-color:${t.ac}"><i style="background:${t.ac}"></i></span>${t.n}</button>`).join('')
     +`<button type="button" class="ts ${th.preset==='custom'?'on':''}" data-k="custom" aria-pressed="${th.preset==='custom'}"><span class="cc" style="background:${esc(th.bg)};border-color:${esc(th.ac)}"><i style="background:${esc(th.ac)}"></i></span>Custom</button>`;
@@ -534,14 +542,18 @@ function drawTh(sync){
   $('tpn').textContent=shop()||'Your store name'}
 function loadTheme(){const t=settings.theme;
   if(!thDirty&&!$('tf').contains(document.activeElement)){
-    th=t&&t.bg?{preset:t.preset||'custom',bg:t.bg,ac:t.ac||'#f0b44c'}:{preset:'royal',bg:TH.royal.bg,ac:TH.royal.ac};drawTh(true)}
+    th=t&&t.bg?{preset:t.preset||'custom',bg:t.bg,ac:t.ac||'#f0b44c'}:{preset:'purple',bg:TH.purple.bg,ac:TH.purple.ac};drawTh(true)}
   else drawTh(false)}
+function syncBar(){try{const c=getComputedStyle(document.body).backgroundColor;window.ReactNativeWebView&&window.ReactNativeWebView.postMessage('bg:'+c)}catch(e){}}
+function drawThm(){const lt=document.documentElement.classList.contains('lt');$('thm').textContent=lt?'🌙 Dark':'☀️ Light';syncBar()}
+$('thm').onclick=()=>{const h=document.documentElement.classList,lt=h.toggle('lt');try{localStorage.setItem('ad_theme',lt?'light':'dark')}catch(e){}drawThm()};
+drawThm();setTimeout(syncBar,600);
 function adminName(){const n=shop();$('ah').textContent=n?n+' operations':'Store operations';document.title=n?n+' · Operations':'Store operations'}
 $('tsw').onclick=e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=b.dataset.k;
   if(k!=='custom')th={preset:k,bg:TH[k].bg,ac:TH[k].ac};else th.preset='custom';thDirty=true;drawTh(true)};
 $('tbg').oninput=()=>{th.preset='custom';th.bg=$('tbg').value;thDirty=true;drawTh(false)};
 $('tac').oninput=()=>{th.preset='custom';th.ac=$('tac').value;thDirty=true;drawTh(false)};
-$('trs').onclick=()=>{th={preset:'royal',bg:TH.royal.bg,ac:TH.royal.ac};thDirty=true;drawTh(true)};
+$('trs').onclick=()=>{th={preset:'purple',bg:TH.purple.bg,ac:TH.purple.ac};thDirty=true;drawTh(true)};
 $('tf').onsubmit=e=>{e.preventDefault();
   db.ref('settings/theme').set({preset:th.preset,bg:th.bg,ac:th.ac})
   .then(()=>{thDirty=false;$('tmsg').textContent='Saved ✓';setTimeout(()=>$('tmsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
