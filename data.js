@@ -17,9 +17,12 @@
     measurementId: "G-XJ6RXX1GX3"
   };
   window.DATA_MODE = MODE;
-  window.ORDER_URL = '/api/order';    // order yahin se server-check ho kar banta hai. Website kisi aur host par ho to poora URL likho.
-  window.CANCEL_URL = '/api/cancel';  // customer apna order cooking se pehle yahin se cancel karta hai
-  window.NOTIFY_URL = '/api/notify';  // Vercel function. Website kisi aur host par ho to poora URL likho: https://<project>.vercel.app/api/notify
+  /* ⚠️ Website GitHub Pages par hai to yahan apna Vercel link likho (bina last slash), jaise 'https://dum-biryani.vercel.app'.
+     Vercel par hi chal rahi ho to khali ('') chhod do. */
+  var API_BASE = 'https://dumbiryani-ten.vercel.app';
+  window.ORDER_URL = API_BASE + '/api/order';    // order yahin se server-check ho kar banta hai. Website kisi aur host par ho to poora URL likho.
+  window.CANCEL_URL = API_BASE + '/api/cancel';  // customer apna order cooking se pehle yahin se cancel karta hai
+  window.NOTIFY_URL = API_BASE + '/api/notify';  // Vercel function. Website kisi aur host par ho to poora URL likho: https://<project>.vercel.app/api/notify
 
   if (MODE === 'firebase') {
     firebase.initializeApp(FB);
