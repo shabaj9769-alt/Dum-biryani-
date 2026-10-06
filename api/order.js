@@ -189,7 +189,7 @@ module.exports = async (req, res) => {
     let code = '';
     if (!enq) {
       code = mkCode(); od.code = code;
-      up['tracking/' + code] = { ph: od.phone.slice(-10), em: od.email, status: 'New', orderType: od.orderType, date: od.date || null, time: od.time || null, total: od.total, ts: now.ts, items: od.items.map((i) => ({ name: i.name, qty: i.qty || null, unit: i.unit || null })) };
+      up['tracking/' + code] = { k: key, ph: od.phone.slice(-10), em: od.email, status: 'New', orderType: od.orderType, date: od.date || null, time: od.time || null, total: od.total, ts: now.ts, items: od.items.map((i) => ({ name: i.name, qty: i.qty || null, unit: i.unit || null })) };
     }
     const w = await fetch(DB_URL + '/.json?access_token=' + at, { method: 'PATCH', body: JSON.stringify(up) });
     if (!w.ok) throw new Error('db write failed ' + w.status);
