@@ -188,7 +188,7 @@ module.exports = async (req, res) => {
     let code = '';
     if (!enq) {
       code = derive(key, sa); od.tk = hash(code); // code database me save nahi hota, sirf hash
-      up['tracking/' + od.tk] = { k: key, status: 'New', orderType: od.orderType, date: od.date || null, time: od.time || null, total: od.total, ts: now.ts, items: od.items.map((i) => ({ name: i.name, qty: i.qty || null, unit: i.unit || null })) };
+      up['tracking/' + od.tk] = { k: key, status: 'New', name: od.name, phone: od.phone, venue: od.venue || null, subtotal: od.subtotal, delivery: od.delivery || 0, orderType: od.orderType, date: od.date || null, time: od.time || null, total: od.total, ts: now.ts, items: od.items.map((i) => ({ name: i.name, qty: i.qty || null, unit: i.unit || null, price: i.price, cost: i.cost })) };
     }
     const w = await fetch(DB_URL + '/.json?access_token=' + at, { method: 'PATCH', body: JSON.stringify(up) });
     if (!w.ok) throw new Error('db write failed ' + w.status);
