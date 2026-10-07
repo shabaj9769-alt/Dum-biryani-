@@ -764,7 +764,7 @@ $('tclink').onclick=e=>{e.preventDefault();$('tcS').classList.add('open');$('tcS
 $('tbtn').onclick=()=>openTrack();$('nbOrd').onclick=()=>openTrack();$('nbCart').onclick=()=>{if(calc().n)openCart();else{const m=$('msg');scrollTo({top:0,behavior:'smooth'})}};$('nbShop').onclick=()=>{if(cat){cat='';render()}scrollTo({top:0,behavior:'smooth'})};$('tback').onclick=closeTrack;$('tadd').onclick=addCode;$('dcc').onclick=e=>copyTxt(lastCode,e.currentTarget);
 $('dtrk').onclick=()=>openTrack();
 /* ---------- Statement PDF (My Orders): sirf Delivered orders, sirf isi customer (phone) ke ---------- */
-const STM={brand:'AYAAN CATERERS',addr:'Bandra West, Mumbai Suburban'};
+const STM={brand:'AYAAN CATERERS'};
 function toast(t){let e=$('toast');if(!e){e=document.createElement('div');e.id='toast';e.setAttribute('role','status');e.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);max-width:88%;background:#222;color:#fff;padding:10px 16px;border-radius:10px;font-size:.88rem;z-index:99;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.35)';document.body.appendChild(e)}
   e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>{e.style.display='none'},3200)}
 const isDelivered=o=>['delivered','completed'].includes(String(o&&o.status||'').trim().toLowerCase());
@@ -794,18 +794,21 @@ $('sdl').onclick=async()=>{
   const head=['Date','Order ID','Items Summary','Payment Mode','Food Amount (Rs.)'];if(showGst)head.push('GST (Rs.)');head.push('Delivery Fee (Rs.)','Total (Rs.)');
   const doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'}),W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),C=W/2;
   doc.setFont('helvetica','bold');doc.setFontSize(20);doc.text(STM.brand,C,14,{align:'center'});
-  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(STM.addr,C,20,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(10);
+  /* address wahi jo admin ne Settings > "Shop address (on bill)" me save kiya hai (bill wala), lamba ho to wrap */
+  const al=String(S.address||'').trim()?doc.splitTextToSize(lat(String(S.address).trim().replace(/\s+/g,' ')),W-40):[],dy=Math.max(0,al.length-1)*4.5;
+  al.forEach((l,i)=>doc.text(l,C,20+i*4.5,{align:'center'}));
   const ids=[];const gz=String(S.gstin||'').trim(),fz=String(S.fssai||'').trim();
   if(gz&&showGst)ids.push('GSTIN: '+lat(gz));if(fz)ids.push('FSSAI Lic. No: '+lat(fz));
-  if(ids.length){doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(ids.join('     |     '),C,25.5,{align:'center'})}
-  doc.setDrawColor(150);doc.line(10,29,W-10,29);
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('CUSTOMER STATEMENT',C,36,{align:'center'});
-  doc.setFontSize(10);doc.text('Customer: ',10,43);doc.text('Phone: ',10,48);doc.text('Statement Period: ',10,53);
-  doc.setFont('helvetica','normal');doc.text(lat(rows[rows.length-1].name||'Customer'),10+doc.getTextWidth('Customer: '),43);
-  doc.text(lat(rows[rows.length-1].phone||me),10+doc.getTextWidth('Phone: '),48);
-  doc.text('From '+fd(f)+' To '+fd(t),10+doc.getTextWidth('Statement Period: '),53);
+  if(ids.length){doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(ids.join('     |     '),C,25.5+dy,{align:'center'})}
+  doc.setDrawColor(150);doc.line(10,29+dy,W-10,29+dy);
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('CUSTOMER STATEMENT',C,36+dy,{align:'center'});
+  doc.setFontSize(10);doc.text('Customer: ',10,43+dy);doc.text('Phone: ',10,48+dy);doc.text('Statement Period: ',10,53+dy);
+  doc.setFont('helvetica','normal');doc.text(lat(rows[rows.length-1].name||'Customer'),10+doc.getTextWidth('Customer: '),43+dy);
+  doc.text(lat(rows[rows.length-1].phone||me),10+doc.getTextWidth('Phone: '),48+dy);
+  doc.text('From '+fd(f)+' To '+fd(t),10+doc.getTextWidth('Statement Period: '),53+dy);
   const n=head.length,cs={0:{cellWidth:22},1:{cellWidth:32},3:{cellWidth:28}};for(let i=4;i<n;i++)cs[i]={halign:'right',cellWidth:i===n-1?26:28};
-  doc.autoTable({startY:58,head:[head],body,theme:'grid',styles:{fontSize:8,cellPadding:2,overflow:'linebreak',lineColor:[200,200,200]},
+  doc.autoTable({startY:58+dy,head:[head],body,theme:'grid',styles:{fontSize:8,cellPadding:2,overflow:'linebreak',lineColor:[200,200,200]},
     headStyles:{fillColor:[201,133,79],textColor:[30,15,0]},columnStyles:cs,margin:{left:10,right:10,bottom:14},
     didDrawPage:()=>{doc.setFontSize(8);doc.setTextColor(120);doc.text('Page '+doc.internal.getCurrentPageInfo().pageNumber,W-10,H-6,{align:'right'});doc.setTextColor(0)}});
   const lines=[['Total Orders Delivered',String(rows.length)],['Total Food Value','Rs. '+m2(tf)]];
