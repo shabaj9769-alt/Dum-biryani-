@@ -88,6 +88,7 @@ header{gap:8px;padding-bottom:10px}nav{display:flex;flex-wrap:wrap;gap:6px}nav b
 <div class="stat"><b id="sR">₹0</b><span>Confirmed and delivered value</span></div></div>
 <div style="display:flex;gap:8px;margin-bottom:14px"><select id="flt" aria-label="Filter orders" style="flex:1"><option value="">All statuses</option></select><select id="dflt" aria-label="Date filter" style="flex:1"><option value="">All dates</option><option value="t">Today (stats &amp; history)</option></select></div>
 <div style="margin-bottom:14px"><input id="cs" type="search" inputmode="search" placeholder="🔎 Customer ka code dhundo (phone number ya naam)" autocomplete="off" aria-label="Find customer order code" style="width:100%"><div id="csr"></div></div>
+<div style="border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:12px;margin-bottom:14px"><b>📄 Sales &amp; GST Report (PDF)</b><div style="display:flex;gap:8px;margin:8px 0"><div style="flex:1"><label class="mut" for="rf">From Date</label><input id="rf" type="date"></div><div style="flex:1"><label class="mut" for="rt">To Date</label><input id="rt" type="date"></div></div><button type="button" class="btn p" id="rdl" style="width:100%">Download Sales &amp; GST Report</button><div id="rmsg" class="hint"></div></div>
 <div id="orders"><p class="mut">Loading orders…</p></div></div>
 
 <div id="v2" class="hide"><div id="msw"><button type="button" data-m="daily">🥡 Daily Parcel Menu</button><button type="button" data-m="booking">📅 Booking Menu</button></div>
@@ -128,6 +129,8 @@ header{gap:8px;padding-bottom:10px}nav{display:flex;flex-wrap:wrap;gap:6px}nav b
 <div><label class="mut" for="sot">Shop open time</label><input id="sot" type="time"></div>
 <div><label class="mut" for="sct">Shop close time</label><input id="sct" type="time"><div class="hint">Dono khali = hamesha khula. Ye India time (IST) me chalta hai, customer ke phone ki clock se nahi. Is time ke bahar sirf Daily Parcel band hoga, Order Booking chalta rahega.</div></div>
 <div><label class="mut" for="sbd">Booking kitne din pehle karni hogi</label><input id="sbd" type="number" min="0" step="1" value="1"><div class="hint">1 = kal ya uske baad ki date. 0 = aaj ki date bhi chalegi.</div></div>
+<h3 class="full">GST (Tax)</h3>
+<div><label class="mut" for="sgst">GST Percentage (%)</label><input id="sgst" type="number" min="0" max="100" step="any" value="0" placeholder="0"><div class="hint">0 = GST band. Customer app me "GST" shabd kahin nahi dikhega. 5 likhoge to har order par 5% GST judega. Naye orders par lagu hoga.</div></div>
 <h3 class="full">Delivery area (location)</h3>
 <div><label class="mut" for="sla">Shop latitude</label><input id="sla" inputmode="decimal" placeholder="19.076090"></div>
 <div><label class="mut" for="sln">Shop longitude</label><input id="sln" inputmode="decimal" placeholder="72.877426"></div>
@@ -157,6 +160,8 @@ header{gap:8px;padding-bottom:10px}nav{display:flex;flex-wrap:wrap;gap:6px}nav b
 <div id="blist"><p class="mut">Loading banners…</p></div></div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -304,7 +309,7 @@ gate(()=>{listen();regPush()});
 function listen(){
   db.ref('orders').on('value',s=>{orders=s.val()||{};if(seenO){const n=Object.keys(orders).filter(k=>!seenO.has(k));if(n.length)newAlert(orders[n[0]],n.length,n[0])}seenO=new Set(Object.keys(orders));renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
   db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu();renderCats();fillLink()});
-  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sfs').value=settings.fssai||'';$('sad').value=settings.address||'';$('sx').value=settings.text||'';$('sdo').checked=settings.dailyOn!==false;$('sbo').checked=settings.bookingOn!==false;$('sbd').value=settings.bookMinDays??1;$('sot').value=settings.shopOpen||'';$('sdc').value=settings.dailyCharge??'';$('sdf').value=settings.dailyFree??'';$('sbc').value=settings.bookCharge??'';$('sbf').value=settings.bookFree??'';$('sct').value=settings.shopClose||'';$('sla').value=settings.shopLat??'';$('sln').value=settings.shopLng??'';$('sdk').value=settings.dailyKm??'';$('sbk').value=settings.bookKm??''}
+  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sfs').value=settings.fssai||'';$('sad').value=settings.address||'';$('sx').value=settings.text||'';$('sdo').checked=settings.dailyOn!==false;$('sbo').checked=settings.bookingOn!==false;$('sbd').value=settings.bookMinDays??1;$('sot').value=settings.shopOpen||'';$('sdc').value=settings.dailyCharge??'';$('sdf').value=settings.dailyFree??'';$('sbc').value=settings.bookCharge??'';$('sbf').value=settings.bookFree??'';$('sct').value=settings.shopClose||'';$('sla').value=settings.shopLat??'';$('sln').value=settings.shopLng??'';$('sdk').value=settings.dailyKm??'';$('sbk').value=settings.bookKm??'';$('sgst').value=settings.gstPercentage??0}
     adminName();loadTheme()});
   db.ref('banners').on('value',s=>{banners=s.val()||{};renderBanners()},()=>$('blist').innerHTML='<p class="err">Could not load banners. Check database rules for the "banners" node.</p>');
   db.ref('categories').on('value',s=>{cats=s.val()||{};renderCats();renderMenu();fillLink()},()=>$('clist').innerHTML='<p class="err">Could not load categories. Check database rules for the "categories" node.</p>');
@@ -568,13 +573,14 @@ const nv=id=>{const v=$(id).value.trim();return v===''?null:Number(v)};
 $('sgeo').onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>{$('sla').value=p.coords.latitude.toFixed(6);$('sln').value=p.coords.longitude.toFixed(6)},()=>alert('Location allow karein ya latitude/longitude khud likhein.'),{enableHighAccuracy:true,timeout:15000}):alert('Is browser me location support nahi hai.');
 $('sf').onsubmit=e=>{e.preventDefault();
   const la=nv('sla'),lo=nv('sln'),dk=nv('sdk'),bk=nv('sbk');
+  const gp=nv('sgst')===null?0:nv('sgst');if(isNaN(gp)||gp<0||gp>100){alert('GST percentage must be between 0 and 100.');return}
   if(['sdc','sdf','sbc','sbf'].some(i=>nv(i)!==null&&(isNaN(nv(i))||nv(i)<0))){alert('Delivery charge aur free-delivery amount 0 ya usse zyada hone chahiye.');return}
   if(!$('sot').value!==!$('sct').value){alert('Shop open aur close time dono bharein (ya dono khali chhodein).');return}
   if((la===null)!==(lo===null)){alert('Latitude aur longitude dono bharein.');return}
   if(la!==null&&(isNaN(la)||isNaN(lo)||Math.abs(la)>90||Math.abs(lo)>180)){alert('Latitude (-90 se 90) aur longitude (-180 se 180) sahi likhein.');return}
   if([dk,bk].some(v=>v!==null&&(isNaN(v)||v<0))){alert('Radius (km) 0 ya usse zyada number hona chahiye.');return}
   if(((dk||0)>0||(bk||0)>0)&&la===null){alert('Radius lagane ke liye shop ki latitude/longitude zaroori hai.');return}
-  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,fssai:$('sfs').value.trim()||null,address:$('sad').value.trim()||null,text:$('sx').value.trim()||null,dailyOn:$('sdo').checked,bookingOn:$('sbo').checked,bookMinDays:Math.max(0,Math.floor(Number($('sbd').value)||0)),dailyCharge:nv('sdc'),dailyFree:nv('sdf'),bookCharge:nv('sbc'),bookFree:nv('sbf'),shopOpen:$('sot').value||null,shopClose:$('sct').value||null,shopLat:la,shopLng:lo,dailyKm:dk,bookKm:bk})
+  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,fssai:$('sfs').value.trim()||null,address:$('sad').value.trim()||null,text:$('sx').value.trim()||null,dailyOn:$('sdo').checked,bookingOn:$('sbo').checked,bookMinDays:Math.max(0,Math.floor(Number($('sbd').value)||0)),dailyCharge:nv('sdc'),dailyFree:nv('sdf'),bookCharge:nv('sbc'),bookFree:nv('sbf'),shopOpen:$('sot').value||null,shopClose:$('sct').value||null,shopLat:la,shopLng:lo,dailyKm:dk,bookKm:bk,gstPercentage:gp})
   .then(()=>{$('smsg').textContent='Saved ✓';setTimeout(()=>$('smsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
 /* ---------- customer app theme ---------- */
 function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
@@ -616,4 +622,50 @@ $('tf').onsubmit=e=>{e.preventDefault();
   db.ref('settings/theme').set({preset:th.preset,bg:th.bg,ac:th.ac})
   .then(()=>{thDirty=false;$('tmsg').textContent='Saved ✓';setTimeout(()=>$('tmsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
 drawTh(true);
+
+/* ---------- Sales & GST report (PDF) ---------- */
+(function(){
+const REPORT_STATUS=['Confirmed','Cooking','Out for delivery','Delivered']; /* ye statuses sale me ginte hain; Cancelled/New/Enquiry nahi */
+const p2=n=>String(n).padStart(2,'0'),ymdL=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+const r2=n=>Math.round((Number(n)||0)*100)/100;
+const m2=n=>r2(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const nz=(...a)=>{for(const x of a)if(x!=null&&x!==''&&!isNaN(Number(x)))return Number(x);return 0};
+const lat=s=>String(s==null?'':s).replace(/[^\x20-\xFF]/g,'?');
+$('rf').value=$('rt').value=ymdL(new Date());
+$('rdl').onclick=()=>{
+  const f=$('rf').value,t=$('rt').value;$('rmsg').textContent='';
+  if(!f||!t){alert('Please choose both From Date and To Date.');return}
+  if(f>t){alert('From Date cannot be after To Date.');return}
+  if(!(window.jspdf&&window.jspdf.jsPDF)){alert('PDF library could not load. Check your internet connection and try again.');return}
+  const rows=Object.entries(orders).filter(([,o])=>{if(!o||isEnq(o)||!REPORT_STATUS.includes(o.status)||!o.ts)return false;const d=ymdL(new Date(o.ts));return d>=f&&d<=t}).sort((a,b)=>a[1].ts-b[1].ts);
+  if(!rows.length){alert('No orders found in this date range.');return}
+  let sales=0,gst=0,del=0,grand=0;
+  const body=rows.map(([k,o])=>{
+    const dv=nz(o.deliveryFee,o.delivery),item=nz(o.itemTotal,o.subtotal,nz(o.total)-dv),g=nz(o.gstAmount),gt=nz(o.grandTotal,o.total),cg=r2(g/2),sg=r2(g-cg);
+    sales+=item;gst+=g;del+=dv;grand+=gt;
+    return[new Date(o.ts).toLocaleDateString('en-GB'),billNo(o)||('#'+String(k).slice(-6).toUpperCase()),lat(o.name),
+      lat((o.items||[]).map(i=>(i.name||'')+' x'+(i.qty||1)).join(', ')),m2(item),m2(cg),m2(sg),m2(gt)]});
+  const doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'}),W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
+  doc.setFont('helvetica','bold');doc.setFontSize(16);doc.text(lat(shop()||'Sales Report'),10,14);
+  doc.setFontSize(11);doc.text('Sales & GST Report',10,21);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);
+  doc.text('Period: '+f.split('-').reverse().join('/')+' to '+t.split('-').reverse().join('/')+'   |   Orders: '+rows.length+'   |   Generated: '+new Date().toLocaleString('en-GB'),10,27);
+  doc.autoTable({startY:31,head:[['Date','Order ID','Customer','Items','Taxable Value','CGST','SGST','Total']],body,theme:'grid',
+    styles:{fontSize:8,cellPadding:2,overflow:'linebreak',lineColor:[200,200,200]},headStyles:{fillColor:[201,133,79],textColor:[30,15,0]},
+    columnStyles:{0:{cellWidth:22},1:{cellWidth:40},2:{cellWidth:34},4:{halign:'right',cellWidth:26},5:{halign:'right',cellWidth:20},6:{halign:'right',cellWidth:20},7:{halign:'right',cellWidth:26}},
+    margin:{left:10,right:10,bottom:14},
+    didDrawPage:()=>{doc.setFontSize(8);doc.setTextColor(120);doc.text('Page '+doc.internal.getCurrentPageInfo().pageNumber,W-10,H-6,{align:'right'});doc.setTextColor(0)}});
+  const lines=[['Total Sales (Taxable Value)',sales],['Total GST (CGST + SGST)',gst]];if(del>0)lines.push(['Delivery Charges',del]);
+  const bw=100,bh=lines.length*7+16;let y=doc.lastAutoTable.finalY+8;
+  if(y+bh>H-14){doc.addPage();y=15}
+  const x=W-10-bw;doc.setDrawColor(201,133,79);doc.setFillColor(250,244,235);doc.roundedRect(x,y,bw,bh,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('Summary',x+4,y+7);doc.setFont('helvetica','normal');doc.setFontSize(9);
+  let ly=y+14;lines.forEach(([k,v])=>{doc.text(k,x+4,ly);doc.text('Rs. '+m2(v),x+bw-4,ly,{align:'right'});ly+=7});
+  doc.setDrawColor(150);doc.line(x+4,ly-4.5,x+bw-4,ly-4.5);doc.setFont('helvetica','bold');doc.setFontSize(11);
+  doc.text('Grand Revenue',x+4,ly+1);doc.text('Rs. '+m2(grand),x+bw-4,ly+1,{align:'right'});
+  const name='Sales-GST-Report_'+f+'_to_'+t+'.pdf';
+  if(window.ReactNativeWebView){window.ReactNativeWebView.postMessage(JSON.stringify({type:'pdf',name,b64:doc.output('datauristring').split(',')[1]}));$('rmsg').textContent='Report ready - choose where to save/share it.'}
+  else{doc.save(name);$('rmsg').textContent='Downloaded: '+name}
+};
+})();
 </script></body></html>
