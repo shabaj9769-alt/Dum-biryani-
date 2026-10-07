@@ -682,7 +682,7 @@ function pdfBill(b){
   const newPage=()=>{c=[];pages.push(c);y=800};
   newPage();
   T(297.5,y,b.shop,20,1,'c');y-=18;
-  for(const l of wrapTxt(b.addr,9,W-40)){T(297.5,y,l,9,0,'c');y-=12}
+  for(const l of wrapTxt(b.addr,9,260)){T(297.5,y,l,9,0,'c');y-=12}
   if(b.phone){T(297.5,y,'Phone: '+b.phone,9,0,'c');y-=12}
   if(b.gstin){T(297.5,y,'GSTIN: '+b.gstin,9,1,'c');y-=12}
   if(b.fssai){T(297.5,y,'FSSAI Lic. No: '+b.fssai,9,1,'c');y-=12}
@@ -789,14 +789,16 @@ $('sdl').onclick=async()=>{
   const body=rows.map(o=>{
     const dv=nz(o.deliveryFee,o.delivery),g=nz(o.gstAmount),gt=nz(o.grandTotal,o.total),fo=nz(o.itemTotal,o.subtotal,gt-dv-g);
     tf+=fo;tg+=g;td+=dv;tt+=gt;
-    const r=[new Date(o.ts).toLocaleDateString('en-GB'),lat(o.code),lat((o.items||[]).map(i=>(i.name||'')+' x'+qLabel(i.qty||1,i.unit)).join(', ')),'Cash on Delivery',m2(fo)];
+    const dt=new Date(o.ts),hh=dt.getHours()%12||12,tm=hh+':'+String(dt.getMinutes()).padStart(2,'0')+(dt.getHours()<12?' am':' pm');
+    const dcell='Placed '+dt.toLocaleDateString('en-GB')+'\n'+tm+(o.date?'\nNeeded '+fd(o.date)+(o.time?'\n'+fmT(o.time):''):'');
+    const r=[dcell,lat(o.code),lat((o.items||[]).map(i=>(i.name||'')+' x'+qLabel(i.qty||1,i.unit)).join(', ')),'Cash on Delivery',m2(fo)];
     if(showGst)r.push(m2(g));r.push(m2(dv),m2(gt));return r});
   const head=['Date','Order ID','Items Summary','Payment Mode','Food Amount (Rs.)'];if(showGst)head.push('GST (Rs.)');head.push('Delivery Fee (Rs.)','Total (Rs.)');
   const doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'}),W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),C=W/2;
   doc.setFont('helvetica','bold');doc.setFontSize(20);doc.text(STM.brand,C,14,{align:'center'});
   doc.setFont('helvetica','normal');doc.setFontSize(10);
   /* address wahi jo admin ne Settings > "Shop address (on bill)" me save kiya hai (bill wala), lamba ho to wrap */
-  const al=String(S.address||'').trim()?doc.splitTextToSize(lat(String(S.address).trim().replace(/\s+/g,' ')),W-40):[],dy=Math.max(0,al.length-1)*4.5;
+  const al=String(S.address||'').trim()?doc.splitTextToSize(lat(String(S.address).trim().replace(/\s+/g,' ')),110):[],dy=Math.max(0,al.length-1)*4.5;
   al.forEach((l,i)=>doc.text(l,C,20+i*4.5,{align:'center'}));
   const ids=[];const gz=String(S.gstin||'').trim(),fz=String(S.fssai||'').trim();
   if(gz&&showGst)ids.push('GSTIN: '+lat(gz));if(fz)ids.push('FSSAI Lic. No: '+lat(fz));
@@ -807,7 +809,7 @@ $('sdl').onclick=async()=>{
   doc.setFont('helvetica','normal');doc.text(lat(rows[rows.length-1].name||'Customer'),10+doc.getTextWidth('Customer: '),43+dy);
   doc.text(lat(rows[rows.length-1].phone||me),10+doc.getTextWidth('Phone: '),48+dy);
   doc.text('From '+fd(f)+' To '+fd(t),10+doc.getTextWidth('Statement Period: '),53+dy);
-  const n=head.length,cs={0:{cellWidth:22},1:{cellWidth:32},3:{cellWidth:28}};for(let i=4;i<n;i++)cs[i]={halign:'right',cellWidth:i===n-1?26:28};
+  const n=head.length,cs={0:{cellWidth:32},1:{cellWidth:32},3:{cellWidth:28}};for(let i=4;i<n;i++)cs[i]={halign:'right',cellWidth:i===n-1?26:28};
   doc.autoTable({startY:58+dy,head:[head],body,theme:'grid',styles:{fontSize:8,cellPadding:2,overflow:'linebreak',lineColor:[200,200,200]},
     headStyles:{fillColor:[201,133,79],textColor:[30,15,0]},columnStyles:cs,margin:{left:10,right:10,bottom:14},
     didDrawPage:()=>{doc.setFontSize(8);doc.setTextColor(120);doc.text('Page '+doc.internal.getCurrentPageInfo().pageNumber,W-10,H-6,{align:'right'});doc.setTextColor(0)}});
