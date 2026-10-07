@@ -529,18 +529,21 @@ function calc(){const r=[];let t=0,g=0;
     t+=q*p;g=Math.max(g,people)}
   return{r,t:r2(t),g:Math.round(g),n:r.length}}
 function dchg(c){if(mode==='enquiry')return{amt:0,show:false};const d=omode==='daily',ch=Number(d?st.dailyCharge:st.bookCharge)||0,fr=Number(d?st.dailyFree:st.bookFree)||0;return{amt:ch>0&&!(fr>0&&c.t>=fr)?ch:0,show:ch>0}}
+/* GST: admin ne settings/gstPercentage > 0 rakha ho tabhi lagta hai. 0/khali ho to GST kahin nahi dikhta. Enquiry par GST nahi. */
+const gstPct=()=>{const g=Number(st.gstPercentage);return isFinite(g)&&g>0?Math.min(100,g):0};
+function bill(c){const dc=dchg(c),gp=mode==='enquiry'?0:gstPct(),gst=gp>0?r2(c.t*gp/100):0;return{dc,gp,gst,total:r2(c.t+dc.amt+gst)}}
 function bar(){const c=calc();$('bG').parentNode.classList.toggle('hide',omode==='daily');$('bI').textContent=c.n;$('bG').textContent=c.g;$('bT').textContent=inr(c.t);
   $('next').disabled=!c.n;$('nbc').textContent=c.n;$('nbc').classList.toggle('hide',!c.n);$('fbar').classList.toggle('hide',!c.n);document.body.classList.toggle('hasbar',c.n>0)}
-function renderCart(){const c=calc(),dc=dchg(c);
+function renderCart(){const c=calc(),b=bill(c),dc=b.dc;
   $('cN').textContent=`${c.n} item${c.n===1?'':'s'} in your cart`;
   $('clist').innerHTML=c.r.map(i=>`<div class="cr" data-id="${esc(i.id)}"><div class="ci"><b>${esc(i.name)}</b>
     <small>${inr(i.price)}${i.unit?' per '+esc(i.unit):''} × ${esc(qLabel(i.qty,i.unit))} = ${inr(i.cost)}</small>${omode==='daily'?'':`<small class="g">Serves about ${i.serves} people</small>`}</div>
     <div class="cc"><div class="pill"><button type="button" data-a="-" aria-label="Decrease">−</button><input inputmode="decimal" value="${i.qty}" aria-label="Quantity of ${esc(i.name)}"><button type="button" data-a="+" aria-label="Increase">+</button></div>
     <button type="button" class="x" data-a="x" aria-label="Remove ${esc(i.name)}">✕</button></div></div>`).join('');
   $('ctot').innerHTML=`<div class="tr"><span>Total items</span><b>${c.n}</b></div>${omode==='daily'?'':`<div class="tr"><span>Estimated guests</span><b>${c.g}</b></div>`}
-  ${dc.show?`<div class="tr"><span>Items total</span><b>${inr(c.t)}</b></div><div class="tr"><span>Delivery charge</span><b>${dc.amt?inr(dc.amt):'Free'}</b></div>`:''}<div class="tr big"><span>${omode==='daily'?'Total':'Estimated total'}</span><b>${inr(c.t+dc.amt)}</b></div><p class="note">${omode==='daily'?'This is the final price. No extra charges.':'This is an estimate. Final price is confirmed by phone and may change with delivery.'}</p>`;
+  ${dc.show||b.gp>0?`<div class="tr"><span>Items total</span><b>${inr(c.t)}</b></div>${dc.show?`<div class="tr"><span>Delivery charge</span><b>${dc.amt?inr(dc.amt):'Free'}</b></div>`:''}${b.gp>0?`<div class="tr"><span>GST (${+b.gp}%)</span><b>${inr(b.gst)}</b></div>`:''}`:''}<div class="tr big"><span>${omode==='daily'?'Total':'Estimated total'}</span><b>${inr(b.total)}</b></div><p class="note">${omode==='daily'?'This is the final price. No extra charges.':'This is an estimate. Final price is confirmed by phone and may change with delivery.'}</p>`;
   const fl=$('fT').parentNode.querySelector('small');if(fl)fl.textContent=omode==='daily'?'Total':'Estimated total';
-  $('fT').textContent=inr(c.t+dc.amt)}
+  $('fT').textContent=inr(b.total)}
 function openCart(){if(!calc().n)return;setMode(omode==='daily'?'order':mode);renderCart();cartOpen=true;history.pushState({k:'cart'},'');
   $('cart').classList.add('open');document.body.style.overflow='hidden';$('cart').scrollTop=0}
 function closeCartUI(){cartOpen=false;$('cart').classList.remove('open');document.body.style.overflow=''}
@@ -697,7 +700,7 @@ function pdfBill(b){
     y-=8;LN(L,y,R,y,0.3);y-=14});
   if(y<170)newPage();
   y-=2;const tr=(k,v,bold,z)=>{T(R-190,y,k,z||10,bold);T(R-6,y,v,z||10,bold,'r');y-=17};
-  tr('Subtotal',b.sub);tr('Delivery',b.del);LN(R-200,y+9,R,y+9,0.8);y-=4;tr('Total',b.total,1,13);
+  tr('Subtotal',b.sub);tr('Delivery',b.del);if(b.gst)tr(b.gstLbl,b.gst);LN(R-200,y+9,R,y+9,0.8);y-=4;tr('Total',b.total,1,13);
   y-=26;T(297.5,y,'Thank you for ordering from '+b.shop+'!',11,1,'c');y-=16;
   T(297.5,y,'This is a computer-generated bill and does not need a signature.',8,0,'c');
   return buildPdf(pages.map(p=>p.join('\n')))}
@@ -711,7 +714,7 @@ async function downloadBill(code){
     name:o.name||'Customer',cphone:o.phone||'',caddr:o.venue||'',billDate:fdt(dt),placed:o.ts?fdt(o.ts):'',
     eventLbl:o.orderType==='Daily'?'Needed on':'Event on',event:o.date?fmD(o.date)+(o.time?' at '+fmT(o.time):''):'',
     items:(o.items||[]).map(i=>({name:i.name||'',q:qLabel(i.qty||1,i.unit),rate:money(i.price),amt:money(i.cost!=null?i.cost:(i.price||0)*(i.qty||1))})),
-    sub:money(o.subtotal!=null?o.subtotal:o.total),del:o.delivery>0?money(o.delivery):'Free',total:'Rs. '+money(o.total)});
+    sub:money(o.itemTotal!=null?o.itemTotal:(o.subtotal!=null?o.subtotal:o.total)),del:o.delivery>0?money(o.delivery):'Free',gst:o.gstAmount>0?money(o.gstAmount):'',gstLbl:'GST ('+(+o.gstPercentage||0)+'%)',total:'Rs. '+money(o.grandTotal!=null?o.grandTotal:o.total)});
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pdf],{type:'application/pdf'}));a.download=fname+'.pdf';
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000)}
 const CANCELOK=['New','Confirmed'],COOKING=['Cooking','Out for delivery'];
