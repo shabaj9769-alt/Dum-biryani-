@@ -155,7 +155,14 @@ async function build(b, st, menu, now) {
     Object.assign(od, { venue, date, time });
     od.terms = b.terms;
   }
-  Object.assign(od, { guests: Math.round(guests), itemCount: items.length, items, subtotal: sub, delivery, total: r2(sub + delivery), status: enq ? 'Enquiry' : 'New', ts: now.ts });
+  // ---- GST: admin settings/gstPercentage se, server khud nikalta hai (sirf Order par, Enquiry par nahi) ----
+  const gp = enq ? 0 : Math.min(100, Math.max(0, Number(st.gstPercentage) || 0));
+  const gstAmount = gp > 0 ? r2((sub * gp) / 100) : 0;
+  const grandTotal = r2(sub + delivery + gstAmount);
+  Object.assign(od, { guests: Math.round(guests), itemCount: items.length, items,
+    subtotal: sub, delivery, total: grandTotal, // purane fields (admin/tracking inhi ko padhte hain) wese hi rahe
+    itemTotal: sub, deliveryFee: delivery, gstPercentage: gp, gstAmount, grandTotal,
+    status: enq ? 'Enquiry' : 'New', ts: now.ts });
   return { od, enq };
 }
 
@@ -188,7 +195,7 @@ module.exports = async (req, res) => {
     let code = '';
     if (!enq) {
       code = derive(key, sa); od.tk = hash(code); // code database me save nahi hota, sirf hash
-      up['tracking/' + od.tk] = { k: key, status: 'New', name: od.name, phone: od.phone, venue: od.venue || null, subtotal: od.subtotal, delivery: od.delivery || 0, orderType: od.orderType, date: od.date || null, time: od.time || null, total: od.total, ts: now.ts, items: od.items.map((i) => ({ name: i.name, qty: i.qty || null, unit: i.unit || null, price: i.price, cost: i.cost })) };
+      up['tracking/' + od.tk] = { k: key, status: 'New', name: od.name, phone: od.phone, venue: od.venue || null, subtotal: od.subtotal, delivery: od.delivery || 0, itemTotal: od.itemTotal, deliveryFee: od.deliveryFee, gstPercentage: od.gstPercentage, gstAmount: od.gstAmount, grandTotal: od.grandTotal, orderType: od.orderType, date: od.date || null, time: od.time || null, total: od.total, ts: now.ts, items: od.items.map((i) => ({ name: i.name, qty: i.qty || null, unit: i.unit || null, price: i.price, cost: i.cost })) };
     }
     const w = await fetch(DB_URL + '/.json?access_token=' + at, { method: 'PATCH', body: JSON.stringify(up) });
     if (!w.ok) throw new Error('db write failed ' + w.status);
