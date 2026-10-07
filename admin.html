@@ -627,7 +627,7 @@ drawTh(true);
 
 /* ---------- Sales & GST report (PDF) ---------- */
 (function(){
-const REPORT_STATUS=['Confirmed','Cooking','Out for delivery','Delivered']; /* ye statuses sale me ginte hain; Cancelled/New/Enquiry nahi */
+const REPORT_OK=o=>['delivered','completed'].includes(String(o&&o.status||'').trim().toLowerCase()); /* STRICT: sirf Delivered/Completed. Cancelled, Rejected, New, Confirmed, Cooking sab bahar */
 const p2=n=>String(n).padStart(2,'0'),ymdL=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
 const r2=n=>Math.round((Number(n)||0)*100)/100;
 const m2=n=>r2(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -639,7 +639,7 @@ $('rdl').onclick=()=>{
   if(!f||!t){alert('Please choose both From Date and To Date.');return}
   if(f>t){alert('From Date cannot be after To Date.');return}
   if(!(window.jspdf&&window.jspdf.jsPDF)){alert('PDF library could not load. Check your internet connection and try again.');return}
-  const rows=Object.entries(orders).filter(([,o])=>{if(!o||isEnq(o)||!REPORT_STATUS.includes(o.status)||!o.ts)return false;const d=ymdL(new Date(o.ts));return d>=f&&d<=t}).sort((a,b)=>a[1].ts-b[1].ts);
+  const rows=Object.entries(orders).filter(([,o])=>{if(!o||isEnq(o)||!REPORT_OK(o)||!o.ts)return false;const d=ymdL(new Date(o.ts));return d>=f&&d<=t}).sort((a,b)=>a[1].ts-b[1].ts);
   if(!rows.length){alert('No orders found in this date range.');return}
   let sales=0,gst=0,del=0,grand=0;
   const body=rows.map(([k,o])=>{
