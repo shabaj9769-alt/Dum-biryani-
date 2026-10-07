@@ -34,3 +34,7 @@ Value `{".sv":"timestamp"}` aaye to server asli time daal de. `null` = field del
 
 ## My Orders (order code, bina login)
 Order par `tracking/<code>` banta hai (code = `DB-` + 8 random akshar). Customer ke phone me code `localStorage('dbCodes')` me apne aap save hota hai; doosre phone par wo code daal kar order dekh sakta hai. API mode me: `GET /api/data/tracking/<code>` sirf us ek code ka record de; `tracking` ki poori list kabhi nahi. `POST /api/cancel {code}` se cancel (cooking se pehle). Email/login nahi.
+
+## Bills recover (browser history clear ho jaye tab)
+Admin jab order **Confirm** karta hai to WhatsApp khulta hai (code + message pehle se likha), bas Send dabana hai.
+Customer My Orders me **koi ek code** daale to `POST /api/bills {code}` us phone ke sirf **Delivered** orders safe fields ke saath deta hai (naam, items, amounts, GST, date). Sirf phone number se kuch nahi milta. Address, asli code, notes, lat/lng kabhi nahi. Rate-limit IP + code par. Firebase rules me `tracking` ke andar `".indexOn": ["phone"]` lagao.

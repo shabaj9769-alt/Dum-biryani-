@@ -416,8 +416,23 @@ $('orders').addEventListener('click',e=>{const b=e.target.closest('button[data-s
     :'https://wa.me/'+waNum(o.phone)+'?text='+encodeURIComponent(msg);
   db.ref('orders/'+id).update({reply:msg,repliedVia:ch,repliedAt:SERVER_TS});
   ch==='Email'?(location.href=url):window.open(url,'_blank')});
-$('orders').addEventListener('change',e=>{const id=e.target.dataset.id;if(!id)return;setStatus(id,e.target.value)});
-$('orders').addEventListener('click',e=>{const b=e.target.closest('button[data-next]');if(!b)return;const o=orders[b.dataset.next];if(o&&NEXT[o.status])setStatus(b.dataset.next,NEXT[o.status][0])});
+/* ---------- Confirm dabate hi customer ke number par order code WhatsApp ----------
+   Confirm dabao -> WhatsApp khulta hai, message aur code pehle se likha hua. Aapko bas Send dabana hai. */
+function codeMsg(o,c){const site=location.origin+location.pathname.replace(/[^/]*$/,'');
+  return `Hello ${o.name||''}, your order with ${shop()||'us'} is confirmed \u2705\n\nYour order code: ${c}\n\nPlease keep this message safe. If you ever clear your browser history or change your phone and your orders disappear, open My Orders on our website (${site}), enter this code, and you can download your bill again.\n\nThank you!`}
+async function sendCodeWA(id,w){const o=orders[id];
+  try{let c=o.code||codeCache[id];
+    if(!c){const u=firebase.auth&&firebase.auth().currentUser;if(!u)throw new Error('Pehle admin login karo.');
+      const r=await fetch(window.CODE_URL||'/api/code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:id,idToken:await u.getIdToken()})});
+      const j=await r.json().catch(()=>({}));if(!j.ok)throw new Error(j.error||'Code nahi mila.');c=codeCache[id]=j.code}
+    const url='https://wa.me/'+waNum(o.phone)+'?text='+encodeURIComponent(codeMsg(o,c));
+    if(w&&!w.closed)w.location.href=url;else if(confirm('Order confirm ho gaya. Customer ko code WhatsApp karna hai?'))window.open(url,'_blank')}
+  catch(x){if(w&&!w.closed)w.close();alert('Order confirm ho gaya, par code WhatsApp ke liye nahi ban paya: '+(x.message||'')+'\nCode search (Find code) se baad me bhej sakte ho.')}}
+function confirmOrder(id){const o=orders[id];if(!o)return;
+  const w=tp(o)?window.open('about:blank','_blank'):null; /* click ke time hi khol do, warna popup block ho jata hai */
+  setStatus(id,'Confirmed');if(tp(o))sendCodeWA(id,w)}
+$('orders').addEventListener('change',e=>{const id=e.target.dataset.id;if(!id)return;if(e.target.value==='Confirmed'&&orders[id]&&orders[id].status==='New'){confirmOrder(id);return}setStatus(id,e.target.value)});
+$('orders').addEventListener('click',e=>{const b=e.target.closest('button[data-next]');if(!b)return;const o=orders[b.dataset.next];if(!o||!NEXT[o.status])return;if(o.status==='New'){confirmOrder(b.dataset.next);return}setStatus(b.dataset.next,NEXT[o.status][0])});
 $('orders').addEventListener('click',e=>{const na=e.target.dataset.noans;if(na){const o=orders[na];if(o&&confirm('Customer ne phone nahi uthaya. Order cancel kar dein?')){const u={['orders/'+na+'/status']:'Cancelled',['orders/'+na+'/cancelledBy']:'shop',['orders/'+na+'/cancelReason']:'Customer did not answer the confirmation call',['orders/'+na+'/cancelledAt']:SERVER_TS};if(tp(o)){u['tracking/'+tp(o)+'/status']='Cancelled';u['tracking/'+tp(o)+'/cr']='We could not reach you on the phone, so the order was cancelled.'}db.ref().update(u)}return}const id=e.target.dataset.del;if(id&&confirm('Delete this order permanently?')){const o=orders[id],u={['orders/'+id]:null};if(o&&tp(o))u['tracking/'+tp(o)]=null;db.ref().update(u)}});
 
 /* ---------- menu (category folders, inline edit) ---------- */
