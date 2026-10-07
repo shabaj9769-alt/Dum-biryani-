@@ -131,6 +131,7 @@ header{gap:8px;padding-bottom:10px}nav{display:flex;flex-wrap:wrap;gap:6px}nav b
 <div><label class="mut" for="sbd">Booking kitne din pehle karni hogi</label><input id="sbd" type="number" min="0" step="1" value="1"><div class="hint">1 = kal ya uske baad ki date. 0 = aaj ki date bhi chalegi.</div></div>
 <h3 class="full">GST (Tax)</h3>
 <div><label class="mut" for="sgst">GST Percentage (%)</label><input id="sgst" type="number" min="0" max="100" step="any" value="0" placeholder="0"><div class="hint">0 = GST band. Customer app me "GST" shabd kahin nahi dikhega. 5 likhoge to har order par 5% GST judega. Naye orders par lagu hoga.</div></div>
+<div class="full"><label class="mut" for="sgin">GST Number (GSTIN)</label><input id="sgin" maxlength="15" autocapitalize="characters" placeholder="22AAAAA0000A1Z5"><div class="hint">Khali chhodoge to kahin nahi dikhega. Bharoge to customer app ke header aur bill par dikhega.</div></div>
 <h3 class="full">Delivery area (location)</h3>
 <div><label class="mut" for="sla">Shop latitude</label><input id="sla" inputmode="decimal" placeholder="19.076090"></div>
 <div><label class="mut" for="sln">Shop longitude</label><input id="sln" inputmode="decimal" placeholder="72.877426"></div>
@@ -309,7 +310,7 @@ gate(()=>{listen();regPush()});
 function listen(){
   db.ref('orders').on('value',s=>{orders=s.val()||{};if(seenO){const n=Object.keys(orders).filter(k=>!seenO.has(k));if(n.length)newAlert(orders[n[0]],n.length,n[0])}seenO=new Set(Object.keys(orders));renderOrders()},()=>$('orders').innerHTML='<p class="err">Could not load orders. Check database rules and connection.</p>');
   db.ref('menu').on('value',s=>{menu=s.val()||{};renderMenu();renderCats();fillLink()});
-  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sfs').value=settings.fssai||'';$('sad').value=settings.address||'';$('sx').value=settings.text||'';$('sdo').checked=settings.dailyOn!==false;$('sbo').checked=settings.bookingOn!==false;$('sbd').value=settings.bookMinDays??1;$('sot').value=settings.shopOpen||'';$('sdc').value=settings.dailyCharge??'';$('sdf').value=settings.dailyFree??'';$('sbc').value=settings.bookCharge??'';$('sbf').value=settings.bookFree??'';$('sct').value=settings.shopClose||'';$('sla').value=settings.shopLat??'';$('sln').value=settings.shopLng??'';$('sdk').value=settings.dailyKm??'';$('sbk').value=settings.bookKm??'';$('sgst').value=settings.gstPercentage??0}
+  db.ref('settings').on('value',s=>{settings=s.val()||{};if(!$('sf').contains(document.activeElement)){$('sn').value=settings.name||'';$('sp').value=settings.phone||'';$('sfs').value=settings.fssai||'';$('sad').value=settings.address||'';$('sx').value=settings.text||'';$('sdo').checked=settings.dailyOn!==false;$('sbo').checked=settings.bookingOn!==false;$('sbd').value=settings.bookMinDays??1;$('sot').value=settings.shopOpen||'';$('sdc').value=settings.dailyCharge??'';$('sdf').value=settings.dailyFree??'';$('sbc').value=settings.bookCharge??'';$('sbf').value=settings.bookFree??'';$('sct').value=settings.shopClose||'';$('sla').value=settings.shopLat??'';$('sln').value=settings.shopLng??'';$('sdk').value=settings.dailyKm??'';$('sbk').value=settings.bookKm??'';$('sgst').value=settings.gstPercentage??0;$('sgin').value=settings.gstin||''}
     adminName();loadTheme()});
   db.ref('banners').on('value',s=>{banners=s.val()||{};renderBanners()},()=>$('blist').innerHTML='<p class="err">Could not load banners. Check database rules for the "banners" node.</p>');
   db.ref('categories').on('value',s=>{cats=s.val()||{};renderCats();renderMenu();fillLink()},()=>$('clist').innerHTML='<p class="err">Could not load categories. Check database rules for the "categories" node.</p>');
@@ -574,13 +575,14 @@ $('sgeo').onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosi
 $('sf').onsubmit=e=>{e.preventDefault();
   const la=nv('sla'),lo=nv('sln'),dk=nv('sdk'),bk=nv('sbk');
   const gp=nv('sgst')===null?0:nv('sgst');if(isNaN(gp)||gp<0||gp>100){alert('GST percentage must be between 0 and 100.');return}
+  const gi=$('sgin').value.replace(/\s/g,'').toUpperCase();if(gi&&!/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(gi)){alert('Enter a valid 15-character GSTIN (e.g. 22AAAAA0000A1Z5) or leave it empty.');return}
   if(['sdc','sdf','sbc','sbf'].some(i=>nv(i)!==null&&(isNaN(nv(i))||nv(i)<0))){alert('Delivery charge aur free-delivery amount 0 ya usse zyada hone chahiye.');return}
   if(!$('sot').value!==!$('sct').value){alert('Shop open aur close time dono bharein (ya dono khali chhodein).');return}
   if((la===null)!==(lo===null)){alert('Latitude aur longitude dono bharein.');return}
   if(la!==null&&(isNaN(la)||isNaN(lo)||Math.abs(la)>90||Math.abs(lo)>180)){alert('Latitude (-90 se 90) aur longitude (-180 se 180) sahi likhein.');return}
   if([dk,bk].some(v=>v!==null&&(isNaN(v)||v<0))){alert('Radius (km) 0 ya usse zyada number hona chahiye.');return}
   if(((dk||0)>0||(bk||0)>0)&&la===null){alert('Radius lagane ke liye shop ki latitude/longitude zaroori hai.');return}
-  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,fssai:$('sfs').value.trim()||null,address:$('sad').value.trim()||null,text:$('sx').value.trim()||null,dailyOn:$('sdo').checked,bookingOn:$('sbo').checked,bookMinDays:Math.max(0,Math.floor(Number($('sbd').value)||0)),dailyCharge:nv('sdc'),dailyFree:nv('sdf'),bookCharge:nv('sbc'),bookFree:nv('sbf'),shopOpen:$('sot').value||null,shopClose:$('sct').value||null,shopLat:la,shopLng:lo,dailyKm:dk,bookKm:bk,gstPercentage:gp})
+  db.ref('settings').update({name:$('sn').value.trim()||null,phone:$('sp').value.trim()||null,fssai:$('sfs').value.trim()||null,address:$('sad').value.trim()||null,text:$('sx').value.trim()||null,dailyOn:$('sdo').checked,bookingOn:$('sbo').checked,bookMinDays:Math.max(0,Math.floor(Number($('sbd').value)||0)),dailyCharge:nv('sdc'),dailyFree:nv('sdf'),bookCharge:nv('sbc'),bookFree:nv('sbf'),shopOpen:$('sot').value||null,shopClose:$('sct').value||null,shopLat:la,shopLng:lo,dailyKm:dk,bookKm:bk,gstPercentage:gp,gstin:gi||null})
   .then(()=>{$('smsg').textContent='Saved ✓';setTimeout(()=>$('smsg').textContent='',2500)}).catch(()=>alert('Save failed. Check database rules for the "settings" node.'))};
 /* ---------- customer app theme ---------- */
 function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
@@ -647,7 +649,7 @@ $('rdl').onclick=()=>{
       lat((o.items||[]).map(i=>(i.name||'')+' x'+(i.qty||1)).join(', ')),m2(item),m2(cg),m2(sg),m2(gt)]});
   const doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'}),W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
   doc.setFont('helvetica','bold');doc.setFontSize(16);doc.text(lat(shop()||'Sales Report'),10,14);
-  doc.setFontSize(11);doc.text('Sales & GST Report',10,21);
+  doc.setFontSize(11);doc.text('Sales & GST Report',10,21);if(settings.gstin){doc.setFontSize(9);doc.text('GSTIN: '+lat(settings.gstin),W-10,14,{align:'right'});doc.setFontSize(11)}
   doc.setFont('helvetica','normal');doc.setFontSize(9);
   doc.text('Period: '+f.split('-').reverse().join('/')+' to '+t.split('-').reverse().join('/')+'   |   Orders: '+rows.length+'   |   Generated: '+new Date().toLocaleString('en-GB'),10,27);
   doc.autoTable({startY:31,head:[['Date','Order ID','Customer','Items','Taxable Value','CGST','SGST','Total']],body,theme:'grid',
