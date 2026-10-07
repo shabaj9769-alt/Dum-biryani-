@@ -353,11 +353,14 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 
 <div class="sheet" id="trkS" style="z-index:21" role="dialog" aria-modal="true" aria-label="My Orders">
 <div class="sh"><div class="wrap"><h2>My Orders</h2><button type="button" class="pillb" id="tback">‹ Back</button></div></div>
-<div class="wrap sbody"><div class="card"><h3>Have an order code?</h3><p class="note" style="margin:0 0 8px">Orders you place on this phone appear here automatically. On another phone or browser, enter your code to see your order.</p>
+<div class="wrap sbody"><div class="card" id="stm"><h3>Download statement</h3><div style="display:flex;gap:8px"><div style="flex:1"><label for="sf1" style="margin-top:0">From Date</label><input id="sf1" type="date"></div><div style="flex:1"><label for="sf2" style="margin-top:0">To Date</label><input id="sf2" type="date"></div></div><button type="button" class="btn grn" id="sdl" style="width:100%;margin-top:10px">Download Statement PDF</button></div>
+<div class="card"><h3>Have an order code?</h3><p class="note" style="margin:0 0 8px">Orders you place on this phone appear here automatically. On another phone or browser, enter your code to see your order.</p>
 <div style="display:flex;gap:8px"><input id="tcode" placeholder="DB-AB12CD34" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="14"><button type="button" class="btn grn" id="tadd">Add</button></div><div id="tmsg" aria-live="polite"></div>
 <a class="sup blk" data-tel href="tel:+918779612829" style="margin:12px 0 0">📞 Forgot your code? Call us: <span data-phtxt>8779612829</span></a><p class="note">Tell us your phone number and we will find your code.</p></div>
 <div id="tres" aria-live="polite"></div></div></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="data.js"></script>
@@ -760,6 +763,61 @@ async function addCode(){
 $('tclink').onclick=e=>{e.preventDefault();$('tcS').classList.add('open');$('tcS').scrollTop=0};$('tcback').onclick=$('tcok').onclick=()=>$('tcS').classList.remove('open');
 $('tbtn').onclick=()=>openTrack();$('nbOrd').onclick=()=>openTrack();$('nbCart').onclick=()=>{if(calc().n)openCart();else{const m=$('msg');scrollTo({top:0,behavior:'smooth'})}};$('nbShop').onclick=()=>{if(cat){cat='';render()}scrollTo({top:0,behavior:'smooth'})};$('tback').onclick=closeTrack;$('tadd').onclick=addCode;$('dcc').onclick=e=>copyTxt(lastCode,e.currentTarget);
 $('dtrk').onclick=()=>openTrack();
+/* ---------- Statement PDF (My Orders): sirf Delivered orders, sirf isi customer (phone) ke ---------- */
+const STM={brand:'AYAAN CATERERS',addr:'Bandra West, Mumbai Suburban'};
+function toast(t){let e=$('toast');if(!e){e=document.createElement('div');e.id='toast';e.setAttribute('role','status');e.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);max-width:88%;background:#222;color:#fff;padding:10px 16px;border-radius:10px;font-size:.88rem;z-index:99;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.35)';document.body.appendChild(e)}
+  e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>{e.style.display='none'},3200)}
+const isDelivered=o=>['delivered','completed'].includes(String(o&&o.status||'').trim().toLowerCase());
+const ph10=p=>String(p||'').replace(/\D/g,'').slice(-10);
+{const n=new Date();$('sf2').value=ymd(n);$('sf2').max=ymd(n);$('sf1').value=ymd(new Date(n.getFullYear(),n.getMonth(),1))}
+$('sdl').onclick=async()=>{
+  const f=$('sf1').value,t=$('sf2').value;
+  if(!f||!t){toast('Please choose From Date and To Date');return}
+  if(f>t){toast('From Date cannot be after To Date');return}
+  if(!(window.jspdf&&window.jspdf.jsPDF)){toast('PDF library could not load. Check your internet and try again.');return}
+  if(!window._ords)await loadOrders();
+  /* window._ords me sirf is phone ke saved codes wale orders hote hain; upar se phir latest order ke phone se match karke filter */
+  const all=Object.values(window._ords||{}).sort((a,b)=>(b.ts||0)-(a.ts||0)),me=ph10((all[0]||{}).phone);
+  const rows=all.filter(o=>me&&ph10(o.phone)===me&&isDelivered(o)&&o.ts&&ymd(new Date(o.ts))>=f&&ymd(new Date(o.ts))<=t).sort((a,b)=>a.ts-b.ts);
+  if(!rows.length){toast('No delivered orders found for this date range');return}
+  const S=st||{},r2=n=>Math.round((Number(n)||0)*100)/100,m2=n=>r2(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}),
+    nz=(...a)=>{for(const x of a)if(x!=null&&x!==''&&!isNaN(Number(x)))return Number(x);return 0},
+    lat=s=>String(s==null?'':s).replace(/[^\x20-\xFF]/g,'?'),fd=s=>s.split('-').reverse().join('/');
+  /* GST column: settings me gstPercentage>0 ho, ya in delivered orders me kisi par GST laga ho (taaki total match kare) */
+  const showGst=Number(S.gstPercentage)>0||rows.some(o=>nz(o.gstAmount)>0);
+  let tf=0,tg=0,td=0,tt=0;
+  const body=rows.map(o=>{
+    const dv=nz(o.deliveryFee,o.delivery),g=nz(o.gstAmount),gt=nz(o.grandTotal,o.total),fo=nz(o.itemTotal,o.subtotal,gt-dv-g);
+    tf+=fo;tg+=g;td+=dv;tt+=gt;
+    const r=[new Date(o.ts).toLocaleDateString('en-GB'),lat(o.code),lat((o.items||[]).map(i=>(i.name||'')+' x'+qLabel(i.qty||1,i.unit)).join(', ')),'Cash on Delivery',m2(fo)];
+    if(showGst)r.push(m2(g));r.push(m2(dv),m2(gt));return r});
+  const head=['Date','Order ID','Items Summary','Payment Mode','Food Amount (Rs.)'];if(showGst)head.push('GST (Rs.)');head.push('Delivery Fee (Rs.)','Total (Rs.)');
+  const doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'}),W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),C=W/2;
+  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.text(STM.brand,C,14,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(STM.addr,C,20,{align:'center'});
+  const ids=[];const gz=String(S.gstin||'').trim(),fz=String(S.fssai||'').trim();
+  if(gz&&showGst)ids.push('GSTIN: '+lat(gz));if(fz)ids.push('FSSAI Lic. No: '+lat(fz));
+  if(ids.length){doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(ids.join('     |     '),C,25.5,{align:'center'})}
+  doc.setDrawColor(150);doc.line(10,29,W-10,29);
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('CUSTOMER STATEMENT',C,36,{align:'center'});
+  doc.setFontSize(10);doc.text('Customer: ',10,43);doc.text('Phone: ',10,48);doc.text('Statement Period: ',10,53);
+  doc.setFont('helvetica','normal');doc.text(lat(rows[rows.length-1].name||'Customer'),10+doc.getTextWidth('Customer: '),43);
+  doc.text(lat(rows[rows.length-1].phone||me),10+doc.getTextWidth('Phone: '),48);
+  doc.text('From '+fd(f)+' To '+fd(t),10+doc.getTextWidth('Statement Period: '),53);
+  const n=head.length,cs={0:{cellWidth:22},1:{cellWidth:32},3:{cellWidth:28}};for(let i=4;i<n;i++)cs[i]={halign:'right',cellWidth:i===n-1?26:28};
+  doc.autoTable({startY:58,head:[head],body,theme:'grid',styles:{fontSize:8,cellPadding:2,overflow:'linebreak',lineColor:[200,200,200]},
+    headStyles:{fillColor:[201,133,79],textColor:[30,15,0]},columnStyles:cs,margin:{left:10,right:10,bottom:14},
+    didDrawPage:()=>{doc.setFontSize(8);doc.setTextColor(120);doc.text('Page '+doc.internal.getCurrentPageInfo().pageNumber,W-10,H-6,{align:'right'});doc.setTextColor(0)}});
+  const lines=[['Total Orders Delivered',String(rows.length)],['Total Food Value','Rs. '+m2(tf)]];
+  if(showGst)lines.push(['Total GST Paid','Rs. '+m2(tg)]);lines.push(['Total Delivery Paid','Rs. '+m2(td)]);
+  const bw=100,bh=lines.length*7+18;let y=doc.lastAutoTable.finalY+8;if(y+bh>H-14){doc.addPage();y=15}
+  const x=W-10-bw;doc.setDrawColor(201,133,79);doc.setFillColor(250,244,235);doc.roundedRect(x,y,bw,bh,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('Summary',x+4,y+7);doc.setFont('helvetica','normal');doc.setFontSize(9);
+  let ly=y+14;lines.forEach(([k,v])=>{doc.text(k,x+4,ly);doc.text(v,x+bw-4,ly,{align:'right'});ly+=7});
+  doc.setDrawColor(150);doc.line(x+4,ly-4.5,x+bw-4,ly-4.5);doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text('Net Amount Paid (Grand Total)',x+4,ly+1);doc.text('Rs. '+m2(tt),x+bw-4,ly+1,{align:'right'});
+  doc.save('Statement_'+f+'_to_'+t+'.pdf')};
+
 $('tcode').onkeydown=e=>{if(e.key==='Enter')addCode()};
 render();
 </script></body></html>
