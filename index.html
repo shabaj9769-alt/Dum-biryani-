@@ -273,7 +273,7 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 </head><body>
 <header class="hero" id="hero"><div class="wrap"><h1 id="hn"></h1>
 <p id="ht" class="hide"></p>
-<div class="trust"><span class="nb nbf" title="No beef is used in our food">No Beef Used</span><span class="nb" title="Our food is always Halal">Food is always Halal</span><span class="fs hide" id="fs">FSSAI Lic. No: <b id="fsn"></b></span></div>
+<div class="trust"><span class="nb nbf" title="No beef is used in our food">No Beef Used</span><span class="nb" title="Our food is always Halal">Food is always Halal</span><span class="fs hide" id="fs">FSSAI Lic. No: <b id="fsn"></b></span><span class="fs hide" id="gs">GSTIN: <b id="gsn"></b></span></div>
 <div class="ban hide" id="ban" aria-roledescription="carousel" aria-label="Featured dishes"><div class="trk" id="trk"></div><div class="dots" id="dots"></div></div></div></header>
 
 <div class="wrap" id="omw"><div class="omode" id="omode"><button type="button" data-o="daily">🥡 Daily Parcel</button><button type="button" data-o="booking">📅 Order Booking</button></div><p class="odesc" id="odesc"></p></div>
@@ -377,7 +377,7 @@ let menu={},cats={},qtyBy={daily:{},booking:{}},qty=qtyBy.daily,omode='daily',cl
 const DEF_PH='8779612829';
 function applySt(){
   const name=String(st.name||'').trim(),txt=String(st.text||'').trim(),raw=String(st.phone||'').trim()||DEF_PH,d=raw.replace(/[^\d]/g,'');
-  $('hn').textContent=name;$('ht').textContent=txt;const fz=String(st.fssai||'').trim();$('fsn').textContent=fz;$('fs').classList.toggle('hide',!fz);$('ht').classList.toggle('hide',!txt);document.title=name||'Menu';
+  $('hn').textContent=name;$('ht').textContent=txt;const fz=String(st.fssai||'').trim();$('fsn').textContent=fz;$('fs').classList.toggle('hide',!fz);const gz=Number(st.gstPercentage)>0?String(st.gstin||'').trim():'';$('gsn').textContent=gz;$('gs').classList.toggle('hide',!gz);$('ht').classList.toggle('hide',!txt);document.title=name||'Menu';
   try{name?localStorage.setItem('rd_name',name):localStorage.removeItem('rd_name')}catch(e){}
   applyTheme(st.theme);try{st.theme?localStorage.setItem('rd_theme',JSON.stringify(st.theme)):localStorage.removeItem('rd_theme')}catch(e){}
   const tel=raw.startsWith('+')?'+'+d:(d.length===10?'+91'+d:'+'+d);window.SUP_TEL=tel;
@@ -681,6 +681,7 @@ function pdfBill(b){
   T(297.5,y,b.shop,20,1,'c');y-=18;
   for(const l of wrapTxt(b.addr,9,W-40)){T(297.5,y,l,9,0,'c');y-=12}
   if(b.phone){T(297.5,y,'Phone: '+b.phone,9,0,'c');y-=12}
+  if(b.gstin){T(297.5,y,'GSTIN: '+b.gstin,9,1,'c');y-=12}
   if(b.fssai){T(297.5,y,'FSSAI Lic. No: '+b.fssai,9,1,'c');y-=12}
   y-=4;LN(L,y,R,y,1.2);y-=24;
   T(297.5,y,'BILL',14,1,'c');y-=26;
@@ -710,7 +711,7 @@ async function downloadBill(code){
   fdt=t=>new Date(t).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}),
   dt=new Date(o.dAt||o.ts||Date.now()),p2=n=>String(n).padStart(2,'0'),
   fname='Bill-'+dt.getFullYear()+p2(dt.getMonth()+1)+p2(dt.getDate())+'-'+p2(dt.getHours())+p2(dt.getMinutes());
-  const pdf=pdfBill({shop:S.name||'Dum Biryani',addr:S.address||'',phone:S.phone||'',fssai:String(S.fssai||'').trim(),
+  const pdf=pdfBill({shop:S.name||'Dum Biryani',addr:S.address||'',phone:S.phone||'',fssai:String(S.fssai||'').trim(),gstin:o.gstAmount>0?String(S.gstin||'').trim():'',
     name:o.name||'Customer',cphone:o.phone||'',caddr:o.venue||'',billDate:fdt(dt),placed:o.ts?fdt(o.ts):'',
     eventLbl:o.orderType==='Daily'?'Needed on':'Event on',event:o.date?fmD(o.date)+(o.time?' at '+fmT(o.time):''):'',
     items:(o.items||[]).map(i=>({name:i.name||'',q:qLabel(i.qty||1,i.unit),rate:money(i.price),amt:money(i.cost!=null?i.cost:(i.price||0)*(i.qty||1))})),
