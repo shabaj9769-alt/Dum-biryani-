@@ -629,6 +629,9 @@ drawTh(true);
 (function(){
 const REPORT_OK=o=>['delivered','completed'].includes(String(o&&o.status||'').trim().toLowerCase()); /* STRICT: sirf Delivered/Completed. Cancelled, Rejected, New, Confirmed, Cooking sab bahar */
 const p2=n=>String(n).padStart(2,'0'),ymdL=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+const t12=t=>{t=String(t||'').trim();if(!t)return'';const ap=t.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);if(ap)return(+ap[1])+':'+ap[2]+' '+ap[3].toUpperCase();const[h,m]=t.split(':').map(Number);return isNaN(h)?t:((h%12)||12)+':'+String(m||0).padStart(2,'0')+' '+(h<12?'AM':'PM')};
+const tmOf=ts=>{const d=new Date(ts),h=d.getHours()%12||12;return h+':'+p2(d.getMinutes())+(d.getHours()<12?' am':' pm')};
+const dcell=o=>'Placed '+new Date(o.ts).toLocaleDateString('en-GB')+'\n'+tmOf(o.ts)+(o.date?'\nNeeded '+String(o.date).split('-').reverse().join('/')+(o.time?'\n'+t12(o.time):''):'');
 const r2=n=>Math.round((Number(n)||0)*100)/100;
 const m2=n=>r2(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
 const nz=(...a)=>{for(const x of a)if(x!=null&&x!==''&&!isNaN(Number(x)))return Number(x);return 0};
@@ -645,7 +648,7 @@ $('rdl').onclick=()=>{
   const body=rows.map(([k,o])=>{
     const dv=nz(o.deliveryFee,o.delivery),item=nz(o.itemTotal,o.subtotal,nz(o.total)-dv),g=nz(o.gstAmount),gt=nz(o.grandTotal,o.total),cg=r2(g/2),sg=r2(g-cg);
     sales+=item;gst+=g;del+=dv;grand+=gt;
-    return[new Date(o.ts).toLocaleDateString('en-GB'),billNo(o)||('#'+String(k).slice(-6).toUpperCase()),lat(o.name),
+    return[dcell(o),billNo(o)||('#'+String(k).slice(-6).toUpperCase()),lat(o.name),
       lat((o.items||[]).map(i=>(i.name||'')+' x'+(i.qty||1)).join(', ')),m2(item),m2(cg),m2(sg),m2(gt)]});
   const doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'}),W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
   doc.setFont('helvetica','bold');doc.setFontSize(16);doc.text(lat(shop()||'Sales Report'),10,14);
@@ -654,7 +657,7 @@ $('rdl').onclick=()=>{
   doc.text('Period: '+f.split('-').reverse().join('/')+' to '+t.split('-').reverse().join('/')+'   |   Orders: '+rows.length+'   |   Generated: '+new Date().toLocaleString('en-GB'),10,27);
   doc.autoTable({startY:31,head:[['Date','Order ID','Customer','Items','Taxable Value','CGST','SGST','Total']],body,theme:'grid',
     styles:{fontSize:8,cellPadding:2,overflow:'linebreak',lineColor:[200,200,200]},headStyles:{fillColor:[201,133,79],textColor:[30,15,0]},
-    columnStyles:{0:{cellWidth:22},1:{cellWidth:40},2:{cellWidth:34},4:{halign:'right',cellWidth:26},5:{halign:'right',cellWidth:20},6:{halign:'right',cellWidth:20},7:{halign:'right',cellWidth:26}},
+    columnStyles:{0:{cellWidth:34},1:{cellWidth:40},2:{cellWidth:34},4:{halign:'right',cellWidth:26},5:{halign:'right',cellWidth:20},6:{halign:'right',cellWidth:20},7:{halign:'right',cellWidth:26}},
     margin:{left:10,right:10,bottom:14},
     didDrawPage:()=>{doc.setFontSize(8);doc.setTextColor(120);doc.text('Page '+doc.internal.getCurrentPageInfo().pageNumber,W-10,H-6,{align:'right'});doc.setTextColor(0)}});
   const lines=[['Total Sales (Taxable Value)',sales],['Total GST (CGST + SGST)',gst]];if(del>0)lines.push(['Delivery Charges',del]);
