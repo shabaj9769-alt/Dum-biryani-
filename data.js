@@ -21,6 +21,7 @@
      Vercel par hi chal rahi ho to khali ('') chhod do. */
   var API_BASE = 'https://dumbiryani-ten.vercel.app';
   window.ORDER_URL = API_BASE + '/api/order';    // order yahin se server-check ho kar banta hai. Website kisi aur host par ho to poora URL likho.
+  window.OTP_URL = API_BASE + '/api/otp';        // phone OTP (Fast2SMS)
   window.CANCEL_URL = API_BASE + '/api/cancel';  // customer apna order cooking se pehle yahin se cancel karta hai
   window.BILLS_URL = API_BASE + '/api/bills';    // customer: browser history clear hone par phone number se Delivered bills wapas laata hai
   window.CODE_URL = API_BASE + '/api/code';      // admin: customer ka code dekhne ke liye

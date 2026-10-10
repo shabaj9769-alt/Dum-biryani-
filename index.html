@@ -313,6 +313,7 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 <div id="eml" class="hide"><label for="email">Your email</label><input id="email" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com"></div>
 <p class="note" id="rnote">We will reply on WhatsApp using the phone number above.</p></div>
 <div class="card" id="tcw"><label class="tcl"><input type="checkbox" id="tcx"><span>I have read and agree to the <a href="#" id="tclink">Terms, Cash on Delivery &amp; Privacy Policy</a>. I understand that an order for freshly cooked food cannot be cancelled once cooking starts.</span></label></div>
+<div class="card hide" id="otpw"><h3>Verify your phone</h3><p class="note" id="otpn" style="margin:0 0 8px"></p><input id="otp" inputmode="numeric" maxlength="8" autocomplete="one-time-code" placeholder="Enter OTP"><div style="display:flex;gap:8px;margin-top:8px"><button type="button" class="btn grn" id="otpv" style="flex:1">Verify &amp; place order</button><button type="button" class="btn" id="otpr">Resend</button></div></div>
 <div class="msg" id="msg" role="status"></div>
 <a class="sup blk" data-tel href="tel:+918779612829">📞 Need help? Call support: <span data-phtxt>8779612829</span></a></div>
 <div class="sfoot"><div class="wrap"><div><small>Estimated total</small><b id="fT">₹0</b></div><button class="btn grn" id="place">Place order</button></div></div></div>
@@ -613,9 +614,10 @@ function submit(kind){
     if(f('date')<t0){bad('Please choose today or tomorrow.');return}
     if(tm!=null&&!inHours(tm)){bad(`The shop is open from ${f12(st.shopOpen)} to ${f12(st.shopClose)}. Please choose a time within these hours.`);return}
     if(f('date')===t0&&tm!=null&&tm<nowMin()){bad('That time has already passed. Please choose a later time.');return}}
+  if(!enq&&window.OTP_URL&&!(otpTok&&otpPh===phone.slice(-10))){otpAsk(phone.slice(-10));return}
   $('place').disabled=true;m.className='msg';m.textContent=enq?'Sending enquiry…':'Placing order…';
   /* Server (Vercel /api/order) price, total, doori, shop time khud check karke order banata hai */
-  const pay={type:kind,replyVia:rv,email,name:f('name'),phone,orderType:omode==='daily'?'Daily':'Booking',venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),terms:'2026-10-06',items:c.r.map(i=>({id:i.id,qty:i.qty})),...(g&&loc?{custLat:loc.lat,custLng:loc.lng}:{})};
+  const pay={type:kind,replyVia:rv,email,name:f('name'),phone,orderType:omode==='daily'?'Daily':'Booking',venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),terms:'2026-10-06',otpToken:otpTok,items:c.r.map(i=>({id:i.id,qty:i.qty})),...(g&&loc?{custLat:loc.lat,custLng:loc.lng}:{})};
   fetch(window.ORDER_URL||'/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pay)})
   .then(r=>r.json().then(j=>({st:r.status,j}),()=>({st:r.status,j:{error:r.status===404||r.status===405?'Online ordering is not connected yet. Please call us to place your order.':''}})))
   .then(x=>{if(!x.j.ok){const e=new Error(x.j.error||'');e.srv=x.st>=400&&x.st<500;throw e}const key=x.j.key,code=x.j.code||'';try{window.NOTIFY_URL&&fetch(NOTIFY_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({id:key}),keepalive:true}).catch(()=>{})}catch(e){}lastPhone=phone;lastCode=code;if(code)saveCode(code);$('dcw').classList.toggle('hide',!code);$('dcode').textContent=code;$('dtrk').classList.toggle('hide',enq);
@@ -624,6 +626,14 @@ function submit(kind){
     $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
   .catch(e=>{m.className='msg err';m.textContent=e&&e.srv&&e.message?e.message:(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false});
 }
+let otpTok='',otpPh='';
+function otpCall(body){return fetch(window.OTP_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json().catch(()=>({ok:false,error:'OTP service not reachable.'})))}
+function otpAsk(ph){const m=$('msg');m.className='msg';m.textContent='';$('otpw').classList.remove('hide');$('otp').value='';$('otpn').textContent='Sending OTP to '+ph+'…';
+  otpCall({action:'send',phone:ph}).then(j=>{if(j.ok){$('otpn').textContent='We sent an OTP to '+ph+'. Enter it below.';$('otp').focus()}else{$('otpn').textContent='';m.className='msg err';m.textContent=j.error||'Could not send OTP.'}})}
+$('otpr').onclick=()=>{const ph=$('phone').value.replace(/\D/g,'').slice(-10);otpAsk(ph)};
+$('otpv').onclick=()=>{const ph=$('phone').value.replace(/\D/g,'').slice(-10),m=$('msg'),b=$('otpv');b.disabled=true;
+  otpCall({action:'verify',phone:ph,otp:$('otp').value}).then(j=>{b.disabled=false;if(j.ok&&j.token){otpTok=j.token;otpPh=ph;$('otpw').classList.add('hide');m.textContent='';submit('Order')}else{m.className='msg err';m.textContent=j.error||'Wrong OTP.'}})};
+$('phone').addEventListener('input',()=>{if(otpPh&&otpPh!==$('phone').value.replace(/\D/g,'').slice(-10)){otpTok='';otpPh=''}$('otpw').classList.add('hide')});
 let lastPhone='',lastCode='';
 function mkCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',a=new Uint32Array(8);crypto.getRandomValues(a);return 'DB-'+[...a].map(x=>A[x%32]).join('')}
 $('place').onclick=()=>submit(mode==='enquiry'?'Enquiry':'Order');
