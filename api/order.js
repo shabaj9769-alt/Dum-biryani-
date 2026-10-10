@@ -5,6 +5,7 @@
 
 const crypto = require('crypto');
 const { derive, hash } = require('./_code');
+const { check } = require('./_otp');
 
 const DB_URL = 'https://biryani-category-default-rtdb.firebaseio.com';
 const TZ = 'Asia/Kolkata';
@@ -185,6 +186,10 @@ module.exports = async (req, res) => {
     const ph = String(b.phone || '').replace(/\D/g, '').slice(-10);
     if (!limit('ip:' + ip, 8, 10 * 60 * 1000) || !limit('ph:' + ph, 4, 10 * 60 * 1000))
       return res.status(429).json({ ok: false, error: 'Too many orders in a short time. Please wait a few minutes or call us.' });
+
+    // OTP: Order (Enquiry nahi) tabhi banta hai jab phone OTP se verify ho. FAST2SMS_API_KEY set ho to hi lagta hai.
+    if (b.type === 'Order' && process.env.FAST2SMS_API_KEY && !check(b.otpToken, ph, sa))
+      return res.status(400).json({ ok: false, error: 'Please verify your phone number with the OTP first.', otp: true });
 
     const at = await getAccessToken(sa);
     const [st, menu] = await Promise.all([dbGet('settings', at), dbGet('menu', at)]);
