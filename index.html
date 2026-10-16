@@ -250,6 +250,41 @@ h1,h2,h3{font-family:'Hanken Grotesk',sans-serif;font-weight:800;letter-spacing:
 .fcall,.tbtn{display:none!important}
 body{padding-bottom:86px}body.hasbar{padding-bottom:160px}
 .fbar{bottom:calc(78px + env(safe-area-inset-bottom))}
+
+/* ===== Style polish ===== */
+:root{--sf:#f6b73c;--sf2:#ff8a3d;--rad:18px;--glow:0 10px 30px -12px rgba(246,183,60,.45)}
+body{background:radial-gradient(1200px 500px at 90% -10%,rgba(255,138,61,.10),transparent 60%),radial-gradient(900px 500px at -10% 30%,rgba(91,45,122,.18),transparent 60%),var(--bg);background-attachment:fixed}
+.hero{border-bottom:0;padding:26px 0 20px;position:relative}
+.hero:after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,var(--sf),transparent);opacity:.6}
+.hero h1{letter-spacing:-.02em;background:linear-gradient(180deg,#fff3da,#f6b73c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sbar{background:rgba(28,14,11,.72);-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);border-bottom:1px solid rgba(255,255,255,.06)}
+.sw{border-radius:999px;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);transition:border-color .2s,box-shadow .2s}
+.sw:focus-within{box-shadow:0 0 0 3px rgba(246,183,60,.18)}
+.ban{border-radius:var(--rad);box-shadow:0 18px 40px -22px #000;border-color:rgba(255,255,255,.08)}
+.tile{border-radius:22px;box-shadow:0 10px 22px -12px #000;border-color:rgba(255,255,255,.10);transition:transform .2s,box-shadow .2s}
+@media(hover:hover){.ct:hover .tile{transform:translateY(-3px);box-shadow:var(--glow)}}
+.dish{border-radius:var(--rad);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015)),var(--panel);border-color:rgba(255,255,255,.08);box-shadow:0 14px 28px -20px #000;transition:transform .2s,box-shadow .2s,border-color .2s}
+@media(hover:hover){.dish:hover{transform:translateY(-3px);box-shadow:var(--glow);border-color:rgba(246,183,60,.35)}}
+.media:after{content:"";position:absolute;inset:auto 0 0 0;height:40%;background:linear-gradient(transparent,rgba(18,9,7,.55));pointer-events:none}
+.av,.so{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);z-index:1}
+.dish h3{letter-spacing:-.01em}
+.pr{background:linear-gradient(90deg,var(--sf),var(--sf2));-webkit-background-clip:text;background-clip:text;color:transparent;font-size:.95rem}.pr span{-webkit-text-fill-color:var(--mut)}
+.add{border-radius:12px;transition:background .2s,color .2s,transform .1s}.add:active{transform:scale(.97)}
+.btn{background:linear-gradient(135deg,var(--sf),var(--sf2));border-radius:999px;box-shadow:var(--glow);transition:transform .1s,filter .2s}.btn:active{transform:scale(.97)}.btn:hover{filter:brightness(1.06)}
+.btn.grn{background:linear-gradient(135deg,var(--gr2),var(--gr));box-shadow:0 10px 26px -12px rgba(47,191,113,.7)}
+.btn.enq{background:transparent;box-shadow:none}
+.fbar{border-radius:20px;box-shadow:0 18px 40px -12px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.12) inset}
+.vc{border-radius:999px}
+.sh{box-shadow:0 12px 30px -18px #000}
+.card{border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),var(--panel);border-color:rgba(255,255,255,.08)}
+input:not([type=checkbox]):not([type=radio]),textarea,select{transition:border-color .2s,box-shadow .2s}
+input:not([type=checkbox]):not([type=radio]):focus,textarea:focus,select:focus{border-color:var(--sf);box-shadow:0 0 0 3px rgba(246,183,60,.16);outline:none}
+.seg{border-radius:999px}.seg button{border-radius:999px}
+.chip{backdrop-filter:blur(4px)}
+.tr.big,.sfoot b{background:linear-gradient(90deg,var(--sf),var(--sf2));-webkit-background-clip:text;background-clip:text;color:transparent}.tr.big b{color:inherit;-webkit-text-fill-color:transparent}
+.sfoot{background:rgba(18,9,7,.88);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid rgba(246,183,60,.35)}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 <script>
 function cHex(c){c=String(c||'').replace('#','');if(c.length===3)c=c.replace(/./g,'$&$&');const n=parseInt(c,16);return[(n>>16)&255,(n>>8)&255,n&255]}
@@ -313,7 +348,6 @@ try{const c=JSON.parse(localStorage.getItem('rd_theme')||'null');if(c)applyTheme
 <div id="eml" class="hide"><label for="email">Your email</label><input id="email" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com"></div>
 <p class="note" id="rnote">We will reply on WhatsApp using the phone number above.</p></div>
 <div class="card" id="tcw"><label class="tcl"><input type="checkbox" id="tcx"><span>I have read and agree to the <a href="#" id="tclink">Terms, Cash on Delivery &amp; Privacy Policy</a>. I understand that an order for freshly cooked food cannot be cancelled once cooking starts.</span></label></div>
-<div class="card hide" id="otpw"><h3>Verify your phone</h3><p class="note" id="otpn" style="margin:0 0 8px"></p><input id="otp" inputmode="numeric" maxlength="8" autocomplete="one-time-code" placeholder="Enter OTP"><div style="display:flex;gap:8px;margin-top:8px"><button type="button" class="btn grn" id="otpv" style="flex:1">Verify &amp; place order</button><button type="button" class="btn" id="otpr">Resend</button></div></div>
 <div class="msg" id="msg" role="status"></div>
 <a class="sup blk" data-tel href="tel:+918779612829">📞 Need help? Call support: <span data-phtxt>8779612829</span></a></div>
 <div class="sfoot"><div class="wrap"><div><small>Estimated total</small><b id="fT">₹0</b></div><button class="btn grn" id="place">Place order</button></div></div></div>
@@ -614,10 +648,9 @@ function submit(kind){
     if(f('date')<t0){bad('Please choose today or tomorrow.');return}
     if(tm!=null&&!inHours(tm)){bad(`The shop is open from ${f12(st.shopOpen)} to ${f12(st.shopClose)}. Please choose a time within these hours.`);return}
     if(f('date')===t0&&tm!=null&&tm<nowMin()){bad('That time has already passed. Please choose a later time.');return}}
-  if(!enq&&window.OTP_URL&&!(otpTok&&otpPh===phone.slice(-10))){otpAsk(phone.slice(-10));return}
   $('place').disabled=true;m.className='msg';m.textContent=enq?'Sending enquiry…':'Placing order…';
   /* Server (Vercel /api/order) price, total, doori, shop time khud check karke order banata hai */
-  const pay={type:kind,replyVia:rv,email,name:f('name'),phone,orderType:omode==='daily'?'Daily':'Booking',venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),terms:'2026-10-06',otpToken:otpTok,items:c.r.map(i=>({id:i.id,qty:i.qty})),...(g&&loc?{custLat:loc.lat,custLng:loc.lng}:{})};
+  const pay={type:kind,replyVia:rv,email,name:f('name'),phone,orderType:omode==='daily'?'Daily':'Booking',venue:f('venue'),date:f('date'),time:f('time'),notes:f('notes'),terms:'2026-10-06',items:c.r.map(i=>({id:i.id,qty:i.qty})),...(g&&loc?{custLat:loc.lat,custLng:loc.lng}:{})};
   fetch(window.ORDER_URL||'/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pay)})
   .then(r=>r.json().then(j=>({st:r.status,j}),()=>({st:r.status,j:{error:r.status===404||r.status===405?'Online ordering is not connected yet. Please call us to place your order.':''}})))
   .then(x=>{if(!x.j.ok){const e=new Error(x.j.error||'');e.srv=x.st>=400&&x.st<500;throw e}const key=x.j.key,code=x.j.code||'';try{window.NOTIFY_URL&&fetch(NOTIFY_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({id:key}),keepalive:true}).catch(()=>{})}catch(e){}lastPhone=phone;lastCode=code;if(code)saveCode(code);$('dcw').classList.toggle('hide',!code);$('dcode').textContent=code;$('dtrk').classList.toggle('hide',enq);
@@ -626,14 +659,6 @@ function submit(kind){
     $('cbody').classList.add('hide');$('done').classList.remove('hide');$('fbar').classList.add('hide');document.body.classList.remove('hasbar');$('cart').scrollTop=0})
   .catch(e=>{m.className='msg err';m.textContent=e&&e.srv&&e.message?e.message:(enq?'Could not send the enquiry':'Could not place the order')+'. Check your connection and try again.';$('place').disabled=false});
 }
-let otpTok='',otpPh='';
-function otpCall(body){return fetch(window.OTP_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json().catch(()=>({ok:false,error:'OTP service not reachable.'})))}
-function otpAsk(ph){const m=$('msg');m.className='msg';m.textContent='';$('otpw').classList.remove('hide');$('otp').value='';$('otpn').textContent='Sending OTP to '+ph+'…';
-  otpCall({action:'send',phone:ph}).then(j=>{if(j.ok){$('otpn').textContent='We sent an OTP to '+ph+'. Enter it below.';$('otp').focus()}else{$('otpn').textContent='';m.className='msg err';m.textContent=j.error||'Could not send OTP.'}})}
-$('otpr').onclick=()=>{const ph=$('phone').value.replace(/\D/g,'').slice(-10);otpAsk(ph)};
-$('otpv').onclick=()=>{const ph=$('phone').value.replace(/\D/g,'').slice(-10),m=$('msg'),b=$('otpv');b.disabled=true;
-  otpCall({action:'verify',phone:ph,otp:$('otp').value}).then(j=>{b.disabled=false;if(j.ok&&j.token){otpTok=j.token;otpPh=ph;$('otpw').classList.add('hide');m.textContent='';submit('Order')}else{m.className='msg err';m.textContent=j.error||'Wrong OTP.'}})};
-$('phone').addEventListener('input',()=>{if(otpPh&&otpPh!==$('phone').value.replace(/\D/g,'').slice(-10)){otpTok='';otpPh=''}$('otpw').classList.add('hide')});
 let lastPhone='',lastCode='';
 function mkCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',a=new Uint32Array(8);crypto.getRandomValues(a);return 'DB-'+[...a].map(x=>A[x%32]).join('')}
 $('place').onclick=()=>submit(mode==='enquiry'?'Enquiry':'Order');
